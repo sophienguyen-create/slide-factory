@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.4.1 — 2026-05-29
+
+### Changed
+- `aside#sidebar` — lightened background to `var(--surface-1)` (was `--surface-2`); border-right retained for separation
+
+---
+
 ## v3.4.0 — 2026-05-29
 
 ### Changed
