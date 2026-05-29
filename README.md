@@ -15,6 +15,7 @@ specs/        ← drop client spec files here (markdown, HTML, JSX)
 template/     ← scaffold source and archive
 apps/         ← delivered app HTML files
 docs/         ← design system reference (open design-system.html in browser)
+scripts/      ← git hooks and dev tooling
 ```
 
 See `docs/design-system.html` for the full component library and strict/flexible rules.
