@@ -68,7 +68,7 @@
     /* Borders */
     --border:         #E5E7EB;
     --border-strong:  #D4D4D8;
-    --border-subtle:  #F1F5F9;
+    --border-subtle:  #E2E8F0;
 
     /* Status */
     --status-warning: #F59E0B;
@@ -305,8 +305,8 @@
      SIDEBAR
   ═══════════════════════════════════════════════════ */
   aside#sidebar {
-    background: transparent;
-    border-right: none;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border-subtle);
   }
   .nav-item {
     position: relative;
@@ -623,6 +623,7 @@
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 18px;
+    box-shadow: var(--shadow-1);
   }
   .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .section-title { font-size: 13px; font-weight: 600; color: var(--text-1); letter-spacing: -0.005em; }
@@ -775,6 +776,7 @@
     cursor: pointer;
     transition: border-color 120ms ease, box-shadow 120ms ease;
     display: flex; flex-direction: column; gap: 8px;
+    box-shadow: var(--shadow-1);
   }
   .library-card:hover { border-color: var(--border); box-shadow: var(--shadow-2); }
   .library-card-title { font-size: 13.5px; font-weight: 600; color: var(--text-1); letter-spacing: -0.005em; }
@@ -813,8 +815,9 @@
     padding: 12px 16px;
     margin-bottom: 8px;
     transition: border-color 120ms ease, box-shadow 120ms ease;
+    box-shadow: var(--shadow-1);
   }
-  .workflow-row:hover { border-color: var(--border); box-shadow: var(--shadow-1); }
+  .workflow-row:hover { border-color: var(--border); box-shadow: var(--shadow-2); }
   .workflow-pipeline { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
   .pipeline-node {
     width: 22px; height: 22px;
@@ -844,13 +847,15 @@
      REVIEW PAGE — KPI cards, empty state
   ═══════════════════════════════════════════════════ */
   .kpi-card {
-    background: var(--surface-0);
+    background: var(--brand-tint);
     border: 1px solid var(--border-subtle);
+    border-top: 2px solid var(--brand-primary);
     border-radius: var(--radius-md);
     padding: 14px 16px;
     display: flex;
     flex-direction: column;
     gap: 6px;
+    box-shadow: var(--shadow-2);
   }
   .kpi-label {
     display: flex; align-items: center; gap: 6px;
@@ -1211,6 +1216,10 @@
   /* ═══════════════════════════════════════════════════
      DARK MODE — variable swap (semantic tokens only)
   ═══════════════════════════════════════════════════ */
+  /* Light mode --text-3 contrast fix (ONX Scaffold v3.5.2)
+     #94A3B8 gives only 2.5:1 on white — slate-500 gives 4.9:1 */
+  html:not(.dark) { --text-3: #64748B; }
+
   html.dark {
     /* Slate-blue family — aligned with the flat lane's dark mode for tonal continuity */
     --surface-0: #1A2335;          /* floating cards */
@@ -1235,6 +1244,7 @@
     --ring: 0 0 0 3px rgba(78,166,166,0.25);
 
     --onx-teal-light: rgba(78,166,166,0.14);
+    --brand-tint: rgba(45,117,117,0.14);
   }
   html.dark body {
     background: var(--surface-1);
@@ -3873,7 +3883,6 @@ function showPage(pageId) {
   if (page) page.classList.add('active');
   const navItem = document.getElementById('nav-' + pageId);
   if (navItem) navItem.classList.add('is-active');
-  localStorage.setItem('onx-active-page', pageId);
   if (window.innerWidth < 768) closeMobileSidebar();
   return false;
 }
@@ -4505,11 +4514,6 @@ document.addEventListener('keydown', (e) => {
   if (localStorage.getItem('onx-sidebar-collapsed') === '1' && window.innerWidth >= 768) {
     document.getElementById('sidebar')?.classList.add('collapsed');
     sidebarExpanded = false;
-  }
-  // Last page
-  const lastPage = localStorage.getItem('onx-active-page');
-  if (lastPage && lastPage !== 'agent') {
-    setTimeout(() => showPage(lastPage), 0);
   }
 })();
 
