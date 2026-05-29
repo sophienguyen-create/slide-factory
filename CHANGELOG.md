@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.1.0 — 2026-05-29
+
+### Changed
+- Renamed Settings > Integrations → **Connectors** (`data-panel="connectors"`, nav label, section title)
+- Connector rows are now domain-agnostic and marked `<!-- DEMO: Data connectors -->` — replace per client spec
+- Updated `docs/design-system.html` and `AGENTS.md` to reflect Connectors terminology
+
+---
+
 ## v3.0.0 — 2026-05-29
 
 ### Breaking
