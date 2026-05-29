@@ -36,7 +36,7 @@ Output a Build Plan and **wait for approval before writing any HTML.**
 | Agent | [description] | thread list, suggestion pills |
 | [Custom page 1] | [description] | .kpi-card ×3, .data-table |
 | [Custom page 2] | [description] | .workflow-row, .status-pill |
-| Settings | pre-wired | org name, team, integrations only |
+| Settings | pre-wired | org name, team, connectors only |
 
 ### Interactions
 | Trigger | Behaviour |
@@ -177,6 +177,7 @@ Three `<!-- DEMO: ... -->` anchors remain in the scaffold. All other content is 
 | `DEMO: User identity` | Client persona name + initials |
 | `DEMO: Thread list` | 3–5 sample threads from client spec |
 | `DEMO: User profile` | Client contact from spec (settings page) |
+| `DEMO: Data connectors` | Client's actual systems — any domain (e.g. Bloomberg, Salesforce, Epic, SAP) |
 
 ---
 

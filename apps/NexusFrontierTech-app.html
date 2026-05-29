@@ -4843,6 +4843,96 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 });
 
+// ── Focus page drill-down modals ──
+function openFocusClientModal(id) {
+  var clientsFull = (typeof CLIENTS !== 'undefined') ? CLIENTS : [];
+  var c = clientsFull.find(function(x){ return x.id === id; }) || WDB.clients.find(function(x){ return x.id === id; });
+  if (!c) return;
+
+  var memEntry = (typeof MEMORY !== 'undefined') ? MEMORY.find(function(m){ return m.client === c.name; }) : null;
+  var recentAct = (typeof ACTIVITY !== 'undefined') ? ACTIVITY.filter(function(a){ return a.client === c.name; }).slice(0,3) : [];
+
+  var scoreColor = (c.score >= 8) ? '#047857' : (c.score >= 5) ? '#B45309' : '#B91C1C';
+  var scoreDisplay = c.score ? c.score : (WDB.scores.find(function(s){ return s.id === id; }) || {val:'—'}).val;
+
+  var body = ''
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border-subtle);margin:-18px -18px 16px;border-bottom:1px solid var(--border-subtle)">'
+    + '<div style="background:var(--surface-0);padding:14px 10px;text-align:center"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:4px">AUM</div><div style="font-size:17px;font-weight:700;color:var(--onx-teal)">' + (c.aum||'—') + '</div></div>'
+    + '<div style="background:var(--surface-0);padding:14px 10px;text-align:center"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:4px">Rel. Score</div><div style="font-size:17px;font-weight:700;color:' + scoreColor + '">' + scoreDisplay + '</div></div>'
+    + '<div style="background:var(--surface-0);padding:14px 10px;text-align:center"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:4px">Pipeline</div><div style="font-size:17px;font-weight:700;color:#60a5fa">' + (c.pipeline||'—') + '</div></div>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border-subtle);border-radius:8px;overflow:hidden;margin-bottom:16px">'
+    + '<div style="background:var(--surface-0);padding:10px 12px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:4px">Status</div><div style="font-size:12px;color:var(--text-1)">' + (c.statusLabel||'—') + '</div></div>'
+    + '<div style="background:var(--surface-0);padding:10px 12px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:4px">Last Contact</div><div style="font-size:12px;color:var(--text-1)">' + (c.lastTouch||'—') + '</div></div>'
+    + '<div style="background:var(--surface-0);padding:10px 12px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:4px">Rel. Heat</div><div style="font-size:12px;color:var(--text-1)">' + (c.heat||'—') + '/5</div></div>'
+    + '</div>';
+
+  if (c.tags && c.tags.length) {
+    body += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">' + c.tags.map(function(t){ return '<span class="tag">' + t + '</span>'; }).join('') + '</div>';
+  }
+
+  if (c.flags && c.flags.length) {
+    body += '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:8px">Active Flags</div>'
+      + c.flags.map(function(f){ return '<div style="display:flex;gap:9px;align-items:flex-start;padding:9px 12px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:7px;margin-bottom:6px"><i data-lucide="flag" style="width:12px;height:12px;color:var(--status-danger);flex-shrink:0;margin-top:2px"></i><div style="font-size:12px;color:var(--text-1);line-height:1.5">' + f + '</div></div>'; }).join('')
+      + '</div>';
+  }
+
+  if (c.opps && c.opps.length) {
+    body += '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:8px">Opportunities</div>'
+      + c.opps.map(function(o){ return '<div style="display:flex;gap:9px;align-items:flex-start;padding:9px 12px;background:rgba(4,120,87,0.06);border:1px solid rgba(4,120,87,0.2);border-radius:7px;margin-bottom:6px"><i data-lucide="trending-up" style="width:12px;height:12px;color:var(--onx-teal);flex-shrink:0;margin-top:2px"></i><div style="font-size:12px;color:var(--text-1);line-height:1.5">' + o + '</div></div>'; }).join('')
+      + '</div>';
+  }
+
+  if (memEntry && memEntry.notes.length) {
+    body += '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:8px">Relationship Memory</div>'
+      + '<div style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:7px;padding:10px 12px;display:flex;flex-direction:column;gap:6px">'
+      + memEntry.notes.map(function(n){ return '<div style="display:flex;gap:8px;align-items:flex-start"><div style="width:4px;height:4px;border-radius:50%;background:var(--onx-teal);flex-shrink:0;margin-top:6px"></div><div style="font-size:11.5px;color:var(--text-2);line-height:1.55">' + n + '</div></div>'; }).join('')
+      + '</div></div>';
+  }
+
+  if (recentAct.length) {
+    body += '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:8px">Recent Activity</div>'
+      + '<div style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:7px;overflow:hidden">'
+      + recentAct.map(function(a, idx){ return '<div style="padding:8px 12px;' + (idx < recentAct.length-1 ? 'border-bottom:1px solid var(--border-subtle)' : '') + '"><div style="font-size:12px;color:var(--text-1)">' + a.title + '</div><div style="font-size:10.5px;color:var(--text-3);margin-top:1px">' + a.dateGroup + ' \xb7 ' + a.time + '</div></div>'; }).join('')
+      + '</div></div>';
+  }
+
+  body += '<div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:4px">'
+    + '<button class="btn btn-primary btn-sm" onclick="toast(\'Call logged with ' + c.name.replace(/'/g,"\\'") + '\',{type:\'success\'});closeModal()"><i data-lucide="phone" style="width:11px;height:11px;display:inline;vertical-align:-1px;margin-right:4px"></i>Log Call</button>'
+    + '<button class="btn btn-secondary btn-sm" onclick="toast(\'Email drafted for ' + c.name.replace(/'/g,"\\'") + '\',{type:\'info\'});closeModal()"><i data-lucide="mail" style="width:11px;height:11px;display:inline;vertical-align:-1px;margin-right:4px"></i>Send Email</button>'
+    + '<button class="btn btn-secondary btn-sm" onclick="toast(\'Meeting scheduled with ' + c.name.replace(/'/g,"\\'") + '\',{type:\'info\'});closeModal()"><i data-lucide="calendar" style="width:11px;height:11px;display:inline;vertical-align:-1px;margin-right:4px"></i>Schedule</button>'
+    + '</div>';
+
+  openModal({ title: c.name, body: body, cancelLabel: 'Close', confirmLabel: 'View Full Profile →', onConfirm: function(){ showPage('clients'); } });
+  setTimeout(function(){ if (window.lucide) lucide.createIcons(); }, 60);
+}
+
+function openFocusSignalDetail(clientName) {
+  var clientsFull = (typeof CLIENTS !== 'undefined') ? CLIENTS : WDB.clients;
+  var c = clientsFull.find(function(x){ return x.name === clientName; });
+  if (c) openFocusClientModal(c.id);
+}
+
+function openFocusAlertDetail(id) {
+  var a = WDB.alerts.find(function(x){ return x.id === id; });
+  if (!a) return;
+  var sevLabel = a.sev === 'danger' ? 'High Priority' : a.sev === 'warning' ? 'Medium Priority' : 'Low Priority';
+  var sevColor = a.sev === 'danger' ? 'var(--status-danger)' : a.sev === 'warning' ? 'var(--status-warning)' : 'var(--onx-teal)';
+  var sevBg    = a.sev === 'danger' ? 'rgba(239,68,68,0.06)' : a.sev === 'warning' ? 'rgba(245,158,11,0.06)' : 'rgba(4,120,87,0.06)';
+  var sevBd    = a.sev === 'danger' ? 'rgba(239,68,68,0.2)'  : a.sev === 'warning' ? 'rgba(245,158,11,0.2)'  : 'rgba(4,120,87,0.2)';
+  var steps = ['Contact client relationship team immediately','Escalate to operations desk','Document resolution in audit trail','Confirm with compliance if required'];
+  var body = '<div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:' + sevBg + ';border:1px solid ' + sevBd + ';border-radius:8px;margin-bottom:16px">'
+    + '<i data-lucide="flag" style="width:14px;height:14px;color:' + sevColor + ';flex-shrink:0;margin-top:1px"></i>'
+    + '<div><div style="font-size:12px;font-weight:600;color:' + sevColor + ';margin-bottom:4px">' + sevLabel + ' \xb7 ' + a.amount + '</div>'
+    + '<div style="font-size:12px;color:var(--text-2);line-height:1.55">' + a.desc + '</div></div></div>'
+    + '<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-4);margin-bottom:10px">Resolution Steps</div>'
+    + '<div style="display:flex;flex-direction:column;gap:8px">'
+    + steps.map(function(s,i){ return '<div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-3);flex-shrink:0">' + (i+1) + '</div><div style="font-size:12px;color:var(--text-2);line-height:1.55;padding-top:2px">' + s + '</div></div>'; }).join('')
+    + '</div>';
+  openModal({ title: a.client + ' — Alert Detail', body: body, cancelLabel: 'Close', confirmLabel: 'View All Alerts →', onConfirm: function(){ showPage('alerts'); } });
+  setTimeout(function(){ if (window.lucide) lucide.createIcons(); }, 60);
+}
+
 // ── Focus page data & renderers ──
 const WDB = {
   clients: [
@@ -4861,10 +4951,10 @@ const WDB = {
     { type:'info',    client:'Kapur Private Trust',      detail:'Private credit product suitable based on last call discussion. Time to pitch.', time:'3d ago', tag:'INTEL' },
   ],
   alerts: [
-    { sev:'danger',  client:'Harrington Family Office', desc:'T+3 settlement discrepancy — $2.4M unreconciled in MSFT fixed income allocation. Custodian vs internal position mismatch.',   amount:'−$2.4M' },
-    { sev:'danger',  client:'Henderson Capital',        desc:'No relationship contact in 47 days. Q1 investment review begins 2 March. Churn risk: HIGH.',                                   amount:'Risk: $65M' },
-    { sev:'danger',  client:'Reinhardt Capital',        desc:'Custodian fee mismatch across 3 accounts. Delta of $18,400 pending reconciliation review.',                                   amount:'−$18.4K' },
-    { sev:'warning', client:'Strand-Blackwell Family',  desc:'FX rate applied at wrong tenor on 2 transactions — GBP/USD mismatch, trade date vs settlement date.',                        amount:'−$6.1K' },
+    { id:'wa1', sev:'danger',  client:'Harrington Family Office', desc:'T+3 settlement discrepancy — $2.4M unreconciled in MSFT fixed income allocation. Custodian vs internal position mismatch.',   amount:'−$2.4M' },
+    { id:'wa2', sev:'danger',  client:'Henderson Capital',        desc:'No relationship contact in 47 days. Q1 investment review begins 2 March. Churn risk: HIGH.',                                   amount:'Risk: $65M' },
+    { id:'wa3', sev:'danger',  client:'Reinhardt Capital',        desc:'Custodian fee mismatch across 3 accounts. Delta of $18,400 pending reconciliation review.',                                   amount:'−$18.4K' },
+    { id:'wa4', sev:'warning', client:'Strand-Blackwell Family',  desc:'FX rate applied at wrong tenor on 2 transactions — GBP/USD mismatch, trade date vs settlement date.',                        amount:'−$6.1K' },
   ],
   activity: [
     { icon:'phone',      iconBg:'rgba(45,117,117,0.12)', iconColor:'var(--onx-teal)', what:'Portfolio review call',       who:'Kapur Private Trust',       when:'Today · 10:30 AM' },
@@ -4874,12 +4964,12 @@ const WDB = {
     { icon:'calendar',   iconBg:'rgba(245,158,11,0.12)', iconColor:'var(--status-warning)', what:'Annual review discussion',     who:'Strand-Blackwell Family', when:'Thu 26 May · 11:00 AM' },
   ],
   scores: [
-    { name:'Strand-Blackwell', val:9.4, color:'#047857' },
-    { name:'Kapur Trust',      val:8.7, color:'#047857' },
-    { name:'Okafor Ventures',  val:6.8, color:'#B45309' },
-    { name:'Harrington FO',    val:6.2, color:'#B45309' },
-    { name:'Whitmore Trust',   val:5.9, color:'#B45309' },
-    { name:'Henderson Cap',    val:3.1, color:'#B91C1C' },
+    { id:'strand',     name:'Strand-Blackwell', val:9.4, color:'#047857' },
+    { id:'kapur',      name:'Kapur Trust',      val:8.7, color:'#047857' },
+    { id:'okafor',     name:'Okafor Ventures',  val:6.8, color:'#B45309' },
+    { id:'harrington', name:'Harrington FO',    val:6.2, color:'#B45309' },
+    { id:'whitmore',   name:'Whitmore Trust',   val:5.9, color:'#B45309' },
+    { id:'henderson',  name:'Henderson Cap',    val:3.1, color:'#B91C1C' },
   ],
 };
 
@@ -4914,7 +5004,7 @@ function renderFocusClientRows() {
       return `<div style="width:14px;height:4px;border-radius:2px;background:${bg}"></div>`;
     }).join('');
     return `<div class="grid px-4 py-2.5 items-center" style="grid-template-columns:36px 1fr 90px 90px 70px 70px 32px;gap:10px;border-bottom:1px solid var(--border-subtle);cursor:pointer;transition:background 120ms ease"
-      onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'">
+      onclick="openFocusClientModal('${cl.id}')" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'">
       <div style="width:28px;height:28px;border-radius:9999px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-2)">${cl.initials}</div>
       <div>
         <div style="font-size:12.5px;font-weight:500;color:var(--text-1)">${cl.name}</div>
@@ -4938,7 +5028,7 @@ function renderSignalFeed() {
   const tagCls = { danger:'status-danger', warning:'status-warning', success:'status-success', info:'status-info' };
   el.innerHTML = WDB.signals.map(s => `
     <div style="display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border-subtle);cursor:pointer;transition:background 120ms ease"
-      onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'">
+      onclick="openFocusSignalDetail('${s.client}')" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'">
       <div style="width:8px;height:8px;border-radius:9999px;margin-top:4px;flex-shrink:0;background:${s.type==='danger'?'var(--status-danger)':s.type==='warning'?'var(--status-warning)':s.type==='success'?'var(--status-success)':'var(--onx-teal)'}"></div>
       <div style="flex:1">
         <div style="font-size:12px;font-weight:500;color:var(--text-1);margin-bottom:2px">${s.client}</div>
@@ -4956,7 +5046,7 @@ function renderFocusOpenIssues() {
   if (!el) return;
   el.innerHTML = WDB.alerts.map(a => `
     <div style="display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border-subtle);align-items:flex-start;cursor:pointer;transition:background 120ms ease"
-      onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'" onclick="showPage('alerts')">
+      onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='transparent'" onclick="openFocusAlertDetail('${a.id}')">
       <div style="width:3px;height:38px;border-radius:2px;flex-shrink:0;background:${a.sev==='danger'?'var(--status-danger)':'var(--status-warning)'}"></div>
       <div style="flex:1;min-width:0">
         <div style="font-size:12px;font-weight:500;color:var(--text-1)">${a.client}</div>
@@ -4987,7 +5077,7 @@ function renderFocusScores() {
   if (!el) return;
   el.innerHTML = WDB.scores.map(s => `
     <div style="background:var(--surface-0);padding:12px 14px;text-align:center;cursor:pointer;transition:background 120ms ease"
-      onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='var(--surface-0)'">
+      onclick="openFocusClientModal('${s.id}')" onmouseover="this.style.background='var(--surface-1)'" onmouseout="this.style.background='var(--surface-0)'">
       <div style="font-size:22px;font-weight:700;color:${s.color};line-height:1;letter-spacing:-0.02em">${s.val}</div>
       <div style="font-size:10px;color:var(--text-3);margin-top:3px">${s.name}</div>
     </div>`).join('');

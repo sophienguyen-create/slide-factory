@@ -2067,7 +2067,7 @@
       <!-- Hero -->
       <div class="px-6 pt-6 pb-4 flex-shrink-0">
         <h1 class="text-xl font-semibold" style="color:var(--text-1);letter-spacing:-0.02em">Settings</h1>
-        <p class="text-xs mt-1" style="color:var(--text-3)">Workspace preferences, team, integrations</p>
+        <p class="text-xs mt-1" style="color:var(--text-3)">Workspace preferences, team, connectors</p>
       </div>
 
       <!-- Body — two-column layout -->
@@ -2082,7 +2082,7 @@
           <div class="settings-nav-item" onclick="showSettingsPanel('team', this)"><i data-lucide="users" class="icon-sm"></i>Team</div>
           <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);padding:10px 10px 4px">Configurations</div>
           <div class="settings-nav-item" onclick="showSettingsPanel('api-keys', this)"><i data-lucide="key-round" class="icon-sm"></i>API Keys</div>
-          <div class="settings-nav-item" onclick="showSettingsPanel('integrations', this)"><i data-lucide="plug" class="icon-sm"></i>Integrations</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('connectors', this)"><i data-lucide="plug" class="icon-sm"></i>Connectors</div>
           <div class="settings-nav-item" onclick="showSettingsPanel('ai-governance', this)"><i data-lucide="shield-check" class="icon-sm"></i>AI Governance</div>
           <div class="settings-nav-item" onclick="showSettingsPanel('access-control', this)"><i data-lucide="lock" class="icon-sm"></i>Access Control</div>
           <div class="settings-nav-item" onclick="showSettingsPanel('audit-siem', this)"><i data-lucide="scroll-text" class="icon-sm"></i>Audit &amp; SIEM</div>
@@ -2678,10 +2678,10 @@
         </div><!-- end api-keys panel -->
 
         <!-- ── INTEGRATIONS ── -->
-        <div class="settings-panel" data-panel="integrations" hidden>
-          <!-- Data feeds -->
+        <div class="settings-panel" data-panel="connectors" hidden>
+          <!-- DEMO: Data connectors -->
           <div class="section-card">
-            <div class="section-header"><div><div class="section-title">Data integrations</div><div class="section-meta">Financial system connections and market data feeds</div></div></div>
+            <div class="section-header"><div><div class="section-title">Data connectors</div><div class="section-meta">System connections and data feed sources</div></div></div>
             <div style="display:flex;flex-direction:column;gap:10px">
               <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
                 <div style="display:flex;align-items:center;gap:12px">
@@ -2720,6 +2720,7 @@
               </div>
             </div>
           </div>
+          <!-- END DEMO: Data connectors -->
           <!-- Productivity -->
           <div class="section-card" style="margin-top:14px">
             <div class="section-header"><div><div class="section-title">Productivity &amp; export</div><div class="section-meta">Notifications, reporting, and document export services</div></div></div>
@@ -2754,7 +2755,7 @@
               </div>
             </div>
           </div>
-        </div><!-- end integrations panel -->
+        </div><!-- end connectors panel -->
 
         <!-- ── AI GOVERNANCE ── -->
         <div class="settings-panel" data-panel="ai-governance" hidden>

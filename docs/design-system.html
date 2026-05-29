@@ -797,7 +797,7 @@ function threadSectionMarkup(title, date) {
               <div style="font-size:13px;color:var(--text-2);padding:6px 10px;border-radius:6px;margin-bottom:2px;">Team</div>
               <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);padding:8px 10px 4px;">Configurations</div>
               <div style="font-size:13px;color:var(--text-2);padding:6px 10px;border-radius:6px;margin-bottom:2px;">API Keys</div>
-              <div style="font-size:13px;color:var(--text-2);padding:6px 10px;border-radius:6px;margin-bottom:2px;">Integrations</div>
+              <div style="font-size:13px;color:var(--text-2);padding:6px 10px;border-radius:6px;margin-bottom:2px;">Connectors</div>
               <div style="font-size:13px;color:var(--text-2);padding:6px 10px;border-radius:6px;margin-bottom:2px;">AI Governance</div>
               <div style="font-size:13px;color:var(--text-2);padding:6px 10px;border-radius:6px;margin-bottom:2px;">Access Control</div>
               <div style="font-size:13px;color:var(--text-2);padding:6px 10px;border-radius:6px;">Audit &amp; SIEM</div>
@@ -812,7 +812,7 @@ function threadSectionMarkup(title, date) {
                   <tr><td><strong>Workspace</strong></td><td style="color:var(--text-2);">View-only. Org identity, locale &amp; regional, SSO/MFA, data compliance.</td></tr>
                   <tr><td><strong>Team</strong></td><td style="color:var(--text-2);">Member list with role dropdowns, presence status, invite management.</td></tr>
                   <tr><td><strong>API Keys</strong></td><td style="color:var(--text-2);">BYOK encryption key management (AWS KMS / Azure Key Vault / GCP KMS). Active key + history.</td></tr>
-                  <tr><td><strong>Integrations</strong></td><td style="color:var(--text-2);">Data feeds (SmartStream, Broadridge, Bloomberg B-PIPE, Aladdin, Euroclear) + Productivity (Slack, Teams, SharePoint, Power BI).</td></tr>
+                  <tr><td><strong>Connectors</strong></td><td style="color:var(--text-2);">Data connectors (replace with client's actual systems) + Productivity (Slack, Teams, SharePoint, Power BI). Marked <code>DEMO</code> — fully flexible per domain.</td></tr>
                   <tr><td><strong>AI Governance</strong></td><td style="color:var(--text-2);">Data privacy (no training, self-hosted, egress blocked), quality gates (confidence threshold, human review), model policy.</td></tr>
                   <tr><td><strong>Access Control</strong></td><td style="color:var(--text-2);">IP allowlist (CIDR ranges), session timeout, concurrent sessions, SCIM directory sync.</td></tr>
                   <tr><td><strong>Audit &amp; SIEM</strong></td><td style="color:var(--text-2);">Immutable audit event feed, CSV export, SIEM forwarding (Splunk / Datadog / Azure Sentinel).</td></tr>
@@ -919,7 +919,7 @@ window.applyFontSize = function(step) {
 
         <div class="doc-rules">
           <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>All panel content (org name, team members, integration names, CIDR ranges, SIEM endpoint, confidence threshold) is demo data — replace with client-specific values.</div></div>
-          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>The data integrations list in the Integrations panel should reflect the client's actual financial system ecosystem (Bloomberg, Broadridge, Murex, Calypso, etc.).</div></div>
+          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>The <strong>Connectors</strong> panel is fully flexible — replace the data connector rows with the client's actual systems. Not financial-specific: use whatever is relevant to the domain (e.g. EHR systems for healthcare, CRM for sales). Marked with <code>&lt;!-- DEMO: Data connectors --&gt;</code>.</div></div>
           <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>The three-group nav structure (Personal / Organization / Configurations) and the <code>showSettingsPanel</code> switching mechanism must be preserved. Do not flatten to a single list.</div></div>
           <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>The typewriter greeting stays at 32px regardless of text size preference — it is part of the welcome screen brand moment.</div></div>
         </div>
@@ -1056,7 +1056,7 @@ window.applyFontSize = function(step) {
               <tr><td>Artifact card title &amp; meta</td><td style="color:var(--text-2);">Use client's report naming convention</td></tr>
               <tr><td>Settings — org identity &amp; locale</td><td style="color:var(--text-2);">Update org name, domain, timezone, currency in the Workspace panel</td></tr>
               <tr><td>Settings — team members</td><td style="color:var(--text-2);">Replace mock names/emails/roles in the Team panel with client staff</td></tr>
-              <tr><td>Settings — data integrations</td><td style="color:var(--text-2);">Replace feed list with client's actual financial systems (Bloomberg, Murex, Calypso, etc.)</td></tr>
+              <tr><td>Settings — Connectors</td><td style="color:var(--text-2);">Replace connector rows with client's actual systems — any domain. Use the <code>DEMO: Data connectors</code> anchor.</td></tr>
               <tr><td>Settings — AI confidence threshold</td><td style="color:var(--text-2);">Adjust default threshold (70/80/90/95%) and toggle defaults to match client's risk posture</td></tr>
               <tr><td>Settings — SIEM / audit config</td><td style="color:var(--text-2);">Update SIEM platform choice and endpoint placeholder to match client infrastructure</td></tr>
               <tr><td>Content fonts (non-chat areas)</td><td style="color:var(--text-2);">Add scoped font-family rules for content page selectors only</td></tr>
