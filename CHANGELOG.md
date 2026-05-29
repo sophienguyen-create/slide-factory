@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.3.1 — 2026-05-29
+
+### Changed
+- `.kpi-card` — replaced brand-tint gradient with solid `var(--brand-tint)` background (cleaner, no fade artefact)
+
+---
+
 ## v3.3.0 — 2026-05-29
 
 ### Changed
