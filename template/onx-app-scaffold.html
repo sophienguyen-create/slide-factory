@@ -1,10 +1,10 @@
-<!-- ONX Scaffold v3.2.0 — 2026-05-29 -->
+<!-- ONX Scaffold v3.3.0 — 2026-05-29 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="onx-scaffold-version" content="3.2.0">
+<meta name="onx-scaffold-version" content="3.3.0">
 <meta name="onx-scaffold-released" content="2026-05-29">
 <title>[App Name] — OneNexus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -849,8 +849,9 @@
      REVIEW PAGE — KPI cards, empty state
   ═══════════════════════════════════════════════════ */
   .kpi-card {
-    background: var(--surface-0);
+    background: linear-gradient(180deg, var(--brand-tint) 0%, var(--surface-0) 65%);
     border: 1px solid var(--border);
+    border-top: 2px solid var(--brand-primary);
     border-radius: var(--radius-md);
     padding: 14px 16px;
     display: flex;
@@ -1241,6 +1242,7 @@
     --ring: 0 0 0 3px rgba(78,166,166,0.25);
 
     --onx-teal-light: rgba(78,166,166,0.14);
+    --brand-tint: rgba(45,117,117,0.14);  /* dark mode: subtle teal wash, replaces light #E6F4F4 */
   }
   html.dark body {
     background: var(--surface-1);

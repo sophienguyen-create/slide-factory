@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.3.0 — 2026-05-29
+
+### Changed
+- `.kpi-card` — added brand-tint gradient background (`--brand-tint` → `--surface-0` at 65%) and `border-top: 2px solid var(--brand-primary)` accent bar
+- Dark mode: added `--brand-tint: rgba(45,117,117,0.14)` override so KPI gradient renders correctly on dark card surfaces (was `#E6F4F4` which clashed with `#1A2335` cards)
+- Adapters can override accent color per card with `style="border-top-color: var(--status-danger)"` or any token
+
+---
+
 ## v3.2.0 — 2026-05-29
 
 ### Changed
