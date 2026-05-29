@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.4.0 — 2026-05-29
+
+### Changed
+- `aside#sidebar` — `background: var(--surface-2)` + `border-right: 1px solid var(--border-subtle)` to visually separate sidebar from document layout content area (was transparent/no border)
+- Works in both light (`#F4F4F5`) and dark (`#1F2A40`) modes
+
+---
+
 ## v3.3.1 — 2026-05-29
 
 ### Changed
