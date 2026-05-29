@@ -52,9 +52,17 @@ Output a Build Plan and **wait for approval before writing any HTML.**
 ### Phase 3 — Build page by page
 
 - Build one page at a time in order from the Build Plan
-- After each page: share the file path and ask for explicit approval before continuing
+- After each page, run the per-page checklist below before sharing with the user
 - Never start the next page until the current one is approved
-- Implement every interaction identified in the Build Plan — do not defer to "coming soon"
+
+**Per-page checklist (run after every page, before asking for approval):**
+- [ ] Every interaction listed for this page in the Build Plan is implemented
+- [ ] Every row click, card click, and button has an explicit `onclick` — no unlinked elements
+- [ ] Drill-downs open the correct target (detail panel, modal, or new page) — not a stub or placeholder
+- [ ] Filter chips, if present, visibly filter the rows beneath them
+- [ ] No "coming soon" text or empty `href="#"` without a handler
+
+Report the checklist result to the user: "Interactions verified: [list what was implemented]." If anything is missing, fix it before sharing.
 
 ### Phase 4 — Verify
 
