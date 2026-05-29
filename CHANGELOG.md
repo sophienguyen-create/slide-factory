@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.2.0 — 2026-05-29
+
+### Changed
+- `.kpi-card` — upgraded to `--shadow-2` + `--border` (stronger than section cards, establishes KPI hierarchy)
+- `.section-card`, `.library-card`, `.workflow-row` — added `--shadow-1` at rest to lift cards off white canvas without changing surface tokens
+- `.library-card` hover — promoted to `--shadow-2` (was already there, workflow-row hover matched)
+- `--border-subtle` strengthened from `#F1F5F9` → `#E2E8F0` for better table/divider visibility
+- Canvas (`--surface-1`) kept pure white — card definition handled by shadow hierarchy, not background tint
+
+---
+
 ## v3.1.0 — 2026-05-29
 
 ### Changed
