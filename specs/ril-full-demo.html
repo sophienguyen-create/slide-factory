@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RIL — Reconciliation Intelligence Layer</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary:#0a0c0f;--bg-secondary:#0f1318;--bg-panel:#131820;--bg-card:#161d26;--bg-hover:#1c2535;
+  --border:#1e2d3d;--border-bright:#2a3f56;
+  --text-primary:#e8edf2;--text-secondary:#8a9ab0;--text-muted:#4a5a6e;
+  --accent-blue:#1e7fe8;--accent-blue-dim:#1457a3;--accent-cyan:#00d4ff;
+  --accent-green:#00c896;--accent-amber:#f5a623;--accent-red:#e84444;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg-primary);color:var(--text-primary);height:100vh;overflow:hidden;}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;background:var(--bg-secondary);border-bottom:1px solid var(--border);position:relative;z-index:200;}
+.topbar-left{display:flex;align-items:center;gap:32px;}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.logo-mark{width:28px;height:28px;background:var(--accent-blue);clip-path:polygon(0 0,70% 0,100% 30%,100% 100%,30% 100%,0 70%);}
+.logo-text{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.15em;}
+.logo-sub{font-size:9px;color:var(--text-muted);letter-spacing:.2em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+.nav-tabs{display:flex;gap:2px;}
+.nav-tab{padding:6px 16px;font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;border-radius:3px;transition:all .15s;letter-spacing:.03em;border:1px solid transparent;}
+.nav-tab:hover{color:var(--text-primary);background:var(--bg-hover);}
+.nav-tab.active{color:var(--accent-cyan);background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.2);}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.live-indicator{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent-green);letter-spacing:.08em;}
+.live-dot{width:6px;height:6px;background:var(--accent-green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
+.market-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);}
+.icon-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s;position:relative;}
+.icon-btn:hover{background:var(--bg-hover);color:var(--text-primary);border-color:var(--border-bright);}
+.notif-badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;background:var(--accent-red);border-radius:50%;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;border:2px solid var(--bg-secondary);}
+.user-badge{width:30px;height:30px;background:var(--accent-blue-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent-cyan);border:1px solid var(--accent-blue);cursor:pointer;}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 52px);}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--bg-secondary);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto;}
+.sidebar-section{padding:0 12px;margin-bottom:20px;}
+.sidebar-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.2em;text-transform:uppercase;padding:0 8px;margin-bottom:6px;}
+.sidebar-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:4px;cursor:pointer;transition:all .15s;margin-bottom:1px;border:1px solid transparent;}
+.sidebar-item:hover{background:var(--bg-hover);}
+.sidebar-item.active{background:rgba(30,127,232,.12);border-color:rgba(30,127,232,.25);}
+.sidebar-item-left{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--text-secondary);}
+.sidebar-item.active .sidebar-item-left{color:var(--accent-cyan);}
+.sidebar-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600;}
+.badge-red{background:rgba(232,68,68,.2);color:var(--accent-red);border:1px solid rgba(232,68,68,.3);}
+.badge-amber{background:rgba(245,166,35,.15);color:var(--accent-amber);border:1px solid rgba(245,166,35,.25);}
+.badge-green{background:rgba(0,200,150,.15);color:var(--accent-green);border:1px solid rgba(0,200,150,.25);}
+.badge-blue{background:rgba(30,127,232,.15);color:var(--accent-cyan);border:1px solid rgba(30,127,232,.25);}
+.stat-block{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin:0 12px 8px;}
+.stat-label{font-size:9px;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-bottom:4px;}
+.stat-value{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--text-primary);line-height:1;}
+.stat-sub{font-size:10px;color:var(--text-muted);margin-top:3px;}
+.stat-value.critical{color:var(--accent-red);}
+.stat-value.warning{color:var(--accent-amber);}
+.stat-value.good{color:var(--accent-green);}
+
+/* ── MAIN AREA ── */
+.main-area{overflow-y:auto;height:100%;position:relative;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ── SCREEN HEADER ── */
+.screen-header{padding:20px 28px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;position:sticky;top:0;background:var(--bg-primary);z-index:10;}
+.screen-title{font-size:18px;font-weight:600;letter-spacing:-.01em;}
+.screen-subtitle{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-top:2px;letter-spacing:.05em;}
+.header-actions{display:flex;gap:8px;align-items:center;}
+.btn{padding:7px 14px;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border-bright);background:var(--bg-card);color:var(--text-secondary);transition:all .15s;letter-spacing:.03em;font-family:'IBM Plex Sans',sans-serif;}
+.btn:hover{background:var(--bg-hover);color:var(--text-primary);}
+.btn-primary{background:var(--accent-blue);border-color:var(--accent-blue);color:#fff;}
+.btn-primary:hover{background:#2589f5;}
+.btn-danger{background:rgba(232,68,68,.15);border-color:rgba(232,68,68,.4);color:var(--accent-red);}
+.btn-danger:hover{background:rgba(232,68,68,.25);}
+.btn-success{background:rgba(0,200,150,.15);border-color:rgba(0,200,150,.4);color:var(--accent-green);}
+.btn-success:hover{background:rgba(0,200,150,.25);}
+
+/* ── FILTER BAR ── */
+.filter-bar{padding:10px 28px;display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--border);background:var(--bg-secondary);flex-wrap:wrap;}
+.filter-chip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border-bright);color:var(--text-secondary);background:transparent;transition:all .15s;}
+.filter-chip:hover{border-color:var(--accent-blue);color:var(--text-primary);}
+.filter-chip.active{background:rgba(30,127,232,.15);border-color:var(--accent-blue);color:var(--accent-cyan);}
+.filter-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:5px 12px;margin-left:auto;}
+.search-box input{background:none;border:none;outline:none;color:var(--text-primary);font-size:12px;font-family:'IBM Plex Sans',sans-serif;width:180px;}
+.search-box input::placeholder{color:var(--text-muted);}
+
+/* ── BREAK TABLE ── */
+.break-table{padding:12px 28px 24px;}
+.table-header{display:grid;grid-template-columns:28px 76px 170px 150px 120px 1fr 96px 110px 100px;gap:8px;padding:0 12px 8px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;border-bottom:1px solid var(--border);margin-bottom:4px;}
+.break-row{display:grid;grid-template-columns:28px 76px 170px 150px 120px 1fr 96px 110px 100px;gap:8px;padding:10px 12px;border-radius:5px;cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px;align-items:center;}
+.break-row:hover{background:var(--bg-hover);border-color:var(--border);}
+.break-row.selected{background:rgba(30,127,232,.08);border-color:rgba(30,127,232,.3);}
+.break-row.resolved{opacity:.45;}
+.break-row.monitoring{border-left:3px solid var(--accent-blue);}
+.break-row.escalated-row{border-left:3px solid var(--accent-amber);}
+.severity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin:auto;}
+.sev-critical{background:var(--accent-red);box-shadow:0 0 6px var(--accent-red);}
+.sev-high{background:var(--accent-amber);box-shadow:0 0 6px var(--accent-amber);}
+.sev-medium{background:#f5d623;}
+.sev-low{background:var(--accent-green);}
+.break-id{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);}
+.break-instrument{font-size:12px;font-weight:600;color:var(--text-primary);}
+.break-instrument-sub{font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
+.break-counterparty{font-size:12px;color:var(--text-secondary);}
+.break-amount{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--text-primary);text-align:right;}
+.ai-hypothesis{font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+.ai-tag{font-size:9px;font-family:'IBM Plex Mono',monospace;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent-cyan);padding:1px 5px;border-radius:2px;white-space:nowrap;letter-spacing:.05em;flex-shrink:0;}
+.csdr-clock{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;}
+.csdr-critical{color:var(--accent-red);}
+.csdr-warning{color:var(--accent-amber);}
+.csdr-ok{color:var(--text-muted);}
+.penalty-amount{font-family:'IBM Plex Mono',monospace;font-size:11px;text-align:right;}
+.penalty-active{color:var(--accent-red);}
+.penalty-accruing{color:var(--accent-amber);}
+.penalty-none{color:var(--text-muted);}
+.action-btn{font-size:10px;padding:4px 10px;border-radius:3px;border:1px solid var(--border-bright);background:transparent;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'IBM Plex Sans',sans-serif;font-weight:500;}
+.action-btn:hover{background:var(--bg-hover);color:var(--text-primary);}
+.action-btn.resolve{border-color:rgba(0,200,150,.4);color:var(--accent-green);}
+.action-btn.resolve:hover{background:rgba(0,200,150,.1);}
+.action-btn.escalate{border-color:rgba(245,166,35,.4);color:var(--accent-amber);}
+.action-btn.escalate:hover{background:rgba(245,166,35,.1);}
+.action-btn.investigate{border-color:rgba(30,127,232,.4);color:var(--accent-cyan);}
+.action-btn.investigate:hover{background:rgba(30,127,232,.1);}
+.action-btn.monitoring-btn{border-color:rgba(30,127,232,.4);color:var(--accent-blue);}
+
+/* ── DETAIL SCREEN ── */
+.detail-back{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);cursor:pointer;padding:14px 28px 0;transition:color .15s;width:fit-content;}
+.detail-back:hover{color:var(--accent-cyan);}
+.detail-layout{display:grid;grid-template-columns:1fr 340px;gap:0;min-height:calc(100vh - 110px);}
+.detail-main{padding:20px 28px 32px;border-right:1px solid var(--border);overflow-y:auto;}
+.detail-sidebar-panel{padding:20px;overflow-y:auto;background:var(--bg-secondary);}
+.detail-title{font-size:20px;font-weight:600;letter-spacing:-.02em;}
+.detail-meta{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.meta-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px;letter-spacing:.05em;}
+.section-title{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.position-compare{display:grid;grid-template-columns:1fr 32px 1fr;gap:10px;margin-bottom:24px;}
+.position-box{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;}
+.position-box.mismatch{border-color:rgba(232,68,68,.3);background:rgba(232,68,68,.03);}
+.pos-source{font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:10px;}
+.pos-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.pos-row:last-child{border-bottom:none;}
+.pos-key{color:var(--text-muted);}
+.pos-val{font-family:'IBM Plex Mono',monospace;font-weight:500;color:var(--text-primary);}
+.pos-val.diff{color:var(--accent-red);}
+.pos-vs{display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:18px;}
+.ai-card{background:linear-gradient(135deg,rgba(0,212,255,.04),rgba(30,127,232,.06));border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:18px;margin-bottom:20px;position:relative;overflow:hidden;}
+.ai-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent-cyan),var(--accent-blue),transparent);}
+.ai-card-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.ai-icon{width:28px;height:28px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.ai-card-title{font-size:12px;font-weight:600;color:var(--accent-cyan);letter-spacing:.05em;}
+.confidence-bar-wrap{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.confidence-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-muted);}
+.confidence-bar{width:70px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.confidence-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan));border-radius:2px;}
+.confidence-pct{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--accent-cyan);min-width:30px;}
+.ai-body{font-size:13px;line-height:1.65;color:var(--text-secondary);}
+.ai-body strong{color:var(--text-primary);font-weight:600;}
+.resolution-steps{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+.resolution-step{display:flex;gap:12px;align-items:flex-start;}
+.step-num{width:20px;height:20px;background:var(--accent-blue-dim);border:1px solid var(--accent-blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--accent-cyan);flex-shrink:0;margin-top:1px;}
+.step-text{font-size:12px;color:var(--text-secondary);line-height:1.5;}
+.step-text strong{color:var(--text-primary);}
+.comms-box{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:20px;}
+.comms-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.comms-to{font-size:11px;color:var(--text-muted);margin-bottom:8px;font-family:'IBM Plex Mono',monospace;}
+.comms-to span{color:var(--accent-cyan);}
+.comms-body{font-size:11px;color:var(--text-secondary);line-height:1.6;padding:12px;background:var(--bg-primary);border-radius:4px;border:1px solid var(--border);font-family:'IBM Plex Mono',monospace;white-space:pre-wrap;}
+.pattern-card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px;}
+.pattern-stat{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:11px;border-bottom:1px solid var(--border);}
+.pattern-stat:last-child{border-bottom:none;}
+.pattern-key{color:var(--text-muted);}
+.pattern-val{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--text-primary);}
+.pattern-val.good{color:var(--accent-green);}
+.pattern-val.warn{color:var(--accent-amber);}
+.reg-item{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:10px;}
+.reg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.reg-name{font-size:12px;font-weight:600;color:var(--text-primary);}
+.reg-status{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:2px 8px;border-radius:3px;}
+.reg-body{font-size:11px;color:var(--text-muted);line-height:1.5;}
+.reg-body strong{color:var(--accent-amber);}
+.history-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.history-item:last-child{border-bottom:none;}
+.history-time{font-family:'IBM Plex Mono',monospace;color:var(--text-muted);white-space:nowrap;font-size:10px;padding-top:1px;min-width:56px;}
+.history-event{color:var(--text-secondary);line-height:1.4;}
+.history-event strong{color:var(--text-primary);}
+.clock-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px;}
+.clock-fill{height:100%;border-radius:2px;}
+
+/* ── COMPLIANCE SCREEN ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:16px 28px;}
+.metric-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s;}
+.metric-card:hover{border-color:var(--border-bright);}
+.metric-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.metric-card.red::after{background:var(--accent-red);}
+.metric-card.amber::after{background:var(--accent-amber);}
+.metric-card.green::after{background:var(--accent-green);}
+.metric-card.blue::after{background:var(--accent-blue);}
+.metric-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em;font-family:'IBM Plex Mono',monospace;margin-bottom:8px;}
+.metric-value{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;line-height:1;margin-bottom:4px;}
+.metric-value.red{color:var(--accent-red);}
+.metric-value.amber{color:var(--accent-amber);}
+.metric-value.green{color:var(--accent-green);}
+.metric-value.blue{color:var(--accent-cyan);}
+.metric-sub{font-size:11px;color:var(--text-muted);}
+.metric-delta{display:inline-flex;align-items:center;gap:3px;font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:6px;padding:2px 6px;border-radius:3px;}
+.delta-up{background:rgba(232,68,68,.1);color:var(--accent-red);}
+.delta-down{background:rgba(0,200,150,.1);color:var(--accent-green);}
+.compliance-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 28px 24px;}
+.compliance-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.panel-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg-secondary);}
+.panel-title{font-size:12px;font-weight:600;color:var(--text-primary);}
+.panel-body{padding:14px 16px;}
+.penalty-row{display:grid;grid-template-columns:1fr 70px 70px 85px;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);align-items:center;font-size:11px;}
+.penalty-row:last-child{border-bottom:none;}
+.penalty-fund{font-weight:500;color:var(--text-primary);}
+.penalty-fund-sub{font-size:9px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
+.penalty-days{font-family:'IBM Plex Mono',monospace;color:var(--text-secondary);text-align:center;}
+.penalty-bps{font-family:'IBM Plex Mono',monospace;color:var(--text-muted);text-align:center;}
+.penalty-eur{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:right;}
+.penalty-eur.high{color:var(--accent-red);}
+.penalty-eur.med{color:var(--accent-amber);}
+.audit-row{display:grid;grid-template-columns:92px 72px 1fr 68px;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;align-items:center;}
+.audit-row:last-child{border-bottom:none;}
+.audit-time{font-family:'IBM Plex Mono',monospace;color:var(--text-muted);font-size:10px;}
+.audit-user{color:var(--text-secondary);}
+.audit-action{color:var(--text-secondary);}
+.audit-status{font-size:9px;padding:2px 7px;border-radius:10px;text-align:center;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.status-resolved{background:rgba(0,200,150,.1);color:var(--accent-green);border:1px solid rgba(0,200,150,.2);}
+.status-pending{background:rgba(245,166,35,.1);color:var(--accent-amber);border:1px solid rgba(245,166,35,.2);}
+.status-escalated{background:rgba(232,68,68,.1);color:var(--accent-red);border:1px solid rgba(232,68,68,.2);}
+.status-auto{background:rgba(30,127,232,.1);color:var(--accent-cyan);border:1px solid rgba(30,127,232,.2);}
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:72px;padding:4px 0;}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.bar{width:100%;border-radius:3px 3px 0 0;}
+.bar-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text-muted);}
+
+/* ── SETTINGS SCREEN ── */
+.settings-layout{padding:24px 28px;max-width:800px;}
+.settings-section{margin-bottom:32px;}
+.settings-section-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-label{font-size:13px;font-weight:500;color:var(--text-primary);}
+.settings-desc{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.toggle{width:36px;height:20px;background:var(--border-bright);border-radius:10px;cursor:pointer;transition:background .2s;position:relative;flex-shrink:0;}
+.toggle.on{background:var(--accent-blue);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;}
+.toggle.on::after{transform:translateX(16px);}
+.settings-select{background:var(--bg-card);border:1px solid var(--border-bright);color:var(--text-primary);padding:5px 10px;border-radius:4px;font-size:12px;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;}
+.settings-input{background:var(--bg-card);border:1px solid var(--border-bright);color:var(--text-primary);padding:6px 10px;border-radius:4px;font-size:12px;font-family:'IBM Plex Mono',monospace;width:200px;}
+.integration-card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.integration-info{display:flex;align-items:center;gap:12px;}
+.integration-icon{width:36px;height:36px;background:var(--bg-hover);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent-cyan);font-family:'IBM Plex Mono',monospace;border:1px solid var(--border-bright);}
+.integration-name{font-size:13px;font-weight:600;color:var(--text-primary);}
+.integration-status{font-size:11px;color:var(--accent-green);}
+.integration-status.disconnected{color:var(--text-muted);}
+
+/* ── NOTIFICATIONS PANEL ── */
+.notif-panel{position:absolute;top:56px;right:16px;width:360px;background:var(--bg-panel);border:1px solid var(--border-bright);border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:300;display:none;}
+.notif-panel.open{display:block;animation:slideDown .2s ease;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.notif-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.notif-header-title{font-size:13px;font-weight:600;}
+.notif-clear{font-size:11px;color:var(--accent-cyan);cursor:pointer;}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;display:flex;gap:10px;}
+.notif-item:hover{background:var(--bg-hover);}
+.notif-item:last-child{border-bottom:none;}
+.notif-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.notif-body{font-size:12px;color:var(--text-secondary);line-height:1.4;}
+.notif-body strong{color:var(--text-primary);}
+.notif-time{font-size:10px;color:var(--text-muted);margin-top:3px;font-family:'IBM Plex Mono',monospace;}
+
+/* ── USER PROFILE PANEL ── */
+.profile-panel{position:absolute;top:56px;right:16px;width:240px;background:var(--bg-panel);border:1px solid var(--border-bright);border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:300;display:none;}
+.profile-panel.open{display:block;animation:slideDown .2s ease;}
+.profile-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.profile-avatar{width:40px;height:40px;background:var(--accent-blue-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--accent-cyan);border:1px solid var(--accent-blue);}
+.profile-name{font-size:13px;font-weight:600;}
+.profile-role{font-size:11px;color:var(--text-muted);}
+.profile-item{padding:10px 16px;font-size:12px;color:var(--text-secondary);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.profile-item:hover{background:var(--bg-hover);color:var(--text-primary);}
+.profile-item.danger{color:var(--accent-red);}
+.profile-divider{height:1px;background:var(--border);margin:4px 0;}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.modal-overlay.open{display:flex;animation:fadeOverlay .2s ease;}
+@keyframes fadeOverlay{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--bg-panel);border:1px solid var(--border-bright);border-radius:10px;padding:24px;width:480px;max-width:90vw;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:scaleIn .2s ease;}
+.modal.wide{width:620px;}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:6px;}
+.modal-subtitle{font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+.modal-field{margin-bottom:16px;}
+.modal-label{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.modal-input{width:100%;background:var(--bg-card);border:1px solid var(--border-bright);color:var(--text-primary);padding:8px 12px;border-radius:4px;font-size:12px;font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .15s;}
+.modal-input:focus{border-color:var(--accent-blue);}
+.modal-textarea{width:100%;background:var(--bg-card);border:1px solid var(--border-bright);color:var(--text-primary);padding:8px 12px;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;outline:none;resize:vertical;min-height:100px;line-height:1.6;transition:border-color .15s;}
+.modal-textarea:focus{border-color:var(--accent-blue);}
+.modal-select{width:100%;background:var(--bg-card);border:1px solid var(--border-bright);color:var(--text-primary);padding:8px 12px;border-radius:4px;font-size:12px;font-family:'IBM Plex Sans',sans-serif;outline:none;cursor:pointer;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.modal-info{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text-secondary);line-height:1.5;}
+.modal-info strong{color:var(--text-primary);}
+.modal-warning{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);border-radius:6px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--accent-amber);line-height:1.5;}
+.modal-success{background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.3);border-radius:6px;padding:16px;margin-bottom:16px;font-size:13px;color:var(--accent-green);line-height:1.5;text-align:center;}
+.modal-success-icon{font-size:32px;margin-bottom:8px;}
+.team-option{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;margin-bottom:6px;}
+.team-option:hover{border-color:var(--accent-amber);background:rgba(245,166,35,.04);}
+.team-option.selected{border-color:var(--accent-amber);background:rgba(245,166,35,.08);}
+.team-avatar{width:32px;height:32px;background:var(--bg-hover);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-secondary);}
+.team-name{font-size:12px;font-weight:600;color:var(--text-primary);}
+.team-role{font-size:10px;color:var(--text-muted);}
+.progress-bar-wrap{background:var(--border);border-radius:4px;height:6px;overflow:hidden;margin:12px 0;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan));border-radius:4px;transition:width .4s ease;}
+.checklist-item{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:12px;color:var(--text-secondary);border-bottom:1px solid var(--border);}
+.checklist-item:last-child{border-bottom:none;}
+.check-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;}
+.check-done{background:rgba(0,200,150,.2);color:var(--accent-green);border:1px solid rgba(0,200,150,.3);}
+.check-pending{background:var(--bg-hover);border:1px solid var(--border);color:var(--text-muted);}
+.check-running{background:rgba(30,127,232,.2);color:var(--accent-cyan);border:1px solid rgba(30,127,232,.3);animation:spin 1.5s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg-panel);border:1px solid var(--border-bright);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--text-secondary);box-shadow:0 8px 24px rgba(0,0,0,.4);animation:toastIn .3s ease;display:flex;align-items:center;gap:10px;min-width:280px;}
+.toast.success{border-color:rgba(0,200,150,.4);}
+.toast.error{border-color:rgba(232,68,68,.4);}
+.toast.info{border-color:rgba(30,127,232,.4);}
+.toast-icon{font-size:14px;}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── MISC ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:2px;}
+.empty-state{text-align:center;padding:48px;color:var(--text-muted);}
+.empty-state-icon{font-size:36px;margin-bottom:12px;}
+.empty-state-text{font-size:13px;}
+.tag{font-size:9px;padding:2px 6px;border-radius:3px;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;}
+.tag-monitoring{background:rgba(30,127,232,.1);color:var(--accent-blue);border:1px solid rgba(30,127,232,.2);}
+.tag-escalated{background:rgba(245,166,35,.1);color:var(--accent-amber);border:1px solid rgba(245,166,35,.2);}
+.tag-resolved{background:rgba(0,200,150,.1);color:var(--accent-green);border:1px solid rgba(0,200,150,.2);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo" onclick="showScreen('queue')">
+      <div class="logo-mark"></div>
+      <div>
+        <div class="logo-text">RIL</div>
+        <div class="logo-sub">Reconciliation Intelligence</div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="showScreen('queue')">Break Queue</div>
+      <div class="nav-tab" onclick="showScreen('compliance')">Compliance & Audit</div>
+      <div class="nav-tab" onclick="showScreen('settings')">Settings</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-indicator"><div class="live-dot"></div>LIVE · T+0</div>
+    <div class="market-time" id="clock">07:42:18 GMT</div>
+    <div class="icon-btn" onclick="toggleNotifications()" id="notif-btn" title="Notifications">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a5 5 0 015 5v3l1.5 2.5H1.5L3 9V6a5 5 0 015-5z"/><path d="M6.5 13.5a1.5 1.5 0 003 0"/></svg>
+      <div class="notif-badge">3</div>
+    </div>
+    <div class="user-badge" onclick="toggleProfile()" title="S. Rahman — Reconciliation Operations">SR</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     NOTIFICATIONS PANEL
+══════════════════════════════════════════════════════ -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-header">
+    <span class="notif-header-title">Notifications</span>
+    <span class="notif-clear" onclick="clearNotifications()">Mark all read</span>
+  </div>
+  <div class="notif-item" onclick="showScreen('queue');closeAllPanels();">
+    <div class="notif-dot" style="background:var(--accent-red);box-shadow:0 0 5px var(--accent-red);"></div>
+    <div>
+      <div class="notif-body"><strong>CSDR Buy-In Alert</strong> — BRK-4437 mandatory buy-in triggers in 4h 12min. Immediate action required.</div>
+      <div class="notif-time">2 min ago</div>
+    </div>
+  </div>
+  <div class="notif-item" onclick="openBreakDetail('BRK-4471');closeAllPanels();">
+    <div class="notif-dot" style="background:var(--accent-amber);"></div>
+    <div>
+      <div class="notif-body"><strong>New break detected</strong> — BRK-4471 KfW 2.375% 2031 flagged as CSDR failing. AI analysis complete.</div>
+      <div class="notif-time">18 min ago</div>
+    </div>
+  </div>
+  <div class="notif-item" onclick="showScreen('compliance');closeAllPanels();">
+    <div class="notif-dot" style="background:var(--accent-green);"></div>
+    <div>
+      <div class="notif-body"><strong>Auto-resolved</strong> — BRK-4451 Microsoft Corp rounding difference cleared on EOD sweep.</div>
+      <div class="notif-time">47 min ago</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     USER PROFILE PANEL
+══════════════════════════════════════════════════════ -->
+<div class="profile-panel" id="profile-panel">
+  <div class="profile-header">
+    <div class="profile-avatar">SR</div>
+    <div>
+      <div class="profile-name">S. Rahman</div>
+      <div class="profile-role">Reconciliation Operations</div>
+    </div>
+  </div>
+  <div class="profile-item" onclick="showScreen('settings');closeAllPanels();">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4"/></svg>
+    Settings
+  </div>
+  <div class="profile-item" onclick="showMyBreaks();closeAllPanels();">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M5 7h6M5 9.5h4"/></svg>
+    My Assigned Breaks
+  </div>
+  <div class="profile-divider"></div>
+  <div class="profile-item danger" onclick="showToast('Signed out successfully','success');closeAllPanels();">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8h7M10.5 5.5L13 8l-2.5 2.5M6 3H3a1 1 0 00-1 1v8a1 1 0 001 1h3"/></svg>
+    Sign Out
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MAIN LAYOUT
+══════════════════════════════════════════════════════ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div style="padding:0 12px;margin-bottom:16px;">
+      <div class="stat-block">
+        <div class="stat-label">Open Breaks</div>
+        <div class="stat-value critical" id="sb-open">47</div>
+        <div class="stat-sub">↑ 12 from yesterday</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">CSDR Exposure</div>
+        <div class="stat-value warning">€84,200</div>
+        <div class="stat-sub">Accruing on 8 positions</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">AI Resolution Rate</div>
+        <div class="stat-value good">73%</div>
+        <div class="stat-sub">Correct root cause · 7-day avg</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">By Severity</div>
+      <div class="sidebar-item active" id="sb-all" onclick="applySidebarFilter('all',this)">
+        <div class="sidebar-item-left">All Breaks</div>
+        <span class="sidebar-badge badge-blue" id="sb-count-all">8</span>
+      </div>
+      <div class="sidebar-item" id="sb-critical" onclick="applySidebarFilter('critical',this)">
+        <div class="sidebar-item-left">Critical</div>
+        <span class="sidebar-badge badge-red">2</span>
+      </div>
+      <div class="sidebar-item" id="sb-high" onclick="applySidebarFilter('high',this)">
+        <div class="sidebar-item-left">High</div>
+        <span class="sidebar-badge badge-amber">3</span>
+      </div>
+      <div class="sidebar-item" id="sb-medium" onclick="applySidebarFilter('medium',this)">
+        <div class="sidebar-item-left">Medium</div>
+        <span class="sidebar-badge badge-blue">2</span>
+      </div>
+      <div class="sidebar-item" id="sb-low" onclick="applySidebarFilter('low',this)">
+        <div class="sidebar-item-left">Low</div>
+        <span class="sidebar-badge badge-green">1</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">By Asset Class</div>
+      <div class="sidebar-item" onclick="applySidebarFilter('fi',this)">
+        <div class="sidebar-item-left">Fixed Income</div>
+        <span class="sidebar-badge badge-amber">4</span>
+      </div>
+      <div class="sidebar-item" onclick="applySidebarFilter('eq',this)">
+        <div class="sidebar-item-left">Equities</div>
+        <span class="sidebar-badge badge-blue">3</span>
+      </div>
+      <div class="sidebar-item" onclick="applySidebarFilter('fx',this)">
+        <div class="sidebar-item-left">FX / Derivatives</div>
+        <span class="sidebar-badge badge-blue">1</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">By Custodian</div>
+      <div class="sidebar-item" onclick="applySidebarFilter('bny',this)">
+        <div class="sidebar-item-left">BNY Mellon</div>
+        <span class="sidebar-badge badge-amber">3</span>
+      </div>
+      <div class="sidebar-item" onclick="applySidebarFilter('jpm',this)">
+        <div class="sidebar-item-left">JP Morgan</div>
+        <span class="sidebar-badge badge-blue">2</span>
+      </div>
+      <div class="sidebar-item" onclick="applySidebarFilter('citi',this)">
+        <div class="sidebar-item-left">Citi</div>
+        <span class="sidebar-badge badge-blue">2</span>
+      </div>
+      <div class="sidebar-item" onclick="applySidebarFilter('ss',this)">
+        <div class="sidebar-item-left">State Street</div>
+        <span class="sidebar-badge badge-green">1</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Actions</div>
+      <div class="sidebar-item" onclick="openModal('recon-modal')">
+        <div class="sidebar-item-left">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2v5h-5M2 14V9h5"/><path d="M14 7A6 6 0 104 4.3"/></svg>
+          Run Reconciliation
+        </div>
+      </div>
+      <div class="sidebar-item" onclick="showScreen('compliance')">
+        <div class="sidebar-item-left">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 7A5 5 0 113 7"/><path d="M8 2v5l3 2"/></svg>
+          Compliance Report
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-area" onclick="closeAllPanels()">
+
+    <!-- ══════════════════ SCREEN: QUEUE ══════════════════ -->
+    <div id="screen-queue" class="screen active">
+      <div class="screen-header">
+        <div>
+          <div class="screen-title">Morning Break Queue</div>
+          <div class="screen-subtitle" id="queue-subtitle">19 FEB 2026 · T+0 SESSION · AI-PRIORITISED</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn" onclick="openModal('export-modal')">Export</button>
+          <button class="btn" onclick="openModal('assign-modal')">Assign All</button>
+          <button class="btn btn-primary" onclick="openModal('recon-modal')">Run Reconciliation</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-chip active" id="fc-all" onclick="applyChipFilter('all',this)">All (8)</div>
+        <div class="filter-chip" id="fc-csdr" onclick="applyChipFilter('csdr',this)">CSDR Failing (2)</div>
+        <div class="filter-chip" id="fc-unassigned" onclick="applyChipFilter('unassigned',this)">Unassigned (5)</div>
+        <div class="filter-chip" id="fc-auto" onclick="applyChipFilter('auto',this)">Auto-resolvable (2)</div>
+        <div class="filter-sep"></div>
+        <div class="filter-chip" id="fc-fi" onclick="applyChipFilter('fi',this)">Fixed Income</div>
+        <div class="filter-chip" id="fc-eq" onclick="applyChipFilter('eq',this)">Equities</div>
+        <div class="filter-chip" id="fc-fx" onclick="applyChipFilter('fx',this)">FX</div>
+        <div class="search-box">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#4a5a6e" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M12 12l2.5 2.5"/></svg>
+          <input type="text" id="search-input" placeholder="Search ISIN, counterparty…" oninput="applySearch(this.value)">
+        </div>
+      </div>
+
+      <div class="break-table">
+        <div class="table-header">
+          <div></div><div>BREAK ID</div><div>INSTRUMENT</div><div>COUNTERPARTY</div>
+          <div>BREAK AMOUNT</div><div>AI ROOT CAUSE</div><div>CSDR CLOCK</div>
+          <div>PENALTY EXP.</div><div>ACTION</div>
+        </div>
+        <div id="break-list"></div>
+        <div id="empty-state" class="empty-state" style="display:none;">
+          <div class="empty-state-icon">◎</div>
+          <div class="empty-state-text">No breaks match the current filter</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ SCREEN: DETAIL ══════════════════ -->
+    <div id="screen-detail" class="screen">
+      <div id="detail-content"></div>
+    </div>
+
+    <!-- ══════════════════ SCREEN: COMPLIANCE ══════════════════ -->
+    <div id="screen-compliance" class="screen">
+      <div class="screen-header">
+        <div>
+          <div class="screen-title">Compliance & Audit Dashboard</div>
+          <div class="screen-subtitle">19 FEB 2026 · REGULATORY EXPOSURE + AUTO-GENERATED AUDIT TRAIL</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn" onclick="openModal('csdr-export-modal')">Export CSDR Report</button>
+          <button class="btn btn-primary" onclick="openModal('filing-modal')">Generate Regulatory Filing</button>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card red" onclick="applyChipFilter('csdr',document.getElementById('fc-csdr'));showScreen('queue');">
+          <div class="metric-label">CSDR Penalty Exposure</div>
+          <div class="metric-value red">€84,200</div>
+          <div class="metric-sub">Accruing across 8 positions</div>
+          <div class="metric-delta delta-up">↑ €12,400 vs yesterday</div>
+        </div>
+        <div class="metric-card amber" onclick="openModal('buyin-modal')">
+          <div class="metric-label">Positions at Risk</div>
+          <div class="metric-value amber">8</div>
+          <div class="metric-sub">Buy-in exposure within 4 days</div>
+          <div class="metric-delta delta-up">↑ 3 new today</div>
+        </div>
+        <div class="metric-card green" onclick="showScreen('queue')">
+          <div class="metric-label">Resolved Today</div>
+          <div class="metric-value green" id="resolved-count">23</div>
+          <div class="metric-sub">Avg resolution: 2h 14min</div>
+          <div class="metric-delta delta-down">↓ 38min vs last week</div>
+        </div>
+        <div class="metric-card blue">
+          <div class="metric-label">Audit Trail Coverage</div>
+          <div class="metric-value blue">100%</div>
+          <div class="metric-sub">All breaks auto-documented</div>
+          <div class="metric-delta delta-down">↓ 0 manual entries required</div>
+        </div>
+      </div>
+
+      <div class="compliance-layout">
+        <div class="compliance-panel">
+          <div class="panel-header">
+            <div class="panel-title">CSDR Settlement Fails — Penalty Tracker</div>
+            <span class="sidebar-badge badge-red">8 active</span>
+          </div>
+          <div class="panel-body">
+            <div style="display:grid;grid-template-columns:1fr 70px 70px 85px;gap:8px;padding:0 0 8px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border);margin-bottom:4px;">
+              <div>Position</div><div style="text-align:center;">Days</div><div style="text-align:center;">Rate</div><div style="text-align:right;">Accrued</div>
+            </div>
+            <div class="penalty-row" style="cursor:pointer;" onclick="openBreakDetail('BRK-4471')">
+              <div><div class="penalty-fund">KfW 2.375% 2031</div><div class="penalty-fund-sub">DE000BWB1AK5 · BNY Mellon</div></div>
+              <div class="penalty-days">1d</div><div class="penalty-bps">0.5bps</div><div class="penalty-eur high">€1,225</div>
+            </div>
+            <div class="penalty-row" style="cursor:pointer;" onclick="openBreakDetail('BRK-4465')">
+              <div><div class="penalty-fund">US Treasury 1.5% 2025</div><div class="penalty-fund-sub">US912828ZL15 · JP Morgan</div></div>
+              <div class="penalty-days">2d</div><div class="penalty-bps">0.5bps</div><div class="penalty-eur high">€4,980</div>
+            </div>
+            <div class="penalty-row" style="cursor:pointer;" onclick="openBreakDetail('BRK-4460')">
+              <div><div class="penalty-fund">Siemens AG 0.5% 2028</div><div class="penalty-fund-sub">XS2356789012 · Deutsche Bank</div></div>
+              <div class="penalty-days">3d</div><div class="penalty-bps">0.5bps</div><div class="penalty-eur med">€1,170</div>
+            </div>
+            <div class="penalty-row" style="cursor:pointer;" onclick="openBreakDetail('BRK-4463')">
+              <div><div class="penalty-fund">BNP Paribas SA</div><div class="penalty-fund-sub">FR0000131104 · State Street</div></div>
+              <div class="penalty-days">2d</div><div class="penalty-bps">1.0bps</div><div class="penalty-eur med">€2,200</div>
+            </div>
+            <div class="penalty-row" style="cursor:pointer;" onclick="openBreakDetail('BRK-4468')">
+              <div><div class="penalty-fund">Vodafone Group PLC</div><div class="penalty-fund-sub">GB00B1YW4409 · Citi</div></div>
+              <div class="penalty-days">1d</div><div class="penalty-bps">1.0bps</div><div class="penalty-eur med">£890</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="compliance-panel">
+          <div class="panel-header">
+            <div class="panel-title">Auto-Generated Audit Trail</div>
+            <button class="btn" style="font-size:10px;padding:4px 10px;" onclick="openModal('pdf-modal')">Export PDF</button>
+          </div>
+          <div class="panel-body">
+            <div style="display:grid;grid-template-columns:92px 72px 1fr 68px;gap:8px;padding:0 0 8px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border);margin-bottom:4px;">
+              <div>Timestamp</div><div>User</div><div>Action</div><div>Status</div>
+            </div>
+            <div class="audit-row"><div class="audit-time">07:04:12</div><div class="audit-user">SYSTEM</div><div class="audit-action">AI root cause analysis — BRK-4471 classified: corporate action timing (87%)</div><div><span class="audit-status status-auto">AUTO</span></div></div>
+            <div class="audit-row"><div class="audit-time">07:05:33</div><div class="audit-user">SYSTEM</div><div class="audit-action">CSDR penalty flag raised — BRK-4471 settlement fail T+0</div><div><span class="audit-status status-escalated">FLAGGED</span></div></div>
+            <div class="audit-row"><div class="audit-time">07:42:18</div><div class="audit-user">S. Rahman</div><div class="audit-action">Investigation opened — BRK-4471, draft comms prepared to BNY Mellon</div><div><span class="audit-status status-pending">PENDING</span></div></div>
+            <div class="audit-row"><div class="audit-time">06:55:04</div><div class="audit-user">SYSTEM</div><div class="audit-action">BRK-4451 auto-resolved — rounding diff cleared on EOD sweep</div><div><span class="audit-status status-resolved">RESOLVED</span></div></div>
+            <div class="audit-row"><div class="audit-time">06:30:11</div><div class="audit-user">T. Okafor</div><div class="audit-action">BRK-4439 resolved — State Street confirmed partial allocation</div><div><span class="audit-status status-resolved">RESOLVED</span></div></div>
+            <div class="audit-row"><div class="audit-time">06:12:45</div><div class="audit-user">SYSTEM</div><div class="audit-action">MiFID II best execution doc generated — BRK-4471 ref MEX-2026-0219-4471</div><div><span class="audit-status status-auto">AUTO</span></div></div>
+            <div class="audit-row"><div class="audit-time">05:58:02</div><div class="audit-user">T. Okafor</div><div class="audit-action">BRK-4437 escalated to Senior Ops — buy-in deadline T+1</div><div><span class="audit-status status-escalated">ESCALATED</span></div></div>
+          </div>
+        </div>
+
+        <div class="compliance-panel">
+          <div class="panel-header"><div class="panel-title">Break Resolution Trend — Last 7 Days</div></div>
+          <div class="panel-body">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:11px;color:var(--text-muted);">Mean Time to Resolution</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--accent-green);">2h 14min <span style="font-size:10px;color:var(--text-muted);font-weight:400;">↓ 38% vs baseline</span></span>
+            </div>
+            <div class="bar-chart">
+              <div class="bar-col"><div class="bar" style="height:55px;background:linear-gradient(180deg,rgba(30,127,232,.6),rgba(30,127,232,.2));"></div><div class="bar-label">Mon</div></div>
+              <div class="bar-col"><div class="bar" style="height:68px;background:linear-gradient(180deg,rgba(245,166,35,.6),rgba(245,166,35,.2));"></div><div class="bar-label">Tue</div></div>
+              <div class="bar-col"><div class="bar" style="height:42px;background:linear-gradient(180deg,rgba(0,200,150,.6),rgba(0,200,150,.2));"></div><div class="bar-label">Wed</div></div>
+              <div class="bar-col"><div class="bar" style="height:58px;background:linear-gradient(180deg,rgba(30,127,232,.6),rgba(30,127,232,.2));"></div><div class="bar-label">Thu</div></div>
+              <div class="bar-col"><div class="bar" style="height:35px;background:linear-gradient(180deg,rgba(0,200,150,.6),rgba(0,200,150,.2));"></div><div class="bar-label">Fri</div></div>
+              <div class="bar-col"><div class="bar" style="height:28px;background:linear-gradient(180deg,rgba(0,200,150,.6),rgba(0,200,150,.2));"></div><div class="bar-label">Mon</div></div>
+              <div class="bar-col"><div class="bar" style="height:30px;background:linear-gradient(180deg,rgba(0,212,255,.6),rgba(0,212,255,.2));"></div><div class="bar-label">Tue</div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+              <div style="text-align:center;"><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--accent-cyan);">73%</div><div style="font-size:10px;color:var(--text-muted);">AI Accuracy</div></div>
+              <div style="text-align:center;"><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--accent-green);">11</div><div style="font-size:10px;color:var(--text-muted);">Auto-Resolved</div></div>
+              <div style="text-align:center;"><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--accent-amber);">€0</div><div style="font-size:10px;color:var(--text-muted);">Penalties Paid YTD</div></div>
+              <div style="text-align:center;"><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;">100%</div><div style="font-size:10px;color:var(--text-muted);">Audit Coverage</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="compliance-panel">
+          <div class="panel-header"><div class="panel-title">Upcoming Regulatory Deadlines</div></div>
+          <div class="panel-body">
+            <div class="reg-item" style="border-color:rgba(232,68,68,.3);background:rgba(232,68,68,.03);cursor:pointer;" onclick="openModal('buyin-modal')">
+              <div class="reg-header">
+                <div class="reg-name">CSDR Buy-In Deadline</div>
+                <div class="reg-status" style="background:rgba(232,68,68,.1);color:var(--accent-red);border:1px solid rgba(232,68,68,.3);">TODAY 17:30</div>
+              </div>
+              <div class="reg-body">BRK-4437 — mandatory buy-in if not resolved. Estimated cost: <strong>€45,000 above market</strong>. Escalated to Senior Ops at 05:58.</div>
+            </div>
+            <div class="reg-item" style="cursor:pointer;" onclick="openModal('emir-modal')">
+              <div class="reg-header">
+                <div class="reg-name">EMIR Trade Reporting</div>
+                <div class="reg-status" style="background:rgba(245,166,35,.1);color:var(--accent-amber);border:1px solid rgba(245,166,35,.2);">T+1 · 12:00</div>
+              </div>
+              <div class="reg-body">14 derivative trades require EMIR reporting to FCA trade repository. Auto-generated reports ready — 0 manual prep required.</div>
+            </div>
+            <div class="reg-item" style="cursor:pointer;" onclick="openModal('mifid-modal')">
+              <div class="reg-header">
+                <div class="reg-name">MiFID II Transaction Reporting</div>
+                <div class="reg-status" style="background:rgba(0,200,150,.1);color:var(--accent-green);border:1px solid rgba(0,200,150,.2);">ON TRACK</div>
+              </div>
+              <div class="reg-body">Yesterday's 127 reportable transactions submitted to FCA ARM at 06:15 GMT. Confirmation ref: ARM-2026-0219-00847.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ SCREEN: SETTINGS ══════════════════ -->
+    <div id="screen-settings" class="screen">
+      <div class="screen-header">
+        <div>
+          <div class="screen-title">Settings</div>
+          <div class="screen-subtitle">SYSTEM CONFIGURATION · INTEGRATIONS · USER PREFERENCES</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="showToast('Settings saved successfully','success')">Save Changes</button>
+        </div>
+      </div>
+      <div class="settings-layout">
+
+        <div class="settings-section">
+          <div class="settings-section-title">Data Integrations</div>
+          <div class="integration-card">
+            <div class="integration-info">
+              <div class="integration-icon">SS</div>
+              <div><div class="integration-name">SmartStream TLM</div><div class="integration-status">● Connected · Last sync 07:02 GMT</div></div>
+            </div>
+            <button class="btn" onclick="openModal('integration-modal')">Configure</button>
+          </div>
+          <div class="integration-card">
+            <div class="integration-info">
+              <div class="integration-icon">BR</div>
+              <div><div class="integration-name">Broadridge</div><div class="integration-status">● Connected · Last sync 07:00 GMT</div></div>
+            </div>
+            <button class="btn" onclick="openModal('integration-modal')">Configure</button>
+          </div>
+          <div class="integration-card">
+            <div class="integration-info">
+              <div class="integration-icon">BL</div>
+              <div><div class="integration-name">Bloomberg B-PIPE</div><div class="integration-status">● Connected · Real-time feed active</div></div>
+            </div>
+            <button class="btn" onclick="openModal('integration-modal')">Configure</button>
+          </div>
+          <div class="integration-card">
+            <div class="integration-info">
+              <div class="integration-icon">AL</div>
+              <div><div class="integration-name">BlackRock Aladdin (OMS)</div><div class="integration-status disconnected">○ Disconnected</div></div>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('connect-modal')">Connect</button>
+          </div>
+          <div class="integration-card">
+            <div class="integration-info">
+              <div class="integration-icon">EC</div>
+              <div><div class="integration-name">Euroclear SWIFT Feed</div><div class="integration-status">● Connected · SWIFT MT950 active</div></div>
+            </div>
+            <button class="btn" onclick="openModal('integration-modal')">Configure</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">AI Intelligence Settings</div>
+          <div class="settings-row">
+            <div><div class="settings-label">Auto-resolve low-confidence breaks</div><div class="settings-desc">Automatically close breaks classified as rounding differences or timing offsets below £5,000</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">AI draft counterparty communications</div><div class="settings-desc">Generate draft emails for each break requiring counterparty contact</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Institutional memory learning</div><div class="settings-desc">Feed resolved breaks back into the pattern recognition model</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Confidence threshold for auto-classification</div><div class="settings-desc">Minimum confidence score to display AI hypothesis without human review flag</div></div>
+            <select class="settings-select"><option>70%</option><option selected>75%</option><option>80%</option><option>85%</option></select>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Regulatory Configuration</div>
+          <div class="settings-row">
+            <div><div class="settings-label">CSDR jurisdiction</div><div class="settings-desc">Regulatory framework for settlement discipline calculations</div></div>
+            <select class="settings-select"><option selected>EU / UK CSDR</option><option>US SEC Rule 15c3-3</option><option>APAC</option></select>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">CSDR early warning threshold</div><div class="settings-desc">Alert when failing position reaches this percentage of buy-in timeline</div></div>
+            <select class="settings-select"><option>25%</option><option selected>50%</option><option>75%</option></select>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Auto-generate MiFID II documentation</div><div class="settings-desc">Automatically produce best execution records for all reportable transactions</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">EMIR reporting entity LEI</div><div class="settings-desc">Legal Entity Identifier for trade repository reporting</div></div>
+            <input class="settings-input" value="213800WAVVOPS85N2205" />
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Notifications & Alerts</div>
+          <div class="settings-row">
+            <div><div class="settings-label">CSDR penalty alerts</div><div class="settings-desc">Real-time push notification when a position starts accruing CSDR penalties</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Buy-in deadline warnings</div><div class="settings-desc">Alert at 24h, 4h, and 1h before mandatory buy-in triggers</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Daily reconciliation summary</div><div class="settings-desc">Email digest at 08:00 GMT with overnight breaks and pending actions</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Notification email</div></div>
+            <input class="settings-input" value="s.rahman@institution.com" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- end main-area -->
+</div><!-- end layout -->
+
+<!-- ══════════════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════════════ -->
+
+<!-- RESOLVE MODAL -->
+<div class="modal-overlay" id="resolve-modal">
+  <div class="modal">
+    <div class="modal-title">Resolve Break</div>
+    <div class="modal-subtitle" id="resolve-subtitle">Mark this break as resolved and update the audit trail</div>
+    <div class="modal-info"><strong>Break:</strong> <span id="resolve-break-id">BRK-4471</span><br><strong>Instrument:</strong> <span id="resolve-instrument">KfW 2.375% 2031</span><br><strong>Break Amount:</strong> <span id="resolve-amount">€2,450,000</span></div>
+    <div class="modal-field">
+      <div class="modal-label">Resolution Method</div>
+      <select class="modal-select" style="width:100%">
+        <option>Counterparty confirmed and amended</option>
+        <option>Internal booking correction</option>
+        <option>Corporate action timing — self-resolved</option>
+        <option>FX conversion reconciled</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Resolution Notes</div>
+      <textarea class="modal-textarea" placeholder="Add notes for the audit trail…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('resolve-modal')">Cancel</button>
+      <button class="btn btn-success" onclick="confirmResolve()">✓ Mark as Resolved</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESOLVE SUCCESS MODAL -->
+<div class="modal-overlay" id="resolve-success-modal">
+  <div class="modal">
+    <div class="modal-success">
+      <div class="modal-success-icon">✓</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px;">Break Resolved</div>
+      <div style="font-size:12px;color:var(--accent-green);opacity:.8;" id="resolve-success-msg">BRK-4471 has been marked as resolved and logged to the audit trail.</div>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:16px;">Resolution documented automatically. Regulatory audit trail updated.</div>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn btn-primary" onclick="closeModal('resolve-success-modal');showScreen('queue')">Return to Queue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ESCALATE MODAL -->
+<div class="modal-overlay" id="escalate-modal">
+  <div class="modal">
+    <div class="modal-title">Escalate Break</div>
+    <div class="modal-subtitle" id="escalate-subtitle">Route this break to a senior team member for urgent action</div>
+    <div class="modal-warning">⚠ This break has active CSDR penalty accrual. Escalation will be flagged as time-critical in the audit trail.</div>
+    <div class="modal-field">
+      <div class="modal-label">Select Team Member</div>
+      <div class="team-option selected" onclick="selectTeam(this)">
+        <div class="team-avatar">TO</div>
+        <div><div class="team-name">T. Okafor</div><div class="team-role">Senior Operations Manager</div></div>
+      </div>
+      <div class="team-option" onclick="selectTeam(this)">
+        <div class="team-avatar">MK</div>
+        <div><div class="team-name">M. Krishnamurthy</div><div class="team-role">Head of Reconciliation</div></div>
+      </div>
+      <div class="team-option" onclick="selectTeam(this)">
+        <div class="team-avatar">JL</div>
+        <div><div class="team-name">J. Li</div><div class="team-role">Compliance Officer</div></div>
+      </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Escalation Note</div>
+      <textarea class="modal-textarea" placeholder="Briefly describe why you are escalating…">CSDR penalty accruing. BNY Mellon not responding to initial query. Buy-in risk if not resolved by 14:00 GMT.</textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('escalate-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmEscalate()">↑ Escalate Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEND COMMS MODAL -->
+<div class="modal-overlay" id="send-modal">
+  <div class="modal wide">
+    <div class="modal-title">Send Counterparty Communication</div>
+    <div class="modal-subtitle">Review and send the AI-drafted message via Bloomberg or email</div>
+    <div class="modal-field">
+      <div class="modal-label">Channel</div>
+      <select class="modal-select" style="width:100%">
+        <option>Email — ops.settlement@bnymellon.com</option>
+        <option>Bloomberg Chat — BNY MELLON OPS</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Message</div>
+      <textarea class="modal-textarea" style="min-height:160px;">Dear BNY Mellon Operations,
+
+We are writing regarding a settlement discrepancy on the following position:
+
+  ISIN:             DE000BWB1AK5 (KfW 2.375% 2031)
+  Internal Ref:     BRK-4471
+  Break Type:       Settlement Date / Quantity Discrepancy
+  Our Settlement:   19-Feb-2026
+  Your Statement:   20-Feb-2026
+
+We believe this discrepancy relates to ex-date treatment on the recent KfW coupon event. Could you please confirm your ex-date reference and advise whether a settlement date amendment is possible by 11:00 GMT today?
+
+Separately, we show a quantity of 2,000,000 against your statement of 1,800,000. Please advise on the status of the 200,000 unit difference.
+
+Kind regards,
+S. Rahman — Reconciliation Operations</textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('send-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSend()">Send Message ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECONCILIATION MODAL -->
+<div class="modal-overlay" id="recon-modal">
+  <div class="modal">
+    <div class="modal-title" id="recon-title">Run Full Reconciliation</div>
+    <div class="modal-subtitle" id="recon-subtitle">Process all position data against custodian statements</div>
+    <div id="recon-pre">
+      <div class="modal-info">
+        <strong>Scope:</strong> 2,847 positions across 4 custodians<br>
+        <strong>Data sources:</strong> SmartStream, BNY Mellon, JP Morgan, Citi, State Street<br>
+        <strong>Estimated duration:</strong> 45–90 seconds
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Run Type</div>
+        <select class="modal-select" style="width:100%">
+          <option selected>Full intraday reconciliation</option>
+          <option>Fixed income only</option>
+          <option>Equities only</option>
+          <option>CSDR failing positions only</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal('recon-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="startRecon()">▶ Start Reconciliation</button>
+      </div>
+    </div>
+    <div id="recon-running" style="display:none;">
+      <div id="recon-checklist">
+        <div class="checklist-item"><div class="check-icon check-done">✓</div>Connecting to SmartStream TLM</div>
+        <div class="checklist-item"><div class="check-icon check-done">✓</div>Fetching BNY Mellon T+0 statements</div>
+        <div class="checklist-item"><div class="check-icon check-running">◌</div>Processing JP Morgan custodian data</div>
+        <div class="checklist-item"><div class="check-icon check-pending">◌</div>Running AI break classification</div>
+        <div class="checklist-item"><div class="check-icon check-pending">◌</div>Generating CSDR assessment</div>
+        <div class="checklist-item"><div class="check-icon check-pending">◌</div>Updating institutional memory</div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="recon-progress" style="width:35%"></div></div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);text-align:center;" id="recon-status">Processing position data… 1,245 / 2,847</div>
+    </div>
+    <div id="recon-done" style="display:none;">
+      <div class="modal-success">
+        <div class="modal-success-icon">⚡</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:6px;">Reconciliation Complete</div>
+        <div style="font-size:12px;opacity:.8;">2,847 positions processed · 8 new breaks detected · 3 auto-resolved</div>
+      </div>
+      <div class="modal-actions" style="justify-content:center;">
+        <button class="btn btn-primary" onclick="closeModal('recon-modal');showScreen('queue')">View Updated Queue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-title">Export Break Queue</div>
+    <div class="modal-subtitle">Download current break data in your preferred format</div>
+    <div class="modal-field">
+      <div class="modal-label">Export Format</div>
+      <select class="modal-select" style="width:100%">
+        <option selected>Excel (.xlsx) — Full break data with AI analysis</option>
+        <option>CSV — Position data only</option>
+        <option>PDF — Formatted report for management</option>
+        <option>JSON — API-compatible format</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Include</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text-secondary);">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" checked> AI root cause analysis</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" checked> CSDR penalty calculations</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" checked> Resolution recommendations</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox"> Institutional memory patterns</label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('export-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmExport('export-modal','Break queue exported successfully')">↓ Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- CSDR EXPORT MODAL -->
+<div class="modal-overlay" id="csdr-export-modal">
+  <div class="modal">
+    <div class="modal-title">Export CSDR Report</div>
+    <div class="modal-subtitle">Generate the official settlement discipline report for regulatory submission</div>
+    <div class="modal-info">
+      <strong>Report period:</strong> 19 Feb 2026<br>
+      <strong>Failing positions:</strong> 8<br>
+      <strong>Total penalty accrual:</strong> €84,200<br>
+      <strong>Buy-in obligations:</strong> 1 position (BRK-4437)
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Submit To</div>
+      <select class="modal-select" style="width:100%">
+        <option selected>FCA (UK) — via REGDATA portal</option>
+        <option>ESMA (EU) — via FIRDS</option>
+        <option>Download only — manual submission</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('csdr-export-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmExport('csdr-export-modal','CSDR report generated and ready for submission')">Generate Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF EXPORT MODAL -->
+<div class="modal-overlay" id="pdf-modal">
+  <div class="modal">
+    <div class="modal-title">Export Audit Trail PDF</div>
+    <div class="modal-subtitle">Generate a tamper-evident PDF of the complete audit trail</div>
+    <div class="modal-info"><strong>Period:</strong> 19 Feb 2026 · Full session<br><strong>Events logged:</strong> 47 entries<br><strong>Coverage:</strong> 100% of breaks documented</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('pdf-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmExport('pdf-modal','Audit trail PDF generated successfully')">↓ Generate PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGN ALL MODAL -->
+<div class="modal-overlay" id="assign-modal">
+  <div class="modal">
+    <div class="modal-title">Auto-Assign Breaks</div>
+    <div class="modal-subtitle">AI will distribute unassigned breaks based on team capacity and counterparty ownership</div>
+    <div class="modal-info"><strong>Unassigned breaks:</strong> 5<br><strong>Available team members:</strong> S. Rahman, T. Okafor, M. Krishnamurthy</div>
+    <div class="modal-field">
+      <div class="modal-label">Assignment Logic</div>
+      <select class="modal-select" style="width:100%">
+        <option selected>AI-optimised (by counterparty ownership + workload)</option>
+        <option>Round robin</option>
+        <option>By severity (critical breaks to senior staff)</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('assign-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmExport('assign-modal','5 breaks assigned successfully')">Assign Breaks</button>
+    </div>
+  </div>
+</div>
+
+<!-- FILING MODAL -->
+<div class="modal-overlay" id="filing-modal">
+  <div class="modal">
+    <div class="modal-title">Generate Regulatory Filing</div>
+    <div class="modal-subtitle">Produce and submit the required regulatory reports</div>
+    <div class="modal-field">
+      <div class="modal-label">Filing Type</div>
+      <select class="modal-select" style="width:100%">
+        <option selected>CSDR Settlement Discipline Report</option>
+        <option>EMIR Trade Report</option>
+        <option>MiFID II Transaction Report (ARM)</option>
+        <option>Full Regulatory Package (all applicable)</option>
+      </select>
+    </div>
+    <div class="modal-info">All required data has been auto-collected from the reconciliation session. <strong>Zero manual data entry required.</strong></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('filing-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmExport('filing-modal','Regulatory filing generated and submitted')">Generate & Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUY-IN DETAIL MODAL -->
+<div class="modal-overlay" id="buyin-modal">
+  <div class="modal">
+    <div class="modal-title">⚠ Buy-In Alert — BRK-4437</div>
+    <div class="modal-subtitle">Mandatory buy-in triggers at 17:30 GMT today</div>
+    <div class="modal-warning">This position has failed to settle for 4 consecutive business days. Under CSDR Article 7, the CSD will initiate a mandatory buy-in at market open tomorrow unless resolved today.</div>
+    <div class="modal-info">
+      <strong>Instrument:</strong> Italian BTp 1.35% 2022 (IT0005367492)<br>
+      <strong>Fail quantity:</strong> 5,000,000 units<br>
+      <strong>Current market value:</strong> €4,850,000<br>
+      <strong>Estimated buy-in premium:</strong> €45,000 (0.93% above market)<br>
+      <strong>Escalated to:</strong> T. Okafor at 05:58 GMT
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('buyin-modal')">Close</button>
+      <button class="btn btn-danger" onclick="closeModal('buyin-modal');openBreakDetail('BRK-4471')">View in Detail →</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMIR MODAL -->
+<div class="modal-overlay" id="emir-modal">
+  <div class="modal">
+    <div class="modal-title">EMIR Trade Reporting</div>
+    <div class="modal-subtitle">14 derivative trades pending FCA trade repository submission</div>
+    <div class="modal-info"><strong>Deadline:</strong> T+1 by 12:00 GMT<br><strong>Reports ready:</strong> 14 of 14<br><strong>Manual preparation required:</strong> 0<br><strong>Repository:</strong> DTCC (GTR)</div>
+    <div style="font-size:12px;color:var(--accent-green);margin-bottom:16px;">✓ All 14 reports auto-generated and validated. Ready for submission.</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('emir-modal')">Close</button>
+      <button class="btn btn-primary" onclick="confirmExport('emir-modal','14 EMIR reports submitted to DTCC GTR')">Submit to Repository ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- MIFID MODAL -->
+<div class="modal-overlay" id="mifid-modal">
+  <div class="modal">
+    <div class="modal-title">MiFID II Transaction Reporting</div>
+    <div class="modal-subtitle">Yesterday's submission — confirmation details</div>
+    <div class="modal-success" style="font-size:12px;">
+      <div style="font-size:20px;">✓</div>
+      127 transactions submitted successfully to FCA ARM at 06:15 GMT. Zero rejections.
+    </div>
+    <div class="modal-info"><strong>Submission ref:</strong> ARM-2026-0219-00847<br><strong>Accepted:</strong> 127 of 127<br><strong>Rejected:</strong> 0</div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeModal('mifid-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- INTEGRATION CONFIGURE MODAL -->
+<div class="modal-overlay" id="integration-modal">
+  <div class="modal">
+    <div class="modal-title">Configure Integration</div>
+    <div class="modal-subtitle">Adjust connection settings and sync frequency</div>
+    <div class="modal-field"><div class="modal-label">API Endpoint</div><input class="modal-input" value="https://api.smartstream.com/v2/recon" /></div>
+    <div class="modal-field"><div class="modal-label">Sync Frequency</div><select class="modal-select" style="width:100%"><option>Real-time (WebSocket)</option><option selected>Every 5 minutes</option><option>Every 15 minutes</option><option>Hourly</option></select></div>
+    <div class="modal-field"><div class="modal-label">Data Format</div><select class="modal-select" style="width:100%"><option selected>JSON / REST</option><option>SWIFT MT950</option><option>CSV / SFTP</option><option>FIX Protocol</option></select></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('integration-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmExport('integration-modal','Integration settings saved')">Save Configuration</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONNECT NEW INTEGRATION -->
+<div class="modal-overlay" id="connect-modal">
+  <div class="modal">
+    <div class="modal-title">Connect BlackRock Aladdin</div>
+    <div class="modal-subtitle">Configure OMS data feed integration</div>
+    <div class="modal-field"><div class="modal-label">Aladdin API Key</div><input class="modal-input" placeholder="Enter your Aladdin API key…" /></div>
+    <div class="modal-field"><div class="modal-label">Environment</div><select class="modal-select" style="width:100%"><option>Production</option><option selected>UAT / Staging</option></select></div>
+    <div class="modal-field"><div class="modal-label">Data Scope</div><select class="modal-select" style="width:100%"><option selected>Positions + Trades</option><option>Positions only</option></select></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('connect-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmExport('connect-modal','BlackRock Aladdin connected successfully')">Test & Connect</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+// ── DATA ──────────────────────────────────────────────
+const breaks = [
+  {
+    id:'BRK-4471', sev:'critical', isin:'DE000BWB1AK5', name:'KfW 2.375% 2031',
+    counterparty:'BNY Mellon / Euroclear', amount:'EUR 2,450,000', assetClass:'fi', custodian:'bny',
+    hypothesis:'Corporate action timing — ex-date discrepancy',
+    csdr:'T+2 FAIL', csdrClass:'csdr-critical', penalty:'EUR 1,225', penaltyClass:'penalty-active',
+    action:'investigate', tags:['csdr'],
+    detail: {
+      sev:'CRITICAL', isin:'DE000BWB1AK5', assetClass:'Fixed Income · EUR',
+      csdrStatus:'FAILING', csdrColor:'var(--accent-red)',
+      confidence:87,
+      internal:{ source:'Internal OMS · BlackRock Aladdin', qty:'2,000,000', settle:'19-Feb-2026', accrued:'EUR 47,500', custodian:'BNY Mellon', diffQty:true, diffSettle:true },
+      external:{ source:'Custodian Statement · BNY Mellon', qty:'1,800,000', settle:'20-Feb-2026', accrued:'EUR 47,500', custodian:'BNY Mellon' },
+      analysis:'The break is caused by a <strong>corporate action ex-date timing discrepancy</strong> on KfW 2.375% 2031. KfW declared a coupon payment with an ex-date of <strong>17-Feb-2026</strong>, but the internal OMS applied this on trade date <strong>18-Feb-2026</strong>, creating a settlement date offset. BNY Mellon recognised the ex-date correctly per Euroclear instruction.<br><br>The quantity discrepancy of <strong>200,000 units</strong> is a separate unconfirmed partial allocation from the 18-Feb booking, consistent with Deutsche Bank confirmation patterns.',
+      steps:['Contact <strong>BNY Mellon Operations</strong> (ops.settlement@bnymellon.com) to confirm ex-date treatment and request settlement date amendment to 19-Feb.','Contact <strong>Deutsche Bank Trade Confirmation</strong> to obtain confirmation of the 200,000 unit partial allocation from booking ref DB-20240218-KFW.','If BNY Mellon does not confirm by <strong>11:00 GMT</strong>, escalate to Senior Operations Manager — CSDR penalty begins at market close.'],
+      commsTo:'ops.settlement@bnymellon.com', commsSubject:'Settlement Date Query — DE000BWB1AK5 — BRK-4471',
+      commsBody:'Dear BNY Mellon Operations,\n\nWe are writing regarding a settlement discrepancy:\n\n  ISIN:             DE000BWB1AK5 (KfW 2.375% 2031)\n  Internal Ref:     BRK-4471\n  Our Settlement:   19-Feb-2026\n  Your Statement:   20-Feb-2026\n\nPlease confirm your ex-date reference and advise whether a settlement date amendment is possible by 11:00 GMT today. We also show a quantity of 2,000,000 against your statement of 1,800,000 — please advise on the 200,000 unit difference.\n\nKind regards,\nS. Rahman — Reconciliation Operations',
+      pattern:{ label:'BNY Mellon x Corporate Actions x KfW', count:14, avgTime:'3h 22min', sla:'2h 45min', method:'Email ops team', accuracy:'91%' },
+      reg:{ name:'CSDR Settlement Discipline', status:'FAILING', statusColor:'var(--accent-red)', statusBg:'rgba(232,68,68,0.1)', statusBorder:'rgba(232,68,68,0.3)', body:'Position has failed to settle on intended settlement date. <strong>Penalty accrual begins at market close today</strong> at 0.5 bps/day on EUR 2,450,000. Estimated daily penalty: <strong>EUR 1,225</strong>. Buy-in obligation after 4 business days.', clockPct:30, clockColor:'var(--accent-red)', clockLabel:'Buy-in: 3d 14h' },
+      history:[{t:'07:02 GMT',e:'<strong>Break detected</strong> — BNY Mellon T+0 statement received and parsed'},{t:'07:04 GMT',e:'<strong>AI analysis complete</strong> — Root cause: corporate action ex-date (87% confidence)'},{t:'07:04 GMT',e:'<strong>CSDR flag raised</strong> — Position identified as T+0 failing'},{t:'07:05 GMT',e:'<strong>Queued for S. Rahman</strong> — Assigned based on BNY Mellon ownership'},{t:'07:42 GMT',e:'<strong>Under investigation</strong> — Draft communication prepared'}]
+    }
+  },
+  {
+    id:'BRK-4468', sev:'critical', isin:'GB00B1YW4409', name:'Vodafone Group PLC',
+    counterparty:'Citi / CREST', amount:'GBP 890,000', assetClass:'eq', custodian:'citi',
+    hypothesis:'Settlement date convention mismatch T+2/T+3',
+    csdr:'T+2 FAIL', csdrClass:'csdr-critical', penalty:'GBP 356', penaltyClass:'penalty-active',
+    action:'escalate', tags:['csdr'],
+    detail: {
+      sev:'CRITICAL', isin:'GB00B1YW4409', assetClass:'Equities · GBP',
+      csdrStatus:'FAILING', csdrColor:'var(--accent-red)',
+      confidence:92,
+      internal:{ source:'Internal OMS · BlackRock Aladdin', qty:'100,000', settle:'19-Feb-2026', accrued:'GBP 0', custodian:'Citi', diffSettle:true },
+      external:{ source:'Custodian Statement · Citi / CREST', qty:'100,000', settle:'20-Feb-2026', accrued:'GBP 0', custodian:'Citi' },
+      analysis:'This break is caused by a <strong>settlement convention discrepancy</strong>. The trade was booked internally on a T+2 basis (standard UK equity settlement), but the instruction sent to CREST via Citi was submitted with a T+3 settlement date. This is a <strong>known booking error pattern</strong> on UK equity trades processed through the London desk after 16:00 GMT — seen 6 times in the past 90 days.',
+      steps:['Submit a <strong>settlement amendment instruction</strong> to Citi CREST Operations to correct the settlement date from 20-Feb to 19-Feb.','Reference trade ID <strong>VF-20240218-001</strong> in the amendment. Citi CREST typically processes amendments within 45 minutes.','If amendment not confirmed by <strong>10:30 GMT</strong>, escalate — CREST cut-off for same-day amendments is 12:00 GMT.'],
+      commsTo:'crest.ops@citi.com', commsSubject:'Settlement Date Amendment — GB00B1YW4409 — BRK-4468',
+      commsBody:'Dear Citi CREST Operations,\n\nPlease process the following settlement date amendment:\n\n  ISIN:             GB00B1YW4409 (Vodafone Group PLC)\n  Trade ID:         VF-20240218-001\n  Current Settle:   20-Feb-2026\n  Requested Settle: 19-Feb-2026\n  Quantity:         100,000 shares\n\nThis is urgent — CSDR penalty accrual begins at market close today.\n\nKind regards,\nS. Rahman — Reconciliation Operations',
+      pattern:{ label:'Citi CREST x Settlement Convention x UK Equities', count:6, avgTime:'1h 48min', sla:'45min', method:'Amendment via Citi portal', accuracy:'95%' },
+      reg:{ name:'CSDR Settlement Discipline', status:'FAILING', statusColor:'var(--accent-red)', statusBg:'rgba(232,68,68,0.1)', statusBorder:'rgba(232,68,68,0.3)', body:'UK equity position failing settlement. <strong>Penalty accrual at 1.0 bps/day</strong> on GBP 890,000 = GBP 89/day. Buy-in obligations after 4 business days.', clockPct:25, clockColor:'var(--accent-red)', clockLabel:'Buy-in: 3d 18h' },
+      history:[{t:'06:58 GMT',e:'<strong>Break detected</strong> — Citi CREST T+0 statement parsed'},{t:'07:00 GMT',e:'<strong>AI analysis complete</strong> — Root cause: T+2/T+3 convention (92% confidence)'},{t:'07:01 GMT',e:'<strong>CSDR flag raised</strong> — UK equity failing settlement'},{t:'07:10 GMT',e:'<strong>Pattern match</strong> — 6 identical breaks found in 90-day history'}]
+    }
+  },
+  {
+    id:'BRK-4465', sev:'high', isin:'US912828ZL15', name:'US Treasury 1.5% 2025',
+    counterparty:'JP Morgan / DTC', amount:'USD 5,000,000', assetClass:'fi', custodian:'jpm',
+    hypothesis:'FX conversion rate variance — USD/EUR booking',
+    csdr:'T+3 Review', csdrClass:'csdr-warning', penalty:'USD 2,500', penaltyClass:'penalty-accruing',
+    action:'resolve', tags:['csdr'],
+    detail: {
+      sev:'HIGH', isin:'US912828ZL15', assetClass:'Fixed Income · USD',
+      csdrStatus:'REVIEW', csdrColor:'var(--accent-amber)',
+      confidence:81,
+      internal:{ source:'Internal OMS · BlackRock Aladdin', qty:'5,000,000', settle:'19-Feb-2026', accrued:'USD 37,500', custodian:'JP Morgan', diffAccrued:true },
+      external:{ source:'Custodian Statement · JP Morgan / DTC', qty:'5,000,000', settle:'19-Feb-2026', accrued:'USD 37,812', custodian:'JP Morgan' },
+      analysis:'The break is an <strong>FX conversion rate variance</strong> on accrued interest. The internal system booked accrued interest using the USD/EUR rate of 1.0802 (yesterday\'s fixing), while JP Morgan\'s statement reflects 1.0875 (this morning\'s ECB fixing). The difference is <strong>USD 312 on the accrued interest line</strong>.<br><br>This is a timing difference that will <strong>self-resolve on tomorrow\'s T+0 statement</strong> once both systems align on the same FX fixing date.',
+      steps:['<strong>No immediate action required.</strong> This break will self-resolve on the T+0 statement tomorrow when both systems use the same ECB fixing date.','If the break persists after 20-Feb, contact JP Morgan Operations to confirm FX fixing date methodology.','Update the internal OMS to use the same-day ECB fixing for accrued interest calculations to prevent recurrence.'],
+      commsTo:'N/A — self-resolving', commsSubject:'N/A',
+      commsBody:'No counterparty communication required.\n\nThis is a FX rate timing difference that will resolve automatically on the next T+0 statement cycle. The difference of USD 312 is below the materiality threshold.\n\nMonitoring until 20-Feb-2026.',
+      pattern:{ label:'JP Morgan x FX Variance x US Treasuries', count:22, avgTime:'Self-resolves T+1', sla:'N/A', method:'Monitor — auto-closes', accuracy:'98%' },
+      reg:{ name:'CSDR Settlement Discipline', status:'REVIEW', statusColor:'var(--accent-amber)', statusBg:'rgba(245,166,35,0.1)', statusBorder:'rgba(245,166,35,0.2)', body:'Position is settling on time. Accrued interest discrepancy of USD 312 does not affect settlement. No CSDR obligation triggered.', clockPct:0, clockColor:'var(--accent-green)', clockLabel:'No buy-in risk' },
+      history:[{t:'07:15 GMT',e:'<strong>Break detected</strong> — JP Morgan T+0 statement parsed'},{t:'07:16 GMT',e:'<strong>AI analysis complete</strong> — Root cause: FX rate timing (81% confidence)'},{t:'07:16 GMT',e:'<strong>Self-resolving flag set</strong> — Monitor until 20-Feb statement'}]
+    }
+  },
+  {
+    id:'BRK-4463', sev:'high', isin:'FR0000131104', name:'BNP Paribas SA',
+    counterparty:'State Street / Euroclear', amount:'EUR 1,100,000', assetClass:'eq', custodian:'ss',
+    hypothesis:'Partial fill booking — quantity discrepancy 500 units',
+    csdr:'T+3 Monitor', csdrClass:'csdr-warning', penalty:'EUR 440', penaltyClass:'penalty-accruing',
+    action:'resolve', tags:[],
+    detail: {
+      sev:'HIGH', isin:'FR0000131104', assetClass:'Equities · EUR',
+      csdrStatus:'MONITOR', csdrColor:'var(--accent-amber)',
+      confidence:78,
+      internal:{ source:'Internal OMS · BlackRock Aladdin', qty:'10,000', settle:'19-Feb-2026', accrued:'EUR 0', custodian:'State Street', diffQty:true },
+      external:{ source:'Custodian Statement · State Street / Euroclear', qty:'9,500', settle:'19-Feb-2026', accrued:'EUR 0', custodian:'State Street' },
+      analysis:'The quantity discrepancy of <strong>500 shares</strong> relates to a partial fill on a block trade executed on 18-Feb. Exane BNP executed 9,500 of the 10,000 order and the remaining 500 shares are on a working order. The internal OMS booked the <strong>full 10,000</strong> on trade date, while State Street received confirmation of <strong>9,500 only</strong>.',
+      steps:['Contact <strong>Exane BNP execution desk</strong> to confirm status of the remaining 500 share fill on trade date 18-Feb.','If fill confirmed, instruct State Street to update position to 10,000. If order cancelled, correct the internal OMS booking to 9,500.','Expected resolution by <strong>16:00 GMT</strong> today based on Exane typical fill confirmation timeline.'],
+      commsTo:'execution@exane.com', commsSubject:'Partial Fill Confirmation — FR0000131104 — BRK-4463',
+      commsBody:'Dear Exane Execution Desk,\n\nCould you please confirm the status of the following order:\n\n  ISIN:         FR0000131104 (BNP Paribas SA)\n  Trade Date:   18-Feb-2026\n  Order Qty:    10,000 shares\n  Confirmed:    9,500 shares\n  Outstanding:  500 shares\n\nPlease advise whether the remaining 500 shares will be filled today or if the order has been cancelled.\n\nKind regards,\nS. Rahman — Reconciliation Operations',
+      pattern:{ label:'State Street x Partial Fills x French Equities', count:8, avgTime:'4h 10min', sla:'Same day', method:'Broker confirmation', accuracy:'82%' },
+      reg:{ name:'CSDR Settlement Discipline', status:'MONITOR', statusColor:'var(--accent-amber)', statusBg:'rgba(245,166,35,0.1)', statusBorder:'rgba(245,166,35,0.2)', body:'Position settling partially (9,500 of 10,000 units). 500 unit shortfall will accrue penalties if not resolved by T+2. Monitor and resolve today.', clockPct:55, clockColor:'var(--accent-amber)', clockLabel:'T+3 deadline: 22h' },
+      history:[{t:'07:20 GMT',e:'<strong>Break detected</strong> — State Street statement shows 9,500 vs internal 10,000'},{t:'07:21 GMT',e:'<strong>AI analysis complete</strong> — Root cause: partial fill (78% confidence)'},{t:'07:22 GMT',e:'<strong>Assigned to S. Rahman</strong> — French equity desk ownership'}]
+    }
+  },
+  {
+    id:'BRK-4460', sev:'high', isin:'XS2356789012', name:'Siemens AG 0.5% 2028',
+    counterparty:'Deutsche Bank / Clearstream', amount:'EUR 780,000', assetClass:'fi', custodian:'bny',
+    hypothesis:'Accrued interest — day count convention 30/360 vs Act/360',
+    csdr:'T+3 Monitor', csdrClass:'csdr-warning', penalty:'EUR 312', penaltyClass:'penalty-accruing',
+    action:'resolve', tags:[],
+    detail: {
+      sev:'HIGH', isin:'XS2356789012', assetClass:'Fixed Income · EUR',
+      csdrStatus:'MONITOR', csdrColor:'var(--accent-amber)',
+      confidence:89,
+      internal:{ source:'Internal OMS · BlackRock Aladdin', qty:'780,000', settle:'19-Feb-2026', accrued:'EUR 3,900', custodian:'Deutsche Bank', diffAccrued:true },
+      external:{ source:'Custodian Statement · Deutsche Bank / Clearstream', qty:'780,000', settle:'19-Feb-2026', accrued:'EUR 3,940', custodian:'Deutsche Bank' },
+      analysis:'The accrued interest discrepancy of <strong>EUR 40</strong> is caused by a <strong>day count convention difference</strong>. The internal system uses 30/360, while Deutsche Bank Clearstream calculates on Act/360. The bond prospectus specifies <strong>Act/365 Fixed</strong> — meaning both systems are incorrect. This is a system configuration issue that has caused 5 similar breaks in the past 3 months.',
+      steps:['Agree the correct accrued interest figure with Deutsche Bank based on <strong>Act/365 Fixed</strong> per the Siemens bond prospectus.','Submit a manual accrued interest correction in the OMS for the difference of EUR 40.','Raise a <strong>system configuration ticket</strong> to update the day count convention for XS2356789012 in the OMS to prevent recurrence.'],
+      commsTo:'recon.clearstream@db.com', commsSubject:'Accrued Interest Discrepancy — XS2356789012 — BRK-4460',
+      commsBody:'Dear Deutsche Bank Clearstream Operations,\n\nWe have an accrued interest discrepancy on the following position:\n\n  ISIN:          XS2356789012 (Siemens AG 0.5% 2028)\n  Internal Ref:  BRK-4460\n  Our Accrual:   EUR 3,900 (30/360)\n  Your Accrual:  EUR 3,940 (Act/360)\n  Difference:    EUR 40\n\nThe bond prospectus specifies Act/365 Fixed. Could you please confirm your calculation basis?\n\nKind regards,\nS. Rahman',
+      pattern:{ label:'Deutsche Bank x Day Count x Siemens Eurobond', count:5, avgTime:'2h 30min', sla:'Same day', method:'Manual OMS correction + DB agreement', accuracy:'94%' },
+      reg:{ name:'CSDR Settlement Discipline', status:'MONITOR', statusColor:'var(--accent-amber)', statusBg:'rgba(245,166,35,0.1)', statusBorder:'rgba(245,166,35,0.2)', body:'Position settling correctly — only accrued interest is in dispute. No settlement fail risk. Must be resolved before month-end reconciliation.', clockPct:0, clockColor:'var(--accent-green)', clockLabel:'No immediate risk' },
+      history:[{t:'07:18 GMT',e:'<strong>Break detected</strong> — Clearstream statement shows EUR 3,940 vs internal EUR 3,900'},{t:'07:19 GMT',e:'<strong>AI analysis complete</strong> — Root cause: 30/360 vs Act/360 (89% confidence)'},{t:'07:19 GMT',e:'<strong>Recurring pattern matched</strong> — 5 identical breaks in last 90 days'}]
+    }
+  },
+  {
+    id:'BRK-4458', sev:'medium', isin:'IE00B4L5Y983', name:'iShares Core MSCI World ETF',
+    counterparty:'BNY Mellon / Euronext', amount:'EUR 340,000', assetClass:'eq', custodian:'bny',
+    hypothesis:'Dividend reinvestment — likely self-resolving T+1',
+    csdr:'T+4 OK', csdrClass:'csdr-ok', penalty:'—', penaltyClass:'penalty-none',
+    action:'monitor', tags:['auto'],
+    detail: {
+      sev:'MEDIUM', isin:'IE00B4L5Y983', assetClass:'Equities · EUR (ETF)',
+      csdrStatus:'OK', csdrColor:'var(--accent-green)',
+      confidence:84,
+      internal:{ source:'Internal OMS · BlackRock Aladdin', qty:'12,500', settle:'19-Feb-2026', accrued:'EUR 0', custodian:'BNY Mellon', diffQty:true },
+      external:{ source:'Custodian Statement · BNY Mellon / Euronext', qty:'12,438', settle:'19-Feb-2026', accrued:'EUR 0', custodian:'BNY Mellon' },
+      analysis:'The quantity discrepancy of <strong>62 units</strong> is consistent with a <strong>dividend reinvestment event</strong>. iShares MSCI World declared a dividend on 14-Feb-2026. The DRIP units are in process of being created and will appear on BNY Mellon\'s statement on the T+1 settlement cycle.<br><br>This break will <strong>self-resolve on tomorrow\'s statement</strong>. No action required today.',
+      steps:['<strong>No action required today.</strong> The DRIP units will settle on tomorrow\'s T+1 cycle and the break will auto-close.','If the break persists after 20-Feb, contact BNY Mellon ETF Operations to confirm the DRIP unit creation.','Monitor via the compliance dashboard.'],
+      commsTo:'N/A — self-resolving', commsSubject:'N/A',
+      commsBody:'No counterparty communication required.\n\nThis is a dividend reinvestment timing difference. The 62-unit discrepancy represents DRIP units that will settle on the T+1 cycle.\n\nAuto-monitoring enabled. Expected to self-resolve 20-Feb-2026.',
+      pattern:{ label:'BNY Mellon x DRIP x iShares ETFs', count:18, avgTime:'Self-resolves T+1', sla:'N/A', method:'Auto-closes on next statement', accuracy:'97%' },
+      reg:{ name:'CSDR Settlement Discipline', status:'OK', statusColor:'var(--accent-green)', statusBg:'rgba(0,200,150,0.1)', statusBorder:'rgba(0,200,150,0.2)', body:'No settlement fail. Break is a timing difference below materiality threshold. No CSDR obligation.', clockPct:0, clockColor:'var(--accent-green)', clockLabel:'No risk' },
+      history:[{t:'07:25 GMT',e:'<strong>Break detected</strong> — BNY Mellon shows 12,438 vs internal 12,500'},{t:'07:26 GMT',e:'<strong>AI analysis complete</strong> — Root cause: DRIP timing (84% confidence)'},{t:'07:26 GMT',e:'<strong>Auto-monitoring set</strong> — Self-resolve expected 20-Feb'}]
+    }
+  },
+  {
+    id:'BRK-4456', sev:'medium', isin:'LU0274208692', name:'Xtrackers Euro Stoxx 50',
+    counterparty:'Citi / Euroclear', amount:'EUR 215,000', assetClass:'fx', custodian:'citi',
+    hypothesis:'Counterparty confirmation delay — Citi typically responds by 10:00',
+    csdr:'T+4 OK', csdrClass:'csdr-ok', penalty:'—', penaltyClass:'penalty-none',
+    action:'monitor', tags:['auto'],
+    detail: {
+      sev:'MEDIUM', isin:'LU0274208692', assetClass:'ETF · EUR',
+      csdrStatus:'OK', csdrColor:'var(--accent-green)',
+      confidence:76,
+      internal:{ source:'Internal OMS · BlackRock Aladdin', qty:'5,000', settle:'19-Feb-2026', accrued:'EUR 0', custodian:'Citi', diffSettle:true },
+      external:{ source:'Custodian Statement · Citi / Euroclear', qty:'5,000', settle:'Unconfirmed', accrued:'EUR 0', custodian:'Citi' },
+      analysis:'Citi has not yet confirmed the settlement instruction for this position. Based on <strong>Citi Euroclear\'s typical morning processing schedule</strong>, confirmation is expected by 10:00 GMT. This break appears on most mornings for Euroclear-routed ETF trades through Citi and always resolves before noon.',
+      steps:['<strong>Wait until 10:00 GMT.</strong> Citi Euroclear confirmation is consistently received by this time for this position type.','If no confirmation by 10:00 GMT, call Citi ETF Operations directly — phone call is faster than email for this counterparty.','Escalate at 11:00 GMT if still unresolved to avoid T+3 CSDR exposure.'],
+      commsTo:'etf.ops@citi.com', commsSubject:'Settlement Confirmation Pending — LU0274208692 — BRK-4456',
+      commsBody:'Dear Citi ETF Operations,\n\nWe have an unconfirmed settlement instruction:\n\n  ISIN:          LU0274208692 (Xtrackers Euro Stoxx 50)\n  Quantity:      5,000 units\n  Settlement:    19-Feb-2026\n\nCould you please confirm receipt and expected confirmation time?\n\nKind regards,\nS. Rahman',
+      pattern:{ label:'Citi x Confirmation Delay x Euroclear ETFs', count:31, avgTime:'Resolves by 10:15 GMT', sla:'~10:00 GMT', method:'Wait — auto-confirms', accuracy:'93%' },
+      reg:{ name:'CSDR Settlement Discipline', status:'OK', statusColor:'var(--accent-green)', statusBg:'rgba(0,200,150,0.1)', statusBorder:'rgba(0,200,150,0.2)', body:'No settlement fail. Confirmation timing break — not a genuine discrepancy. No CSDR obligation today.', clockPct:0, clockColor:'var(--accent-green)', clockLabel:'No risk today' },
+      history:[{t:'07:02 GMT',e:'<strong>Break detected</strong> — Citi statement shows unconfirmed status'},{t:'07:03 GMT',e:'<strong>AI analysis complete</strong> — Root cause: confirmation timing (76% confidence)'},{t:'07:03 GMT',e:'<strong>Auto-monitoring set</strong> — Pattern: resolves by 10:00 GMT in 31/31 cases'}]
+    }
+  },
+  {
+    id:'BRK-4451', sev:'low', isin:'US594918BP38', name:'Microsoft Corp 2.4% 2026',
+    counterparty:'JP Morgan / DTC', amount:'USD 120,000', assetClass:'fi', custodian:'jpm',
+    hypothesis:'Rounding difference — will auto-resolve on EOD sweep',
+    csdr:'T+5 Low', csdrClass:'csdr-ok', penalty:'—', penaltyClass:'penalty-none',
+    action:'auto', tags:['auto'],
+    detail: {
+      sev:'LOW', isin:'US594918BP38', assetClass:'Fixed Income · USD',
+      csdrStatus:'OK', csdrColor:'var(--accent-green)',
+      confidence:99,
+      internal:{ source:'Internal OMS · BlackRock Aladdin', qty:'120,000', settle:'19-Feb-2026', accrued:'USD 2,400.00', custodian:'JP Morgan', diffAccrued:true },
+      external:{ source:'Custodian Statement · JP Morgan / DTC', qty:'120,000', settle:'19-Feb-2026', accrued:'USD 2,400.01', custodian:'JP Morgan' },
+      analysis:'This is a <strong>USD 0.01 rounding difference</strong> on accrued interest. This is caused by a floating point precision difference between the internal OMS and JP Morgan DTC on the final decimal of the coupon calculation. This exact break appears on <strong>every interest accrual cycle</strong> for this CUSIP and is automatically corrected on the EOD sweep at 17:00 GMT.',
+      steps:['<strong>No action required.</strong> This break will auto-resolve on the EOD position sweep at 17:00 GMT.','This is a known rounding artifact — it appears on every accrual cycle and always auto-closes.','If it does not close after the EOD sweep, raise a system configuration ticket.'],
+      commsTo:'N/A', commsSubject:'N/A',
+      commsBody:'No action required.\n\nThis is a USD 0.01 rounding difference on accrued interest that auto-resolves on the EOD sweep at 17:00 GMT. This break pattern has occurred 47 times for this CUSIP and always closes automatically.',
+      pattern:{ label:'JP Morgan DTC x Rounding x US Corporates', count:47, avgTime:'Auto-resolves EOD', sla:'N/A', method:'EOD system sweep', accuracy:'100%' },
+      reg:{ name:'CSDR Settlement Discipline', status:'OK', statusColor:'var(--accent-green)', statusBg:'rgba(0,200,150,0.1)', statusBorder:'rgba(0,200,150,0.2)', body:'No settlement fail. Sub-penny rounding artifact with no CSDR implications.', clockPct:0, clockColor:'var(--accent-green)', clockLabel:'No risk' },
+      history:[{t:'07:05 GMT',e:'<strong>Break detected</strong> — USD 0.01 rounding difference on accrual'},{t:'07:05 GMT',e:'<strong>AI analysis complete</strong> — Root cause: rounding artifact (99% confidence)'},{t:'07:05 GMT',e:'<strong>Auto-resolve scheduled</strong> — EOD sweep 17:00 GMT'}]
+    }
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────
+var breakStates = {};
+var currentFilter = 'all';
+var currentSearch = '';
+var resolveTarget = null;
+var escalateTarget = null;
+var resolvedCountNum = 23;
+breaks.forEach(function(b){ breakStates[b.id] = 'open'; });
+
+// ── RENDER BREAK LIST ─────────────────────────────────
+function renderBreaks() {
+  var list = document.getElementById('break-list');
+  var empty = document.getElementById('empty-state');
+  var filtered = breaks.filter(function(b) {
+    var state = breakStates[b.id];
+    var s = currentSearch.toLowerCase();
+    if (s && b.isin.toLowerCase().indexOf(s) < 0 &&
+        b.name.toLowerCase().indexOf(s) < 0 &&
+        b.counterparty.toLowerCase().indexOf(s) < 0 &&
+        b.id.toLowerCase().indexOf(s) < 0) return false;
+    if (currentFilter === 'csdr') return b.tags.indexOf('csdr') >= 0 && state !== 'resolved';
+    if (currentFilter === 'unassigned') return state === 'open';
+    if (currentFilter === 'auto') return b.tags.indexOf('auto') >= 0;
+    if (currentFilter === 'critical') return b.sev === 'critical';
+    if (currentFilter === 'high') return b.sev === 'high';
+    if (currentFilter === 'medium') return b.sev === 'medium';
+    if (currentFilter === 'low') return b.sev === 'low';
+    if (currentFilter === 'fi') return b.assetClass === 'fi';
+    if (currentFilter === 'eq') return b.assetClass === 'eq';
+    if (currentFilter === 'fx') return b.assetClass === 'fx';
+    if (currentFilter === 'bny') return b.custodian === 'bny';
+    if (currentFilter === 'jpm') return b.custodian === 'jpm';
+    if (currentFilter === 'citi') return b.custodian === 'citi';
+    if (currentFilter === 'ss') return b.custodian === 'ss';
+    return true;
+  });
+  if (filtered.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = filtered.map(function(b, i) {
+    var state = breakStates[b.id];
+    var rowClass = 'break-row';
+    if (state === 'resolved') rowClass += ' resolved';
+    if (state === 'monitoring') rowClass += ' monitoring';
+    if (state === 'escalated') rowClass += ' escalated-row';
+    var stateTag = '';
+    if (state === 'monitoring') stateTag = ' <span class="tag tag-monitoring">MONITORING</span>';
+    if (state === 'escalated') stateTag = ' <span class="tag tag-escalated">ESCALATED</span>';
+    if (state === 'resolved') stateTag = ' <span class="tag tag-resolved">RESOLVED</span>';
+    var actionHtml = '';
+    if (state === 'resolved') {
+      actionHtml = '<span style="font-size:10px;color:var(--accent-green);">&#10003; Resolved</span>';
+    } else if (state === 'monitoring') {
+      actionHtml = '<button class="action-btn monitoring-btn" onclick="event.stopPropagation();openBreakDetail(\'' + b.id + '\')">Monitoring</button>';
+    } else if (state === 'escalated') {
+      actionHtml = '<button class="action-btn escalate" onclick="event.stopPropagation();openBreakDetail(\'' + b.id + '\')">Escalated</button>';
+    } else if (b.action === 'investigate') {
+      actionHtml = '<button class="action-btn investigate" onclick="event.stopPropagation();openBreakDetail(\'' + b.id + '\')">Investigate</button>';
+    } else if (b.action === 'escalate') {
+      actionHtml = '<button class="action-btn escalate" onclick="event.stopPropagation();openEscalateModal(\'' + b.id + '\')">Escalate</button>';
+    } else if (b.action === 'resolve') {
+      actionHtml = '<button class="action-btn resolve" onclick="event.stopPropagation();openResolveModal(\'' + b.id + '\')">Resolve</button>';
+    } else if (b.action === 'monitor') {
+      actionHtml = '<button class="action-btn" onclick="event.stopPropagation();setMonitoring(\'' + b.id + '\')">Monitor</button>';
+    } else if (b.action === 'auto') {
+      actionHtml = '<button class="action-btn" style="color:var(--accent-cyan);border-color:rgba(0,212,255,0.3);" onclick="event.stopPropagation();openBreakDetail(\'' + b.id + '\')">Auto-resolve</button>';
+    }
+    var delay = (i * 0.05) + 's';
+    return '<div class="' + rowClass + '" onclick="openBreakDetail(\'' + b.id + '\')" style="animation-delay:' + delay + ';">' +
+      '<div style="display:flex;align-items:center;justify-content:center;"><div class="severity-dot sev-' + b.sev + '"></div></div>' +
+      '<div class="break-id">' + b.id + '</div>' +
+      '<div><div class="break-instrument">' + b.isin + '</div><div class="break-instrument-sub">' + b.name + stateTag + '</div></div>' +
+      '<div class="break-counterparty">' + b.counterparty + '</div>' +
+      '<div class="break-amount">' + b.amount + '</div>' +
+      '<div class="ai-hypothesis"><span class="ai-tag">AI</span>' + b.hypothesis + '</div>' +
+      '<div class="csdr-clock ' + b.csdrClass + '">' + b.csdr + '</div>' +
+      '<div class="penalty-amount ' + b.penaltyClass + '">' + b.penalty + '</div>' +
+      '<div onclick="event.stopPropagation()">' + actionHtml + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ── BUILD DETAIL HTML ─────────────────────────────────
+function buildDetailHTML(b) {
+  var d = b.detail;
+  var id = b.id;
+  var state = breakStates[id];
+
+  var stateActions = '';
+  if (state === 'resolved') {
+    stateActions = '<span class="tag tag-resolved" style="font-size:12px;padding:4px 12px;">RESOLVED</span>';
+  } else {
+    stateActions = '<button class="btn" onclick="openResolveModal(\'' + id + '\')">Resolve</button>' +
+      '<button class="btn btn-danger" onclick="openEscalateModal(\'' + id + '\')">Escalate</button>' +
+      '<button class="btn btn-primary" onclick="showScreen(\'compliance\')">Audit Trail</button>';
+  }
+
+  var csdrChipStyle = d.csdrStatus === 'FAILING'
+    ? 'background:rgba(232,68,68,0.12);border:1px solid rgba(232,68,68,0.3);color:var(--accent-red);'
+    : 'background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:var(--accent-amber);';
+
+  var stepsHTML = d.steps.map(function(s, i) {
+    return '<div class="resolution-step"><div class="step-num">' + (i+1) + '</div><div class="step-text">' + s + '</div></div>';
+  }).join('');
+
+  var historyHTML = d.history.map(function(h) {
+    return '<div class="history-item"><span class="history-time">' + h.t + '</span><span class="history-event">' + h.e + '</span></div>';
+  }).join('');
+
+  var clockHTML = '';
+  if (d.reg.clockPct > 0) {
+    clockHTML = '<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">' +
+      '<span style="font-size:10px;color:var(--text-muted);font-family:\'IBM Plex Mono\',monospace;white-space:nowrap;">' + d.reg.clockLabel + '</span>' +
+      '<div class="clock-track"><div class="clock-fill" style="width:' + d.reg.clockPct + '%;background:' + d.reg.clockColor + ';"></div></div>' +
+      '</div>';
+  } else {
+    clockHTML = '<div style="font-size:10px;color:var(--accent-green);margin-top:6px;font-family:\'IBM Plex Mono\',monospace;">' + d.reg.clockLabel + '</div>';
+  }
+
+  var qtyDiffInt = d.internal.diffQty ? ' class="pos-val diff"' : ' class="pos-val"';
+  var settleDiffInt = d.internal.diffSettle ? ' class="pos-val diff"' : ' class="pos-val"';
+  var accrDiffInt = d.internal.diffAccrued ? ' class="pos-val diff"' : ' class="pos-val"';
+  var qtyDiffExt = d.internal.diffQty ? ' class="pos-val diff"' : ' class="pos-val"';
+  var settleDiffExt = d.internal.diffSettle ? ' class="pos-val diff"' : ' class="pos-val"';
+  var accrDiffExt = d.internal.diffAccrued ? ' class="pos-val diff"' : ' class="pos-val"';
+
+  var regItemStyle = 'border-color:' + d.reg.statusBorder + ';margin-bottom:14px;';
+
+  return '<div class="detail-back" onclick="showScreen(\'queue\')">&#8592; Back to Break Queue</div>' +
+    '<div class="detail-layout">' +
+    '<div class="detail-main">' +
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin:16px 0 20px;">' +
+    '<div>' +
+    '<div class="detail-title">' + id + ' &#8212; ' + b.name + '</div>' +
+    '<div class="detail-meta">' +
+    '<span class="meta-chip" style="background:rgba(232,68,68,0.12);border:1px solid rgba(232,68,68,0.3);color:var(--accent-red);">' + d.sev + '</span>' +
+    '<span class="meta-chip" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);">' + b.isin + '</span>' +
+    '<span class="meta-chip" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);">' + d.assetClass + '</span>' +
+    '<span class="meta-chip" style="' + csdrChipStyle + '">CSDR: ' + d.csdrStatus + '</span>' +
+    '</div></div>' +
+    '<div style="display:flex;gap:8px;">' + stateActions + '</div>' +
+    '</div>' +
+
+    '<div class="section-title">Position Comparison</div>' +
+    '<div class="position-compare">' +
+    '<div class="position-box">' +
+    '<div class="pos-source">' + d.internal.source + '</div>' +
+    '<div class="pos-row"><span class="pos-key">ISIN</span><span class="pos-val">' + b.isin + '</span></div>' +
+    '<div class="pos-row"><span class="pos-key">Quantity</span><span class="pos-val">' + d.internal.qty + '</span></div>' +
+    '<div class="pos-row"><span class="pos-key">Settlement</span><span class="pos-val">' + d.internal.settle + '</span></div>' +
+    '<div class="pos-row"><span class="pos-key">Accrued Int.</span><span class="pos-val">' + d.internal.accrued + '</span></div>' +
+    '</div>' +
+    '<div class="pos-vs">&#8800;</div>' +
+    '<div class="position-box mismatch">' +
+    '<div class="pos-source">' + d.external.source + '</div>' +
+    '<div class="pos-row"><span class="pos-key">ISIN</span><span class="pos-val">' + b.isin + '</span></div>' +
+    '<div class="pos-row"><span class="pos-key">Quantity</span><span' + qtyDiffExt + '>' + d.external.qty + '</span></div>' +
+    '<div class="pos-row"><span class="pos-key">Settlement</span><span' + settleDiffExt + '>' + d.external.settle + '</span></div>' +
+    '<div class="pos-row"><span class="pos-key">Accrued Int.</span><span' + accrDiffExt + '>' + d.external.accrued + '</span></div>' +
+    '</div></div>' +
+
+    '<div class="ai-card">' +
+    '<div class="ai-card-header">' +
+    '<div class="ai-icon">&#9672;</div>' +
+    '<div class="ai-card-title">AI Root Cause Analysis</div>' +
+    '<div class="confidence-bar-wrap">' +
+    '<span class="confidence-label">CONFIDENCE</span>' +
+    '<div class="confidence-bar"><div class="confidence-fill" style="width:' + d.confidence + '%"></div></div>' +
+    '<span class="confidence-pct">' + d.confidence + '%</span>' +
+    '</div></div>' +
+    '<div class="ai-body">' + d.analysis + '</div>' +
+    '<div class="resolution-steps">' +
+    '<div style="font-size:10px;color:var(--text-muted);font-family:\'IBM Plex Mono\',monospace;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;">Recommended Resolution Path</div>' +
+    stepsHTML +
+    '</div></div>' +
+
+    '<div class="comms-box">' +
+    '<div class="comms-header">' +
+    '<div class="section-title" style="margin:0;">AI-Drafted Communication</div>' +
+    '<button class="btn" onclick="openSendModal(\'' + id + '\')">Edit &amp; Send</button>' +
+    '</div>' +
+    '<div class="comms-to">TO: <span>' + d.commsTo + '</span> &nbsp;|&nbsp; SUBJECT: <span>' + d.commsSubject + '</span></div>' +
+    '<div class="comms-body">' + d.commsBody.replace(/\n/g, '<br>') + '</div>' +
+    '</div>' +
+    '</div>' +
+
+    '<div class="detail-sidebar-panel">' +
+    '<div class="section-title">Regulatory Impact</div>' +
+    '<div class="reg-item" style="' + regItemStyle + '">' +
+    '<div class="reg-header">' +
+    '<div class="reg-name">' + d.reg.name + '</div>' +
+    '<div class="reg-status" style="background:' + d.reg.statusBg + ';color:' + d.reg.statusColor + ';border:1px solid ' + d.reg.statusBorder + ';">' + d.reg.status + '</div>' +
+    '</div>' +
+    '<div class="reg-body">' + d.reg.body + '</div>' +
+    clockHTML +
+    '</div>' +
+
+    '<div style="margin-top:4px;">' +
+    '<div class="section-title">Institutional Memory</div>' +
+    '<div class="pattern-card">' +
+    '<div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">' + d.pattern.label + '</div>' +
+    '<div class="pattern-stat"><span class="pattern-key">Similar breaks (6mo)</span><span class="pattern-val">' + d.pattern.count + '</span></div>' +
+    '<div class="pattern-stat"><span class="pattern-key">Avg resolution time</span><span class="pattern-val good">' + d.pattern.avgTime + '</span></div>' +
+    '<div class="pattern-stat"><span class="pattern-key">Counterparty SLA</span><span class="pattern-val warn">' + d.pattern.sla + '</span></div>' +
+    '<div class="pattern-stat"><span class="pattern-key">Resolution method</span><span class="pattern-val">' + d.pattern.method + '</span></div>' +
+    '<div class="pattern-stat"><span class="pattern-key">AI accuracy (type)</span><span class="pattern-val good">' + d.pattern.accuracy + '</span></div>' +
+    '</div></div>' +
+
+    '<div style="margin-top:16px;">' +
+    '<div class="section-title">Break Timeline</div>' +
+    historyHTML +
+    '</div>' +
+
+    '<div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">' +
+    '<button class="btn btn-success" style="width:100%;" onclick="openResolveModal(\'' + id + '\')">Resolve Break</button>' +
+    '<button class="btn btn-danger" style="width:100%;" onclick="openEscalateModal(\'' + id + '\')">Escalate to Senior Ops</button>' +
+    '<button class="btn" style="width:100%;margin-top:4px;" onclick="setMonitoring(\'' + id + '\');showToast(\'' + id + ' set to monitoring\',\'info\')">Set to Monitoring</button>' +
+    '</div>' +
+    '</div></div>';
+}
+
+// ── OPEN BREAK DETAIL ─────────────────────────────────
+function openBreakDetail(id) {
+  var b = breaks.filter(function(x){ return x.id === id; })[0];
+  if (!b) return;
+  document.getElementById('detail-content').innerHTML = buildDetailHTML(b);
+  showScreen('detail');
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t){ t.classList.remove('active'); });
+  var el = document.getElementById('screen-' + id);
+  if (el) el.classList.add('active');
+  var tabs = ['queue','compliance','settings'];
+  var idx = tabs.indexOf(id);
+  if (idx >= 0) { var tabs2 = document.querySelectorAll('.nav-tab'); if (tabs2[idx]) tabs2[idx].classList.add('active'); }
+  if (id === 'queue') renderBreaks();
+  var mainArea = document.querySelector('.main-area'); if (mainArea) mainArea.scrollTop = 0;
+}
+
+// ── FILTERS ───────────────────────────────────────────
+function applyChipFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(function(i){ i.classList.remove('active'); });
+  document.getElementById('sb-all').classList.add('active');
+  renderBreaks();
+  updateSubtitle();
+}
+
+function applySidebarFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.sidebar-item').forEach(function(i){ i.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.filter-chip').forEach(function(c){ c.classList.remove('active'); });
+  document.getElementById('fc-all').classList.add('active');
+  showScreen('queue');
+  renderBreaks();
+  updateSubtitle();
+}
+
+function applySearch(val) {
+  currentSearch = val;
+  renderBreaks();
+}
+
+function updateSubtitle() {
+  var count = breaks.filter(function(b) {
+    if (currentFilter === 'all') return true;
+    if (currentFilter === 'csdr') return b.tags.indexOf('csdr') >= 0 && breakStates[b.id] !== 'resolved';
+    if (currentFilter === 'unassigned') return breakStates[b.id] === 'open';
+    if (currentFilter === 'auto') return b.tags.indexOf('auto') >= 0;
+    return b.sev === currentFilter || b.assetClass === currentFilter || b.custodian === currentFilter;
+  }).length;
+  var labels = {all:'ALL BREAKS',csdr:'CSDR FAILING',unassigned:'UNASSIGNED',auto:'AUTO-RESOLVABLE',critical:'CRITICAL',high:'HIGH',medium:'MEDIUM',low:'LOW',fi:'FIXED INCOME',eq:'EQUITIES',fx:'FX/DERIVATIVES',bny:'BNY MELLON',jpm:'JP MORGAN',citi:'CITI',ss:'STATE STREET'};
+  document.getElementById('queue-subtitle').textContent = '19 FEB 2026 · ' + (labels[currentFilter] || currentFilter.toUpperCase()) + ' · ' + count + ' BREAKS';
+}
+
+function showMyBreaks() {
+  applySidebarFilter('unassigned', document.getElementById('sb-all'));
+}
+
+// ── MODALS ────────────────────────────────────────────
+function openModal(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.add('open');
+}
+
+function closeModal(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.remove('open');
+}
+
+function openResolveModal(id) {
+  var b = breaks.filter(function(x){ return x.id === id; })[0];
+  if (!b) return;
+  resolveTarget = id;
+  document.getElementById('resolve-break-id').textContent = id;
+  document.getElementById('resolve-instrument').textContent = b.name;
+  document.getElementById('resolve-amount').textContent = b.amount;
+  openModal('resolve-modal');
+}
+
+function openEscalateModal(id) {
+  var b = breaks.filter(function(x){ return x.id === id; })[0];
+  if (!b) return;
+  escalateTarget = id;
+  document.getElementById('escalate-subtitle').textContent = id + ' — ' + b.name + ' · ' + b.amount;
+  openModal('escalate-modal');
+}
+
+function openSendModal(id) {
+  var b = breaks.filter(function(x){ return x.id === id; })[0];
+  if (!b || !b.detail) return;
+  var ta = document.querySelector('#send-modal .modal-textarea');
+  if (ta) ta.value = b.detail.commsBody;
+  var sel = document.querySelector('#send-modal .modal-select');
+  if (sel) sel.options[0].text = 'Email — ' + b.detail.commsTo;
+  openModal('send-modal');
+}
+
+function selectTeam(el) {
+  document.querySelectorAll('.team-option').forEach(function(t){ t.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+function confirmResolve() {
+  if (!resolveTarget) return;
+  breakStates[resolveTarget] = 'resolved';
+  resolvedCountNum++;
+  var rc = document.getElementById('resolved-count');
+  if (rc) rc.textContent = resolvedCountNum;
+  closeModal('resolve-modal');
+  openModal('resolve-success-modal');
+  document.getElementById('resolve-success-msg').textContent = resolveTarget + ' has been marked as resolved and logged to the audit trail.';
+  renderBreaks();
+  resolveTarget = null;
+}
+
+function confirmEscalate() {
+  if (!escalateTarget) return;
+  breakStates[escalateTarget] = 'escalated';
+  closeModal('escalate-modal');
+  showToast(escalateTarget + ' escalated to T. Okafor — Senior Operations', 'info');
+  renderBreaks();
+  if (document.getElementById('screen-detail').classList.contains('active')) {
+    openBreakDetail(escalateTarget);
+  }
+  escalateTarget = null;
+}
+
+function confirmSend() {
+  closeModal('send-modal');
+  showToast('Message sent to counterparty — logged to audit trail', 'success');
+}
+
+function confirmExport(modalId, msg) {
+  closeModal(modalId);
+  showToast(msg, 'success');
+}
+
+function setMonitoring(id) {
+  if (breakStates[id] !== 'resolved') {
+    breakStates[id] = 'monitoring';
+    renderBreaks();
+  }
+}
+
+// ── RECONCILIATION MODAL ──────────────────────────────
+function startRecon() {
+  document.getElementById('recon-pre').style.display = 'none';
+  document.getElementById('recon-running').style.display = 'block';
+  document.getElementById('recon-title').textContent = 'Reconciliation Running...';
+  document.getElementById('recon-subtitle').textContent = 'Processing position data — do not close this window';
+  var progress = 35;
+  var step = 0;
+  var checks = document.querySelectorAll('#recon-checklist .checklist-item');
+  var interval = setInterval(function() {
+    progress = Math.min(progress + Math.random() * 15 + 5, 100);
+    document.getElementById('recon-progress').style.width = progress + '%';
+    var pos = Math.floor(progress / 100 * 2847);
+    document.getElementById('recon-status').textContent = 'Processing position data... ' + pos.toLocaleString() + ' / 2,847';
+    var newStep = Math.floor(progress / 17);
+    if (newStep > step && step < checks.length) {
+      if (step < checks.length - 1) {
+        checks[step].querySelector('.check-icon').className = 'check-icon check-done';
+        checks[step].querySelector('.check-icon').textContent = '✓';
+      }
+      if (newStep < checks.length) {
+        checks[newStep].querySelector('.check-icon').className = 'check-icon check-running';
+        checks[newStep].querySelector('.check-icon').textContent = '◌';
+      }
+      step = newStep;
+    }
+    if (progress >= 100) {
+      clearInterval(interval);
+      checks.forEach(function(c) {
+        c.querySelector('.check-icon').className = 'check-icon check-done';
+        c.querySelector('.check-icon').textContent = '✓';
+      });
+      setTimeout(function() {
+        document.getElementById('recon-running').style.display = 'none';
+        document.getElementById('recon-done').style.display = 'block';
+        document.getElementById('recon-title').textContent = 'Reconciliation Complete';
+      }, 400);
+    }
+  }, 300);
+}
+
+// ── NOTIFICATIONS / PROFILE ───────────────────────────
+function toggleNotifications() {
+  var p = document.getElementById('notif-panel');
+  var pp = document.getElementById('profile-panel');
+  pp.classList.remove('open');
+  p.classList.toggle('open');
+  event.stopPropagation();
+}
+
+function toggleProfile() {
+  var p = document.getElementById('profile-panel');
+  var np = document.getElementById('notif-panel');
+  np.classList.remove('open');
+  p.classList.toggle('open');
+  event.stopPropagation();
+}
+
+function closeAllPanels() {
+  document.getElementById('notif-panel').classList.remove('open');
+  document.getElementById('profile-panel').classList.remove('open');
+}
+
+function clearNotifications() {
+  var clr = document.querySelector('#notif-panel .notif-clear');
+  if (clr) clr.textContent = 'All read';
+  document.querySelectorAll('.notif-dot').forEach(function(d){ d.style.opacity = '0.3'; });
+  var badge = document.querySelector('#notif-btn .notif-badge');
+  if (badge) badge.style.display = 'none';
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ── TOAST ─────────────────────────────────────────────
+function showToast(msg, type) {
+  type = type || 'info';
+  var icons = { success:'✓', error:'✕', info:'◈' };
+  var container = document.getElementById('toast-container');
+  if (!container) return;
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = '<span class="toast-icon">' + (icons[type] || '◈') + '</span><span>' + msg + '</span>';
+  container.appendChild(toast);
+  setTimeout(function(){ toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; }, 2800);
+  setTimeout(function(){ if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3100);
+}
+
+// ── CLOCK ─────────────────────────────────────────────
+function updateClock() {
+  var now = new Date();
+  var h = String(now.getUTCHours()).padStart(2,'0');
+  var m = String(now.getUTCMinutes()).padStart(2,'0');
+  var s = String(now.getUTCSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = h + ':' + m + ':' + s + ' GMT';
+}
+setInterval(updateClock, 1000);
+
+// ── INIT ──────────────────────────────────────────────
+renderBreaks();
+updateSubtitle();
+</script>
+</body>
+</html>
