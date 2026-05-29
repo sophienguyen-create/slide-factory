@@ -233,6 +233,7 @@ Once inputs are confirmed:
 
 ## Verify Before Delivering
 
+### Scaffold integrity
 - [ ] `--brand-*` vars unchanged
 - [ ] OneNexus logo `<img>` intact
 - [ ] Chat panel markup unchanged
@@ -242,6 +243,12 @@ Once inputs are confirmed:
 - [ ] No duplicate JS functions
 - [ ] `nav-components` removed from delivered app
 - [ ] Every interaction from Build Plan is implemented (no "coming soon" stubs)
+
+### Documentation & versioning (required for every template change)
+- [ ] `CHANGELOG.md` has a new entry describing the change
+- [ ] Version bumped in `template/onx-app-scaffold.html` metadata (comment + `<meta>`)
+- [ ] Version bumped in `docs/design-system.html` metadata (comment + `<meta>`) — must match scaffold
+- [ ] `docs/design-system.html` updated if any component, panel, or label changed
 
 ---
 

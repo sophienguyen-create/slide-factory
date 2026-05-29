@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# ONX Scaffold pre-commit hook
+# Install: cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e
+
+SCAFFOLD="template/onx-app-scaffold.html"
+DESIGN="docs/design-system.html"
+CHANGELOG="CHANGELOG.md"
+
+# Only run checks if scaffold or design system are staged
+SCAFFOLD_STAGED=$(git diff --cached --name-only | grep -E "^(template/onx-app-scaffold|docs/design-system)\.html$" || true)
+
+if [ -z "$SCAFFOLD_STAGED" ]; then
+  exit 0
+fi
+
+echo "ONX Scaffold: running version checks…"
+
+# 1. Extract versions from both files
+v_scaffold=$(grep -m1 'onx-scaffold-version' "$SCAFFOLD" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+v_design=$(grep -m1 'onx-scaffold-version' "$DESIGN" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+
+if [ -z "$v_scaffold" ]; then
+  echo "ERROR: No version found in $SCAFFOLD. Add: <meta name=\"onx-scaffold-version\" content=\"X.Y.Z\">"
+  exit 1
+fi
+
+if [ -z "$v_design" ]; then
+  echo "ERROR: No version found in $DESIGN. Add: <meta name=\"onx-scaffold-version\" content=\"X.Y.Z\">"
+  exit 1
+fi
+
+# 2. Versions must match
+if [ "$v_scaffold" != "$v_design" ]; then
+  echo "ERROR: Version mismatch — scaffold=$v_scaffold, design-system=$v_design"
+  echo "Bump both files to the same version before committing."
+  exit 1
+fi
+
+# 3. CHANGELOG must be staged in the same commit
+CHANGELOG_STAGED=$(git diff --cached --name-only | grep "^$CHANGELOG$" || true)
+if [ -z "$CHANGELOG_STAGED" ]; then
+  echo "ERROR: $CHANGELOG not staged. Update the changelog before committing scaffold changes."
+  exit 1
+fi
+
+echo "ONX Scaffold: version $v_scaffold — checks passed ✓"
+exit 0

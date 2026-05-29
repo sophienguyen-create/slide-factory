@@ -18,3 +18,13 @@ docs/         ← design system reference (open design-system.html in browser)
 ```
 
 See `docs/design-system.html` for the full component library and strict/flexible rules.
+
+## First-time setup (after cloning)
+
+Install the pre-commit hook to enforce version consistency:
+
+```bash
+cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+```
+
+This blocks commits that change the scaffold or design system without a matching version bump and CHANGELOG entry.
