@@ -5,6 +5,12 @@
 ### Fixed
 - Removed `localStorage` page persistence (`onx-active-page`). App always opens on the Agent page on reload — correct behaviour for demos. Both the save (`setItem` in `showPage()`) and restore (`getItem` on init) removed.
 
+### Docs (2026-06-02)
+- `docs/design-system.html` nav bar now shows version number next to "Scaffold Docs" — visible at a glance without inspecting source
+- `docs/design-system.html` — added Intelligence Banner, Inline Agent Panel, and Workflow Stepper component sections (live demos, markup, and rules)
+- `AGENTS.md` — stronger phase gates; explicit stop blocks after Build Plan and each page; "do not read apps/" guard
+- `README.md` — extended onboarding from git clone; added link to CHANGELOG.md
+
 ---
 
 ## v3.5.3 — 2026-05-29

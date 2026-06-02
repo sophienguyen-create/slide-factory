@@ -23,6 +23,7 @@ scripts/      ← git hooks and dev tooling
 ```
 
 See `docs/design-system.html` for the full component library and strict/flexible rules.
+See [CHANGELOG.md](CHANGELOG.md) for the current version and release history.
 
 ## First-time setup (after cloning)
 
