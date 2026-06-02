@@ -8,18 +8,21 @@ Build **OneNexus-branded demo apps** for client presentations. Compose pages fro
 - `template/onx-app-scaffold.html` — component reference (Agent, Components, Settings pages)
 - Client spec — **a file** from `specs/` (markdown doc, demo HTML, or JSX). A verbal description or chat prompt is not a spec and is not sufficient to begin.
 
+⚠️ **Do not read any files in `apps/`.** Delivered apps are client outputs, not references. Reading them causes wrong inference about UI behaviour and components. The only authoritative source for components and layout is `template/onx-app-scaffold.html`.
+
 ---
 
 ## Workflow
 
 ### Phase 1 — Read inputs
 
-1. Read `page-components` in the scaffold for the full component library
+1. Read `page-components` in the scaffold
 2. Read the client spec: product name, domain vocabulary, key screens, user persona, and — critically — **every interaction** (clicks, drill-downs, filters, modals)
+3. Read nothing else — do not browse `apps/`, `docs/`, or any other file unless explicitly asked
 
-### Phase 2 — Build Plan (always required)
+### Phase 2 — Build Plan
 
-Output a Build Plan and **wait for approval before writing any HTML.**
+Output the Build Plan, then **stop**. Do not write any HTML until the user explicitly approves the plan.
 
 ```markdown
 ## Build Plan: [App Name]
@@ -31,11 +34,11 @@ Output a Build Plan and **wait for approval before writing any HTML.**
 - Suggestion pills: ["...", "...", "..."]
 
 ### Pages
-| Page | Purpose | Key components |
+| Page | Purpose | UI components |
 |------|---------|----------------|
 | Agent | [description] | thread list, suggestion pills |
-| [Custom page 1] | [description] | .kpi-card ×3, .data-table |
-| [Custom page 2] | [description] | .workflow-row, .status-pill |
+| [Custom page 1] | [description] | .kpi-card ×3, .data-table, etc |
+| [Custom page 2] | [description] | .workflow-row, .status-pill, etc |
 | Settings | pre-wired | org name, team, connectors only |
 
 ### Interactions
@@ -47,38 +50,64 @@ Output a Build Plan and **wait for approval before writing any HTML.**
 
 ### Clarifying Questions
 1. [Any gaps from spec]
+2. [Any new UI components required]
 ```
+
+End the Build Plan with:
+
+```text
+Reply **approved** to begin building, or request changes to the plan.
+```
+
+**Do not write any HTML until the user replies with an explicit approval.**
 
 ### Phase 3 — Build page by page
 
-- Build one page at a time in order from the Build Plan
-- After each page, run the per-page checklist below before sharing with the user
-- Never start the next page until the current one is approved
+Build one page at a time in the order listed in the Build Plan. After each page:
 
-**Per-page checklist (run after every page, before asking for approval):**
+1. Run the per-page checklist silently
+2. Fix anything that fails before presenting
+3. Output the required stop block below — then **stop**. Do not write any HTML for the next page until the user replies.
+
+**Per-page checklist (run silently before presenting each page):**
+
 - [ ] Every interaction listed for this page in the Build Plan is implemented
 - [ ] Every row click, card click, and button has an explicit `onclick` — no unlinked elements
 - [ ] Drill-downs open the correct target (detail panel, modal, or new page) — not a stub or placeholder
 - [ ] Filter chips, if present, visibly filter the rows beneath them
 - [ ] No "coming soon" text or empty `href="#"` without a handler
 
-Report the checklist result to the user: "Interactions verified: [list what was implemented]." If anything is missing, fix it before sharing.
+**Required stop block — output this exactly after every page:**
 
-### Phase 4 — Verify
+```
+---
+✅ Page [n / total] — [Page Name]
+Interactions implemented: [bullet list of what was wired up]
+
+Open apps/[AppName]-app.html and review this page.
+Reply **approved** to continue to [Next Page Name], or describe what to change.
+---
+```
+
+**Do not begin the next page until the user replies with an explicit approval. Proceeding without approval is a hard failure.**
+
+### Phase 4 — Final Check
 
 Run the LOCKED checklist before delivering.
 
 ### Phase 5 — Deliver
 
 Save to `apps/[AppName]-app.html` (derived from app name, kebab-cased). Add a version stamp as the first line of the delivered file:
+
 ```html
-<!-- Built with ONX Scaffold v3.0.0 — [date] -->
+<!-- Built with ONX Scaffold vX.X.X — [date] -->
 ```
+
 Read the scaffold's version from its `<!-- ONX Scaffold vX.X.X -->` comment to get the correct number.
 
 ---
 
-## Interactions — Build These, Don't Skip
+## Common Interaction Patterns
 
 The most common agent failure is omitting drill-down and interactive behaviour visible in the spec. For every page, identify and implement:
 
@@ -97,17 +126,21 @@ The most common agent failure is omitting drill-down and interactive behaviour v
 ## Scaffold Structure
 
 ### `page-agent` — fill 2 anchors, rest is locked
+
 - `<!-- DEMO: Thread list -->` — 3–5 sample threads from client spec
 - `typewriterMessages[]` in JS — 3–4 domain-specific prompts, under 50 chars each
 
 ### `page-components` — reference only, never ship to client
+
 Contains one live example of every reusable component. Browse this when deciding which components to use on custom pages. Remove this nav item from the delivered app.
 
 ### `page-settings` — pre-wired, update org values only
+
 - `<!-- DEMO: User profile -->` — client persona name + contact details
 - Org name, team members, integration names in the relevant settings panels
 
 ### Custom client pages
+
 Copy `<!-- NEW PAGE TEMPLATE -->` at EOF. Choose components from `page-components`. Add the matching nav entry.
 
 ---
@@ -153,6 +186,13 @@ Add/remove `<a class="nav-item">` entries. Always pair with a Lucide icon:
 </a>
 ```
 
+To group nav items under a section label, use `.sidebar-section-divider` with `.nav-section-label` on the text span. The `.nav-section-label` class is automatically hidden when the sidebar collapses — the divider line remains for visual grouping:
+```html
+<div class="sidebar-section-divider">
+  <span class="nav-section-label">SECTION NAME</span>
+</div>
+```
+
 Remove `nav-components` from the delivered app (it's a scaffold reference, not a product page).
 
 ### Page content
@@ -170,7 +210,7 @@ Update `onclick="homePrompt('...')"` text. 3 pills max, 50 chars each.
 
 ## Content Anchors
 
-Three `<!-- DEMO: ... -->` anchors remain in the scaffold. All other content is built from scratch on custom pages.
+Four `<!-- DEMO: ... -->` anchors remain in the scaffold. All other content is built from scratch on custom pages.
 
 | Anchor | What to place |
 |--------|---------------|

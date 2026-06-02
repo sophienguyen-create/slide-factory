@@ -1,5 +1,49 @@
 # Changelog
 
+## v3.5.4 — 2026-05-29
+
+### Fixed
+- Removed `localStorage` page persistence (`onx-active-page`). App always opens on the Agent page on reload — correct behaviour for demos. Both the save (`setItem` in `showPage()`) and restore (`getItem` on init) removed.
+
+---
+
+## v3.5.3 — 2026-05-29
+
+### Added
+- `#sidebar.collapsed .nav-section-label` — hides section label text on collapse; divider line stays for visual grouping
+- `.sidebar-section-divider` + `.nav-section-label` documented as the canonical pattern for sidebar group labels in `AGENTS.md`
+
+---
+
+## v3.5.2 — 2026-05-29
+
+### Changed
+- `--text-3` light mode contrast fix: added `html:not(.dark) { --text-3: #64748B }` (slate-500, 4.9:1 on white ✓ WCAG AA). Dark mode retains `#94A3B8` (6.7:1 on dark surfaces). Fixes column headers, KPI labels, section subtitles, page subtitles, activity timestamps, stepper inactive labels, form help text — all in one token override.
+
+---
+
+## v3.5.1 — 2026-05-29
+
+### Changed
+- `.panel-bubble` — removed teal-wash background/border; now flat transparent text matching `.chat-bubble-ai` on the agent page
+- `.panel-bubble-tool` — replaced full card border with `border-left: 2px solid --border-strong` code-block style; reduced opacity (`--text-3`) to read as system output, not prose
+- `.page-agent-panel-footer` — replaced standalone `<input>` + icon button with `.chat-input-shell` + `<textarea>` + `.send-fab`, matching the agent page input pattern exactly
+- Removed `.page-agent-panel-input` CSS class (no longer needed)
+- Removed dark mode override for `.panel-bubble` (no longer needed — transparent has no color to swap)
+
+---
+
+## v3.5.0 — 2026-05-29
+
+### Added
+- `.intelligence-banner` — AI briefing card for top of document-layout pages. White bg + `border-left: 3px solid --brand-primary` (editorial treatment, distinct from `.kpi-card`). Includes `.intelligence-banner-icon`, `.intelligence-banner-eyebrow`, `.intelligence-banner-text`, `.intelligence-banner-actions`, `.intelligence-pill`.
+- `.page-agent-panel` — Fixed 300px right-column contextual agent chat panel. Two bubble types: `.panel-bubble` (AI prose, `rgba(45,117,117,0.08)` teal wash) and `.panel-bubble-tool` (tool output, `--surface-2` gray monospace). Includes header, scrollable body, footer input.
+- `.workflow-stepper` — Horizontal step progress indicator with `.stepper-step`, `.stepper-circle`, `.stepper-label`, `.stepper-connector`. States: `.is-active` (brand-primary), `.is-done` (status-success + check icon).
+- All three components added to `page-components` gallery with live examples (two stepper states shown).
+- Dark mode overrides for all new components; font-scale (`--fz`) entries added for all new fixed-px sizes.
+
+---
+
 ## v3.4.1 — 2026-05-29
 
 ### Changed

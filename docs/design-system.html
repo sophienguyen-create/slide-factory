@@ -1,10 +1,10 @@
-<!-- ONX Scaffold v3.4.1 — 2026-05-29 -->
+<!-- ONX Scaffold v3.5.4 — 2026-05-29 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="onx-scaffold-version" content="3.4.1">
+<meta name="onx-scaffold-version" content="3.5.4">
 <meta name="onx-scaffold-released" content="2026-05-29">
 <title>Scaffold Docs — OneNexus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -245,6 +245,110 @@
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
+
+  /* ── Intelligence Banner ── */
+  .intelligence-banner {
+    background: var(--surface-0);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--brand-primary);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    box-shadow: var(--shadow-1);
+  }
+  .intelligence-banner-icon {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    background: var(--brand-primary);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-on-accent);
+    margin-top: 1px;
+  }
+  .intelligence-banner-eyebrow {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--brand-primary); margin-bottom: 4px;
+  }
+  .intelligence-banner-text { font-size: 13px; color: var(--text-1); line-height: 1.55; margin-bottom: 10px; }
+  .intelligence-banner-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .intelligence-pill {
+    border: 1px solid rgba(45,117,117,0.35);
+    border-radius: 9999px;
+    padding: 4px 12px;
+    font-size: 12px; color: var(--brand-primary);
+    background: var(--surface-0);
+    cursor: pointer; font-weight: 500; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+  .intelligence-pill:hover { background: var(--brand-tint); border-color: var(--brand-primary); }
+  html.dark .intelligence-banner-eyebrow { color: var(--brand-primary-soft); }
+  html.dark .intelligence-pill { color: var(--brand-primary-soft); border-color: rgba(78,166,166,0.35); }
+  html.dark .intelligence-pill:hover { background: var(--brand-tint); border-color: var(--brand-primary-soft); }
+
+  /* ── Inline Agent Panel ── */
+  .page-agent-panel {
+    width: 300px; flex-shrink: 0;
+    background: var(--surface-0);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .page-agent-panel-header { padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+  .page-agent-panel-title { font-size: 13px; font-weight: 600; color: var(--text-1); display: flex; align-items: center; gap: 6px; }
+  .page-agent-panel-status { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .page-agent-panel-body { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .page-agent-panel-footer { padding: 10px 12px; border-top: 1px solid var(--border-subtle); flex-shrink: 0; }
+  .panel-bubble { background: transparent; border: none; padding: 0; font-size: 12.5px; color: var(--text-1); line-height: 1.55; }
+  .panel-bubble-tool {
+    background: var(--surface-2); border-radius: var(--radius-sm);
+    border-left: 2px solid var(--border-strong);
+    padding: 7px 10px;
+    font-family: ui-monospace, 'SFMono-Regular', monospace;
+    font-size: 11px; color: var(--text-3); line-height: 1.6; white-space: pre-wrap;
+  }
+  .chat-input-shell {
+    border: 1px solid var(--border-subtle); background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+  }
+  .chat-input-shell:focus-within { background: var(--surface-0); border-color: var(--onx-teal-mid); box-shadow: var(--ring); }
+  .send-fab {
+    width: 32px; height: 32px; border-radius: 9999px;
+    background: var(--onx-teal); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none;
+    transition: background 120ms ease, transform 120ms ease;
+  }
+  .send-fab:hover { background: var(--onx-teal-hover); }
+
+  /* ── Workflow Stepper ── */
+  .workflow-stepper {
+    display: flex; align-items: center;
+    padding: 14px 18px;
+    background: var(--surface-0);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-1);
+    overflow-x: auto;
+  }
+  .stepper-step { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .stepper-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface-2); color: var(--text-3);
+    font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .stepper-label { font-size: 12.5px; color: var(--text-3); font-weight: 400; white-space: nowrap; }
+  .stepper-connector { flex: 1; height: 1px; background: var(--border-subtle); margin: 0 10px; min-width: 20px; flex-shrink: 0; }
+  .stepper-step.is-active .stepper-circle { background: var(--brand-primary); color: var(--text-on-accent); }
+  .stepper-step.is-active .stepper-label { color: var(--text-1); font-weight: 600; }
+  .stepper-step.is-done .stepper-circle { background: var(--status-success); color: var(--text-on-accent); }
+  .stepper-step.is-done .stepper-label { color: var(--text-2); }
 </style>
 </head>
 <body class="flex flex-col" style="height:100vh;">
@@ -291,6 +395,9 @@
       <a href="#comp-nav" class="nav-item nav-item-sub" onclick="scrollTo('comp-nav',this)">History & Nav</a>
       <a href="#comp-pills" class="nav-item nav-item-sub" onclick="scrollTo('comp-pills',this)">Quick Action Pills</a>
       <a href="#comp-settings" class="nav-item nav-item-sub" onclick="scrollTo('comp-settings',this)">Settings</a>
+      <a href="#comp-intel-banner" class="nav-item nav-item-sub" onclick="scrollTo('comp-intel-banner',this)">Intelligence Banner</a>
+      <a href="#comp-agent-panel" class="nav-item nav-item-sub" onclick="scrollTo('comp-agent-panel',this)">Inline Agent Panel</a>
+      <a href="#comp-stepper" class="nav-item nav-item-sub" onclick="scrollTo('comp-stepper',this)">Workflow Stepper</a>
 
       <div class="nav-group-label">Usage Guide</div>
       <a href="#usage-new" class="nav-item nav-item-sub" onclick="scrollTo('usage-new',this)">New App Workflow</a>
@@ -925,10 +1032,216 @@ window.applyFontSize = function(step) {
         </div>
       </section>
 
+      <!-- ═══ COMP: INTELLIGENCE BANNER ═══ -->
+      <section id="comp-intel-banner" class="doc-section">
+        <div class="doc-section-header"><h2>Intelligence Banner</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
+        <p class="doc-lead">AI briefing card placed at the top of document-layout pages. White background with a left accent bar — visually distinct from <code>.kpi-card</code>. Contains an icon, eyebrow label, prose summary, and one or more action pills.</p>
+        <div class="doc-demo">
+          <div class="intelligence-banner">
+            <div class="intelligence-banner-icon">
+              <i data-lucide="sparkles" class="icon-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="intelligence-banner-eyebrow">Morning Intelligence · 29 May 2026</div>
+              <p class="intelligence-banner-text">
+                <strong>3 priority actions</strong> need attention today. <strong>Henderson Capital</strong> has not been contacted in <strong>47 days</strong> — their Q1 review cycle starts next week, high churn risk.
+              </p>
+              <div class="intelligence-banner-actions">
+                <button class="intelligence-pill"><i data-lucide="bell" class="icon-xs"></i>Review Flags</button>
+                <button class="intelligence-pill"><i data-lucide="phone" class="icon-xs"></i>Contact Henderson</button>
+                <button class="intelligence-pill">Full Briefing →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <details class="doc-code">
+          <summary>View markup <button class="doc-code-copy" onclick="copyCode(this,'intel-banner-code')">Copy</button></summary>
+          <pre id="intel-banner-code">&lt;div class="intelligence-banner"&gt;
+  &lt;div class="intelligence-banner-icon"&gt;
+    &lt;i data-lucide="sparkles" class="icon-sm"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+  &lt;div class="flex-1 min-w-0"&gt;
+    &lt;div class="intelligence-banner-eyebrow"&gt;Morning Intelligence · DATE&lt;/div&gt;
+    &lt;p class="intelligence-banner-text"&gt;Summary prose here.&lt;/p&gt;
+    &lt;div class="intelligence-banner-actions"&gt;
+      &lt;button class="intelligence-pill"&gt;
+        &lt;i data-lucide="bell" class="icon-xs"&gt;&lt;/i&gt;Review Flags
+      &lt;/button&gt;
+      &lt;button class="intelligence-pill"&gt;Full Briefing →&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </details>
+        <div class="doc-rules">
+          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Eyebrow label, prose text, and pill labels are all flexible — write them to match the client's domain and use case.</div></div>
+          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Pill <code>onclick</code> handlers can navigate to a page, open a modal, or trigger an agent prompt — wire each pill to a specific action.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Place at most one <code>.intelligence-banner</code> at the top of a page. Do not use it as a general-purpose info card.</div></div>
+        </div>
+      </section>
+
+      <!-- ═══ COMP: INLINE AGENT PANEL ═══ -->
+      <section id="comp-agent-panel" class="doc-section">
+        <div class="doc-section-header"><h2>Inline Agent Panel</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
+        <p class="doc-lead">A fixed 300px right column that shows contextual AI output alongside document-layout content. Two message types: <code>.panel-bubble</code> for AI prose (flat transparent, mirrors the agent page) and <code>.panel-bubble-tool</code> for tool output (left-border monospace code block). The footer uses <code>.chat-input-shell</code> + <code>.send-fab</code> — identical to the main agent input.</p>
+        <div class="doc-demo" style="height:300px;padding:0;overflow:hidden;border-radius:var(--radius-md);">
+          <div class="flex gap-3 h-full p-3">
+            <div class="section-card flex-1" style="display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:12px;color:var(--text-3)">Main content area</span>
+            </div>
+            <div class="page-agent-panel" style="position:relative;flex-shrink:0;">
+              <div class="page-agent-panel-header">
+                <div class="page-agent-panel-title">
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--status-success);flex-shrink:0;display:inline-block"></span>
+                  CA Intelligence Agent
+                </div>
+                <div class="page-agent-panel-status">Connected · 4 domain packs loaded</div>
+              </div>
+              <div class="page-agent-panel-body hide-scrollbar">
+                <div class="panel-bubble">3 active events this morning. Nexum Corp tender is highest priority — <strong>$268,500</strong> in early-tender value expires in 3 days.</div>
+                <div class="panel-bubble-tool">tool_call: dtcc.monitor() → 3 events
+bloomberg.crossref() → confirmed</div>
+                <div class="panel-bubble">§9.3 legal hold still active on Nexum elections. Expected clearance today.</div>
+              </div>
+              <div class="page-agent-panel-footer">
+                <div class="chat-input-shell px-3 pt-2 pb-1.5">
+                  <textarea rows="1" placeholder="Ask about this event…" class="w-full bg-transparent resize-none outline-none" style="font-size:12.5px;color:var(--text-1);font-family:inherit"></textarea>
+                  <div class="flex justify-end mt-1">
+                    <button class="send-fab" style="width:26px;height:26px"><i data-lucide="arrow-up" class="icon-sm"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <details class="doc-code">
+          <summary>View markup <button class="doc-code-copy" onclick="copyCode(this,'agent-panel-code')">Copy</button></summary>
+          <pre id="agent-panel-code">&lt;!-- Wrap page in flex to place panel alongside content --&gt;
+&lt;div class="flex gap-3"&gt;
+  &lt;div class="flex-1 min-w-0"&gt;
+    &lt;!-- main content (tables, KPIs, etc.) --&gt;
+  &lt;/div&gt;
+  &lt;div class="page-agent-panel"&gt;
+    &lt;div class="page-agent-panel-header"&gt;
+      &lt;div class="page-agent-panel-title"&gt;
+        &lt;span style="width:8px;height:8px;border-radius:50%;background:var(--status-success);..."&gt;&lt;/span&gt;
+        Agent Name
+      &lt;/div&gt;
+      &lt;div class="page-agent-panel-status"&gt;Connected · N packs loaded&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="page-agent-panel-body hide-scrollbar"&gt;
+      &lt;div class="panel-bubble"&gt;AI prose response here.&lt;/div&gt;
+      &lt;div class="panel-bubble-tool"&gt;tool_call: fn() → result&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="page-agent-panel-footer"&gt;
+      &lt;div class="chat-input-shell px-3 pt-2 pb-1.5"&gt;
+        &lt;textarea rows="1" placeholder="Ask…" class="w-full bg-transparent resize-none outline-none"
+          style="font-size:12.5px;color:var(--text-1);font-family:inherit"&gt;&lt;/textarea&gt;
+        &lt;div class="flex justify-end mt-1"&gt;
+          &lt;button class="send-fab" style="width:26px;height:26px"&gt;
+            &lt;i data-lucide="arrow-up" class="icon-sm"&gt;&lt;/i&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </details>
+        <div class="doc-rules">
+          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Agent name, status line, bubble content, and input placeholder are all flexible — write them to match the client's domain agent.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Use <code>.panel-bubble</code> for AI prose and <code>.panel-bubble-tool</code> for tool call output only. Do not use generic <code>&lt;p&gt;</code> or custom card markup inside the panel body.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>The footer must use <code>.chat-input-shell</code> + <code>.send-fab</code>. Do not replace with a plain <code>&lt;input&gt;</code>.</div></div>
+        </div>
+      </section>
+
+      <!-- ═══ COMP: WORKFLOW STEPPER ═══ -->
+      <section id="comp-stepper" class="doc-section">
+        <div class="doc-section-header"><h2>Workflow Stepper</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
+        <p class="doc-lead">Horizontal step progress indicator. Each step is a <code>.stepper-step</code> with a <code>.stepper-circle</code> (number or check icon) and a <code>.stepper-label</code>. Steps are connected by <code>.stepper-connector</code> lines. States: <code>.is-active</code> (brand-primary fill), <code>.is-done</code> (status-success fill + check icon).</p>
+        <div class="doc-demo">
+          <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Step 1 active</div>
+            <div class="workflow-stepper">
+              <div class="stepper-step is-active">
+                <div class="stepper-circle">1</div>
+                <div class="stepper-label">Trigger &amp; Scope</div>
+              </div>
+              <div class="stepper-connector"></div>
+              <div class="stepper-step">
+                <div class="stepper-circle">2</div>
+                <div class="stepper-label">Firm-Wide Sweep</div>
+              </div>
+              <div class="stepper-connector"></div>
+              <div class="stepper-step">
+                <div class="stepper-circle">3</div>
+                <div class="stepper-label">Review</div>
+              </div>
+              <div class="stepper-connector"></div>
+              <div class="stepper-step">
+                <div class="stepper-circle">4</div>
+                <div class="stepper-label">Notify</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Step 2 active, step 1 done</div>
+            <div class="workflow-stepper">
+              <div class="stepper-step is-done">
+                <div class="stepper-circle"><i data-lucide="check" style="width:13px;height:13px"></i></div>
+                <div class="stepper-label">Trigger &amp; Scope</div>
+              </div>
+              <div class="stepper-connector"></div>
+              <div class="stepper-step is-active">
+                <div class="stepper-circle">2</div>
+                <div class="stepper-label">Firm-Wide Sweep</div>
+              </div>
+              <div class="stepper-connector"></div>
+              <div class="stepper-step">
+                <div class="stepper-circle">3</div>
+                <div class="stepper-label">Review</div>
+              </div>
+              <div class="stepper-connector"></div>
+              <div class="stepper-step">
+                <div class="stepper-circle">4</div>
+                <div class="stepper-label">Notify</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <details class="doc-code">
+          <summary>View markup <button class="doc-code-copy" onclick="copyCode(this,'stepper-code')">Copy</button></summary>
+          <pre id="stepper-code">&lt;div class="workflow-stepper"&gt;
+  &lt;!-- Done step --&gt;
+  &lt;div class="stepper-step is-done"&gt;
+    &lt;div class="stepper-circle"&gt;
+      &lt;i data-lucide="check" style="width:13px;height:13px"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;div class="stepper-label"&gt;Step Name&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="stepper-connector"&gt;&lt;/div&gt;
+  &lt;!-- Active step --&gt;
+  &lt;div class="stepper-step is-active"&gt;
+    &lt;div class="stepper-circle"&gt;2&lt;/div&gt;
+    &lt;div class="stepper-label"&gt;Step Name&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="stepper-connector"&gt;&lt;/div&gt;
+  &lt;!-- Upcoming step --&gt;
+  &lt;div class="stepper-step"&gt;
+    &lt;div class="stepper-circle"&gt;3&lt;/div&gt;
+    &lt;div class="stepper-label"&gt;Step Name&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </details>
+        <div class="doc-rules">
+          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Step labels and count are flexible — match the workflow stages from the client's spec.</div></div>
+          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Drive state changes with JS: toggle <code>.is-active</code> and <code>.is-done</code> on <code>.stepper-step</code> elements; swap the circle content to a check icon when marking done.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Always use a <code>.stepper-connector</code> between every pair of steps. Never place two <code>.stepper-step</code> elements adjacent without one.</div></div>
+        </div>
+      </section>
+
       <!-- ═══ USAGE: NEW APP ═══ -->
       <section id="usage-new" class="doc-section">
         <div class="doc-section-header"><h2>New App Workflow</h2></div>
-        <p class="doc-lead">The goal is to build a <strong>OneNexus-branded demo app</strong> for client presentations. The workflow is agent-assisted via Claude Code — you provide a spec file, the agent composes pages from scaffold components and builds them one at a time for your review.</p>
+        <p class="doc-lead">The goal is to build a <strong>OneNexus-branded demo app</strong> for client presentations. The workflow is agent-assisted — you provide a spec file, the agent composes pages from scaffold components and builds them one at a time for your review. Works with Claude Code, Codex CLI, or Cursor.</p>
 
         <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:16px 20px;margin-bottom:24px;border:1px solid var(--border-subtle);">
           <div style="font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Before you start — have these ready</div>
@@ -945,26 +1258,54 @@ window.applyFontSize = function(step) {
         <div class="usage-step">
           <span class="usage-step-num">1</span>
           <div class="usage-step-body">
-            <div class="usage-step-title">Open a Claude Code session and say "onx scaffold"</div>
-            <div class="usage-step-desc">The agent will confirm your inputs and ask for the spec file before doing anything. It will not build from a verbal brief.</div>
+            <div class="usage-step-title">Clone the repo</div>
+            <div class="usage-step-desc"><code>git clone https://github.com/Innovatube/onx-scaffold</code>, then <code>cd onx-scaffold</code>. This gives you the scaffold template, component library, and agent instructions locally.</div>
           </div>
         </div>
         <div class="usage-step">
           <span class="usage-step-num">2</span>
+          <div class="usage-step-body">
+            <div class="usage-step-title">Install the pre-commit hook (one-time setup)</div>
+            <div class="usage-step-desc">Run <code>cp scripts/pre-commit .git/hooks/pre-commit &amp;&amp; chmod +x .git/hooks/pre-commit</code>. This keeps the scaffold and design-system versions in sync on every commit — do it once per clone.</div>
+          </div>
+        </div>
+        <div class="usage-step">
+          <span class="usage-step-num">3</span>
+          <div class="usage-step-body">
+            <div class="usage-step-title">Open the project folder in your AI IDE</div>
+            <div class="usage-step-desc">Claude Code, Codex CLI, or Cursor all work. They pick up <code>AGENTS.md</code> and <code>CLAUDE.md</code> automatically, so the agent already knows the scaffold rules before you type anything.</div>
+          </div>
+        </div>
+        <div class="usage-step">
+          <span class="usage-step-num">4</span>
+          <div class="usage-step-body">
+            <div class="usage-step-title">Drop the client spec file into <code>specs/</code></div>
+            <div class="usage-step-desc">Accepted formats: markdown, demo HTML, or JSX. A description typed in chat is not sufficient — the agent will ask for a file if none is present.</div>
+          </div>
+        </div>
+        <div class="usage-step">
+          <span class="usage-step-num">5</span>
+          <div class="usage-step-body">
+            <div class="usage-step-title">Type "onx scaffold" and name the spec file</div>
+            <div class="usage-step-desc">Say which file to use — e.g. <code>specs/my-client-spec.html</code>. There may be multiple files in <code>specs/</code>; the agent will not guess. It will not build from a verbal brief.</div>
+          </div>
+        </div>
+        <div class="usage-step">
+          <span class="usage-step-num">6</span>
           <div class="usage-step-body">
             <div class="usage-step-title">Review and approve the Build Plan</div>
             <div class="usage-step-desc">The agent reads the spec and proposes a page list, component choices, and every identified interaction (drill-downs, modals, filters). No HTML is written until you approve.</div>
           </div>
         </div>
         <div class="usage-step">
-          <span class="usage-step-num">3</span>
+          <span class="usage-step-num">7</span>
           <div class="usage-step-body">
             <div class="usage-step-title">Review each page before the next is built</div>
             <div class="usage-step-desc">Pages are built one at a time. The agent shares the file after each page and waits for explicit approval — say "approved" or give feedback. It will not continue until you do.</div>
           </div>
         </div>
         <div class="usage-step">
-          <span class="usage-step-num">4</span>
+          <span class="usage-step-num">8</span>
           <div class="usage-step-body">
             <div class="usage-step-title">Receive the delivered file</div>
             <div class="usage-step-desc">On completion the agent removes the Components reference page, runs the locked checklist, and saves to <code>apps/[AppName]-app.html</code>. The chat panel, brand tokens, and avatar markup are untouched throughout.</div>
@@ -972,7 +1313,7 @@ window.applyFontSize = function(step) {
         </div>
 
         <div class="doc-divider"></div>
-        <div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:12px;">Manual fallback (no Claude Code)</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:12px;">Manual fallback (no AI IDE)</div>
         <ol style="font-size:13px;color:var(--text-2);line-height:1.7;padding-left:20px;">
           <li>Copy <code>template/onx-app-scaffold.html</code> → rename <code>[AppName]-app.html</code></li>
           <li>Replace the two <code>[App Name]</code> occurrences: <code>&lt;title&gt;</code> and <code>.app-name</code> span. Do not touch the logo <code>&lt;img&gt;</code></li>

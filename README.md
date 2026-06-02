@@ -4,9 +4,13 @@ Build OneNexus-branded demo apps from client specs.
 
 ## How to use
 
-1. Drop the client spec file into `specs/`
-2. Open this folder in Claude Code
-3. Say **"onx scaffold"**
+1. Clone the repo: `git clone https://github.com/Innovatube/onx-scaffold`
+2. `cd onx-scaffold`
+3. Install the pre-commit hook (see First-time setup below)
+4. Open the project folder in your AI IDE — Claude Code, Codex CLI, and Cursor all work; they pick up `AGENTS.md` and `CLAUDE.md` automatically
+5. Drop the client spec file into `specs/` (markdown, HTML, or JSX)
+6. Type **"onx scaffold"** and attach (or name) the spec file — e.g. `specs/my-client-spec.html`. There may be multiple files in `specs/`; tell the agent which one to use
+7. The agent produces a Build Plan for your review, then builds one page at a time — you approve each page before it continues
 
 ## Structure
 
