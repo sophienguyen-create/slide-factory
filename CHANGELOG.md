@@ -1,5 +1,37 @@
 # Changelog
 
+## v4.1.0 — 2026-06-04
+
+### Changed
+- Extracted the inline base64 images out of `template/layout-shell.html` into real files — `template/onx-logo.png` (OneNexus logo) and `template/onx-agent-icon.png` (AI-agent icon). layout-shell.html drops from ~378KB to ~102KB and is readable again; the ~276KB of base64 that bloated it is gone.
+- `layout-shell.html` now references the assets as `<img src="onx-logo.png">` / `onx-agent-icon.png`.
+- `core.js` `getAgentIconSrc()` resolves the agent icon from either form — the asset path (reference docs) or an inlined data-URI (delivered app).
+- Delivery: the agent now inlines **two PNGs** (re-encoded to data-URIs) alongside core.css/core.js. The delivered demo is still one self-contained file — client output is byte-for-byte equivalent.
+- To rebrand the logo, swap `template/onx-logo.png` (no base64 surgery).
+
+---
+
+## v4.0.0 — 2026-06-04
+
+**Breaking change — the single-file scaffold is retired.** Scaffolding now *composes* from two reference docs + a shared core instead of *adapting* one 4,120-line template.
+
+### Added
+- `template/core.css` — single source of truth for all brand tokens, component/layout CSS, and keyframes. Carries the canonical version stamp. Locked except the `--brand-*` block.
+- `template/core.js` — single source of truth for all locked JS APIs. Adds a `window.ONX_TYPEWRITER` override seam so per-app typewriter prompts stay editable without touching core.
+- `template/layout-shell.html` — **layout shell** reference: header, navbar, page wrapper, and the two layout archetypes (canvas `#page-agent`, document `#page-settings`). Doubles as the assembly skeleton; canonical home of the locked chat scaffold. Links the core.
+
+### Changed
+- `docs/design-system.html` — rebuilt as the **design system** reference: editable `--brand-*` block + a full component gallery (Buttons, Status Pills & Tags, KPI Cards, Data Table, Workflow Rows, Library Cards, Activity Feed, Forms, Empty State) alongside the existing chat patterns, each badged Strict/Flexible. Links `../template/core.css` instead of duplicating tokens/components.
+- Delivered demos are still **one self-contained HTML file** — the agent inlines core.css/core.js into the output.
+- Versioning: the version lives **once** in the `core.css` header. Dropped the manual "keep scaffold ↔ design-system in sync" mandate — the drift source is gone.
+- `AGENTS.md` — rewritten around select-and-compose: read both references, pick an archetype per page, inline core on delivery.
+
+### Removed / archived
+- `template/onx-app-scaffold.html` → `template/_archive/2026-06-04/` (retired single file)
+- previous `docs/design-system.html` → `docs/_archive/2026-06-04/`
+
+---
+
 ## v3.5.4 — 2026-05-29
 
 ### Fixed

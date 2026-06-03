@@ -1,0 +1,1501 @@
+<!-- ONX Scaffold layout-shell.html — v4.1.0 — 2026-06-04 -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     LAYOUT SHELL — reference doc (read-only). One of two scaffold references:
+       • template/layout-shell.html  → chrome + layout archetypes (THIS FILE)
+       • docs/design-system.html     → branding + component gallery
+     Shared core lives once in template/core.css + template/core.js (linked below).
+
+     HOW TO USE WHEN SCAFFOLDING:
+       1. Pick a layout archetype per page — CANVAS (#page-agent: chat + artifact)
+          or DOCUMENT (#page-settings: sub-nav + content panels).
+       2. Compose components into the chosen archetype from docs/design-system.html.
+       3. In the DELIVERED single-file demo, INLINE core.css into <style> and
+          core.js into <script> (replace the two linked tags). Output stays one
+          portable HTML file. Copy the locked chat scaffold (#page-agent) verbatim.
+
+     LOCKED: everything here except page CONTENT and sidebar nav entries.
+     The canonical version stamp is the header of core.css.
+     ═══════════════════════════════════════════════════════════════════ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="onx-scaffold-version" content="4.1.0">
+<meta name="onx-scaffold-released" content="2026-06-04">
+<title>Layout Shell — ONX Scaffold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','Noto Sans JP','ui-sans-serif','system-ui','sans-serif'] } } } }</script>
+<!-- SHARED CORE — single source of truth. Inline this into the delivered demo. -->
+<link rel="stylesheet" href="core.css">
+</head>
+<body class="flex flex-col" style="height:100vh;">
+
+<!-- ═══ TOP APP BAR ═══ -->
+<nav class="app-nav pl-4 pr-3 flex items-center justify-between sticky top-0 z-30 flex-shrink-0">
+  <!-- Left: sidebar toggle + logo + product label -->
+  <div class="flex items-center gap-3">
+    <!-- Sidebar toggle -->
+    <button id="sidebar-toggle" onclick="toggleSidebar()" class="btn-icon" aria-label="Toggle sidebar">
+      <i data-lucide="menu" class="icon-lg"></i>
+    </button>
+    <!-- Logo + app name -->
+    <div class="flex items-center gap-3">
+      <img src="onx-logo.png"
+           alt="OneNexus" class="h-5" />
+      <span class="app-divider" aria-hidden="true"></span>
+      <span class="app-name">[App Name]</span>
+    </div>
+  </div>
+
+  <!-- Spacer -->
+  <div class="flex-1"></div>
+
+  <!-- Right: search + notification + avatar dropdown -->
+  <div class="flex items-center gap-1.5">
+    <div class="relative">
+      <i data-lucide="search" class="icon-sm absolute left-2.5 top-1/2 -translate-y-1/2" style="color:var(--text-3);pointer-events:none"></i>
+      <input type="text" placeholder="Search…" class="nav-search" />
+      <span class="kbd absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">⌘K</span>
+    </div>
+    <button class="btn-icon relative" aria-label="Notifications">
+      <i data-lucide="bell" class="icon-lg"></i>
+      <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style="background:var(--unread);box-shadow:0 0 0 2px var(--surface-0)"></span>
+    </button>
+
+    <!-- Avatar dropdown -->
+    <div class="relative">
+      <button onclick="toggleUserMenu()" class="avatar-pill" aria-label="Open user menu">
+        <span class="avatar-circle">DG</span>
+        <i data-lucide="chevron-down" class="icon-sm" style="color:var(--text-3)"></i>
+      </button>
+      <div id="user-menu" class="dropdown-menu user-menu absolute right-0 top-10 w-64 z-50 p-2">
+        <div class="px-2 pb-2 mb-1" style="border-bottom:1px solid var(--border-subtle)">
+          <!-- DEMO: user identity --><div class="text-sm font-medium" style="color:var(--text-1)">Danny Goh</div>
+          <div class="text-xs" style="color:var(--text-3)">danny@nexusfrontiertech.com</div>
+        </div>
+        <!-- Dark mode toggle -->
+        <div class="flex items-center justify-between px-2 py-1.5 rounded-md cursor-pointer hover:bg-gray-100" onclick="toggleDarkMode()">
+          <div class="flex items-center gap-2">
+            <i id="dark-icon" data-lucide="moon" class="icon-md" style="color:var(--text-3)"></i>
+            <span class="text-sm" style="color:var(--text-2)">Dark mode</span>
+          </div>
+          <div id="dark-toggle" class="w-8 h-4 rounded-full relative transition-colors" style="background:var(--surface-3)">
+            <div id="dark-knob" class="w-3 h-3 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform" style="box-shadow:0 1px 2px rgba(0,0,0,0.2)"></div>
+          </div>
+        </div>
+        <div class="mt-1 pt-1" style="border-top:1px solid var(--border-subtle)">
+          <button class="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-red-50" style="color:#DC2626">
+            <i data-lucide="log-out" class="icon-md"></i>Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<!-- ═══ BODY: SIDEBAR + CONTENT ═══ -->
+<div class="flex flex-1 overflow-hidden">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside id="sidebar" class="flex-shrink-0 overflow-hidden flex flex-col">
+    <nav class="flex flex-col gap-0.5 p-3 flex-1">
+
+      <a href="#" onclick="showPage('agent')" id="nav-agent" class="nav-item is-active">
+        <i data-lucide="sparkles" class="icon-md"></i>
+        <span class="nav-label">Agent</span>
+      </a>
+      <a href="#" onclick="showPage('settings')" id="nav-settings" class="nav-item">
+        <i data-lucide="settings" class="icon-md"></i>
+        <span class="nav-label">Settings</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ═══ PAGES WRAPPER ═══ -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- ════════════════════════════
+         PAGE: AGENT (DEFAULT)
+    ════════════════════════════ -->
+    <div id="page-agent" class="page active overflow-hidden">
+      <!-- History drawer (slides over chat from left) -->
+      <div id="history-backdrop" class="history-backdrop" onclick="toggleHistory()"></div>
+      <aside id="history-drawer" class="history-drawer">
+        <div class="px-4 py-3 flex items-center justify-between flex-shrink-0" style="border-bottom:1px solid var(--border-subtle)">
+          <div>
+            <div class="text-[10px] font-semibold uppercase tracking-wider" style="color:var(--text-3)">Chat history</div>
+            <div class="text-sm font-semibold mt-0.5" style="color:var(--text-1)">Recent threads</div>
+          </div>
+          <button onclick="toggleHistory()" class="btn-icon" aria-label="Close history">
+            <i data-lucide="x" class="icon-lg"></i>
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-2 space-y-0.5">
+          <!-- DEMO: thread list -->
+          <button class="thread-item is-active" onclick="toggleHistory()">
+            <div class="thread-title">Run #0001 — Sample Dataset review</div>
+            <div class="thread-meta">Just now · 5 messages</div>
+          </button>
+          <button class="thread-item" onclick="toggleHistory()">
+            <div class="thread-title">Configuration anomaly investigation</div>
+            <div class="thread-meta">2 hours ago · 12 messages</div>
+          </button>
+          <button class="thread-item" onclick="toggleHistory()">
+            <div class="thread-title">Q1 compliance summary draft</div>
+            <div class="thread-meta">Yesterday · 8 messages</div>
+          </button>
+          <button class="thread-item" onclick="toggleHistory()">
+            <div class="thread-title">Pattern Alpha root cause</div>
+            <div class="thread-meta">Yesterday · 23 messages</div>
+          </button>
+          <button class="thread-item" onclick="toggleHistory()">
+            <div class="thread-title">Run #0000 — initial onboarding</div>
+            <div class="thread-meta">3 days ago · 4 messages</div>
+          </button>
+          <button class="thread-item" onclick="toggleHistory()">
+            <div class="thread-title">Validation script walkthrough</div>
+            <div class="thread-meta">Last week · 17 messages</div>
+          </button>
+          <!-- END DEMO -->
+        </div>
+      </aside>
+      <!-- Canvas layout: chat + artifact panel float on tinted canvas with padding/gap -->
+      <div class="flex flex-1 overflow-hidden p-3 gap-3">
+
+        <!-- ── Main chat panel ── -->
+        <div class="flat-panel">
+          <!-- Chat header -->
+          <div id="chat-panel-header" class="px-5 py-3 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-2">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span id="thread-title"
+                        class="thread-title-editable text-sm font-semibold"
+                        style="color:var(--text-1)"
+                        contenteditable="true"
+                        spellcheck="false"
+                        data-placeholder="Untitled Thread"
+                        onkeydown="handleThreadTitleKey(event)"
+                        onblur="commitThreadTitle()">Untitled Thread</span>
+                  <i data-lucide="pencil" class="icon-xs cursor-pointer" style="color:var(--text-3)" onclick="focusThreadTitle()"></i>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button id="history-toggle-btn" onclick="toggleHistory()" class="btn-icon" title="Chat history" aria-label="Chat history">
+                <i data-lucide="history" class="icon-lg"></i>
+              </button>
+              <button id="artifact-toggle-btn" onclick="toggleArtifact()" class="btn-icon" title="Toggle artefact panel" aria-label="Toggle artefact panel">
+                <i data-lucide="panel-right" class="icon-lg"></i>
+              </button>
+              <span class="header-divider" aria-hidden="true"></span>
+              <button onclick="showNewChat()" class="btn-icon" title="New chat" aria-label="New chat">
+                <i data-lucide="square-pen" class="icon-lg"></i>
+              </button>
+            </div>
+          </div>
+          <!-- Divider under chat header -->
+          <div id="chat-panel-divider" class="flex-shrink-0 mx-5" style="border-bottom:1px solid var(--border-subtle)"></div>
+
+          <!-- ── Home / New-chat screen ── -->
+          <div id="home-screen" class="hidden flex-1 flex flex-col items-center justify-start overflow-y-auto px-6" style="padding-top:18vh;padding-bottom:4vh">
+
+            <!-- Layout container — welcome + hero + input share the same width -->
+            <div class="w-full" style="max-width:720px">
+
+              <!-- Welcome greeting — small, centered above the hero -->
+              <!-- DEMO: swap user name (e.g. inject from session/server) -->
+              <p class="text-sm text-center mb-10" style="color:var(--text-3)">
+                Welcome back, <span id="welcome-name">Danny</span>
+              </p>
+
+              <!-- Agent hero — avatar + typewriter, centered on the page.
+                   The ghost reserves width to the longest message so the avatar
+                   stays put while the text cycles. -->
+              <div class="flex items-center justify-center gap-4 mb-8">
+                <div class="agent-icon-wrap agent-icon-large flex-shrink-0" style="width:60px;height:60px;border-radius:16px;">
+                  <img data-agent-avatar alt="AI Agent" class="agent-icon-img" />
+                </div>
+                <div class="typewriter-greeting" aria-live="polite">
+                  <span class="typewriter-ghost" aria-hidden="true"></span>
+                  <span class="typewriter-live">
+                    <span id="typewriter"></span><span class="typewriter-cursor" aria-hidden="true"></span>
+                  </span>
+                </div>
+              </div>
+            </div><!-- /max-width:720px hero container -->
+
+            <!-- Home chat input — centered, wider -->
+            <div class="w-full" style="max-width:640px">
+              <div class="chat-input-shell px-4 pt-3 pb-2">
+                <textarea id="home-input" rows="1" placeholder="Ask anything…"
+                  class="w-full text-sm bg-transparent resize-none outline-none"
+                  style="color:var(--text-1)"
+                  onkeydown="handleHomeEnter(event)"
+                  oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                <div class="flex items-center justify-between mt-1">
+                  <div class="flex items-center gap-1">
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px">
+                      <i data-lucide="paperclip" class="icon-sm"></i>Attach
+                    </button>
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px">
+                      <i data-lucide="folder-open" class="icon-sm"></i>Source
+                    </button>
+                  </div>
+                  <button onclick="sendHomeMessage()" class="send-fab" aria-label="Send">
+                    <i data-lucide="arrow-up" class="icon-md"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Horizontal pill suggestion chips -->
+            <div class="flex flex-wrap justify-center gap-2 mt-5" style="max-width:620px">
+              <button onclick="homePrompt('Summarise the latest review')" class="suggestion-pill">Summarise the latest review</button>
+              <button onclick="homePrompt('What needs my attention right now?')" class="suggestion-pill">What needs my attention?</button>
+              <button onclick="homePrompt('Compare this period to last')" class="suggestion-pill">Compare this period to last</button>
+            </div>
+
+            <p class="text-xs mt-4 text-center" style="color:var(--text-4)">Built on OneNexus</p>
+          </div>
+
+          <!-- ── Active chat view ── -->
+          <div id="active-chat-view" class="flex flex-col flex-1 overflow-hidden">
+
+          <!-- Chat messages area -->
+          <div id="chat-messages" class="flex-1 overflow-y-auto py-6 space-y-3">
+
+            <!-- Workflow section divider — appears for every workflow run -->
+            <div class="thread-section">
+              <span class="thread-section-rule"></span>
+              <span class="thread-section-label">
+                <span class="thread-section-title">Run #0001 — Sample Dataset</span>
+                <span class="thread-section-time">9:00 AM</span>
+              </span>
+              <span class="thread-section-rule"></span>
+            </div>
+
+            <!-- AI greeting message -->
+            <div class="chat-turn">
+              <div class="flex items-start gap-3">
+              <div class="agent-icon-wrap flex-shrink-0 mt-0.5">
+                <img src="onx-agent-icon.png" alt="AI Agent" class="agent-icon-img" />
+              </div>
+              <div class="chat-bubble-ai max-w-xl">
+                <p class="text-sm text-gray-800 leading-relaxed">
+                  Hello! I'm <strong>AI Agent</strong>. I can help you review data, surface patterns, interpret results, and generate reports.<br><br>
+                  You can ask me things like:<br>
+                  <span class="text-gray-500">— "Summarise the latest review"</span><br>
+                  <span class="text-gray-500">— "What's driving the top issue?"</span><br>
+                  <span class="text-gray-500">— "Compare this period to last"</span>
+                </p>
+              </div>
+              </div>
+              <div class="bubble-actions">
+                <span class="bubble-actions-time" title="2026-05-27 09:00:00 UTC · AI Agent">9:00 AM</span>
+                <button class="btn-icon-sm" onclick="copyBubble(this)" title="Copy" aria-label="Copy"><i data-lucide="copy"></i></button>
+                <button class="btn-icon-sm" onclick="showSources(this)" title="View sources" aria-label="View sources"><i data-lucide="book-open"></i></button>
+              </div>
+            </div>
+
+            <!-- User message example -->
+            <div class="chat-turn">
+              <div class="flex items-start gap-3 justify-end">
+                <div class="chat-bubble-user px-3 py-2 max-w-xl">
+                  <p class="text-sm leading-relaxed">Summarise the latest run and flag anything I should review urgently.</p>
+                </div>
+                <div class="w-5 h-5 rounded-full bg-gray-300 flex items-center justify-center text-gray-700" style="font-size:9px;font-weight:700;flex-shrink:0;margin-top:2px">U</div>
+              </div>
+              <div class="bubble-actions user-actions">
+                <button class="btn-icon-sm" onclick="copyBubble(this)" title="Copy" aria-label="Copy"><i data-lucide="copy"></i></button>
+                <span class="bubble-actions-time" title="2026-05-27 09:00:12 UTC">9:00 AM</span>
+              </div>
+            </div>
+
+            <!-- AI response with analysis -->
+            <div class="chat-turn">
+              <div class="flex items-start gap-3">
+              <div class="agent-icon-wrap flex-shrink-0 mt-0.5">
+                <img src="onx-agent-icon.png" alt="AI Agent" class="agent-icon-img" />
+              </div>
+              <div class="chat-bubble-ai max-w-xl">
+                <p class="text-sm text-gray-800 leading-relaxed mb-2">
+                  <strong>Run #0001 — Sample Dataset</strong> completed [Date]. Here's what needs your attention:
+                </p>
+                <div class="border-l-4 border-orange-400 bg-orange-50 rounded-r px-3 py-2 mb-2">
+                  <div class="text-xs font-semibold text-orange-700 mb-0.5">🚨 Urgent · 213 exceptions</div>
+                  <div class="text-xs text-gray-700">Anomaly detected across Category A — 142 records. AI classifies this as a <strong>configuration issue</strong>, not a data error. Recommend reviewing config before sign-off.</div>
+                </div>
+                <p class="text-xs text-gray-500">Total: 312 exceptions · 11% defect rate · 194 docs affected.</p>
+                <button class="artifact-pointer" onclick="toggleArtifact()">
+                  <span class="artifact-pointer-icon"><i data-lucide="file-text"></i></span>
+                  <span class="artifact-pointer-body">
+                    <span class="artifact-pointer-title">Run #0001 — Sample Dataset</span>
+                    <span class="artifact-pointer-meta">Full report · 312 exceptions · 11% defect</span>
+                  </span>
+                  <i data-lucide="chevron-right" class="artifact-pointer-chevron"></i>
+                </button>
+              </div>
+              </div>
+              <div class="bubble-actions">
+                <span class="bubble-actions-time" title="2026-05-27 09:00:14 UTC · Run #0001">9:00 AM</span>
+                <button class="btn-icon-sm" onclick="copyBubble(this)" title="Copy" aria-label="Copy"><i data-lucide="copy"></i></button>
+                <button class="btn-icon-sm" onclick="showSources(this)" title="View sources" aria-label="View sources"><i data-lucide="book-open"></i></button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Chat input bar -->
+          <div class="px-5 pt-3 pb-4 flex-shrink-0" style="background:var(--surface-0)">
+            <div class="mx-auto" style="max-width:720px">
+              <div class="chat-input-shell px-4 pt-3 pb-2">
+                <textarea id="chat-input" rows="1" placeholder="Ask anything…"
+                  class="w-full text-sm bg-transparent resize-none outline-none"
+                  style="color:var(--text-1)"
+                  onkeydown="handleEnter(event)"
+                  oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                <div class="flex items-center justify-between mt-1">
+                  <div class="flex items-center gap-1">
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px">
+                      <i data-lucide="paperclip" class="icon-sm"></i>Attach
+                    </button>
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px">
+                      <i data-lucide="folder-open" class="icon-sm"></i>Source
+                    </button>
+                  </div>
+                  <button onclick="sendMessage()" class="send-fab" aria-label="Send">
+                    <i data-lucide="arrow-up" class="icon-md"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-xs mt-2 text-center" style="color:var(--text-4)">Built on OneNexus</p>
+            </div>
+          </div>
+          </div><!-- /#active-chat-view -->
+
+        </div>
+
+        <!-- ── Collapsible Artefact Panel ── -->
+        <div id="artifact-panel" class="flat-panel-right flex-shrink-0 hidden-panel">
+          <!-- Artefact panel header -->
+          <div class="px-5 py-3 flex items-center justify-between flex-shrink-0" style="border-bottom:1px solid var(--border-subtle)">
+            <div>
+              <div class="text-[10px] font-medium uppercase tracking-wider" style="color:var(--text-3)">Run #0001 · [Date]</div>
+              <div class="text-sm font-semibold mt-0.5" style="color:var(--text-1)">Review Summary</div>
+            </div>
+            <button onclick="toggleArtifact()" class="btn-icon" aria-label="Close panel">
+              <i data-lucide="x" class="icon-lg"></i>
+            </button>
+          </div>
+
+          <!-- Artefact content (scrollable) -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+            <!-- AI Summary -->
+            <div class="p-3" style="border-radius:var(--radius-md);background:var(--onx-teal-light);border:1px solid rgba(78,166,166,0.25)">
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <i data-lucide="sparkles" class="icon-sm" style="color:var(--onx-teal)"></i>
+                <span class="text-[10px] font-semibold uppercase tracking-wider" style="color:var(--onx-teal)">AI Summary</span>
+              </div>
+              <p class="text-xs leading-relaxed" style="color:var(--text-1)">
+                <strong>312 issues</strong> across <strong>194 records</strong>. 68% share one root cause — configuration mismatch. Recommend reviewing config before sign-off.
+              </p>
+            </div>
+
+            <!-- KPI mini cards -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="p-3" style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+                <div class="text-[11px] mb-1" style="color:var(--text-3)">Docs Processed</div>
+                <div class="text-lg font-semibold" style="color:var(--text-1);letter-spacing:-0.02em">2,840</div>
+              </div>
+              <div class="p-3" style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+                <div class="text-[11px] mb-1" style="color:var(--text-3)">Exceptions</div>
+                <div class="text-lg font-semibold" style="color:var(--text-1);letter-spacing:-0.02em">312</div>
+                <div class="text-[11px] font-medium" style="color:var(--status-danger)">↑ 4.2%</div>
+              </div>
+              <div class="p-3" style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+                <div class="text-[11px] mb-1" style="color:var(--text-3)">Defect Rate</div>
+                <div class="text-lg font-semibold" style="color:var(--text-1);letter-spacing:-0.02em">11.0%</div>
+                <div class="text-[11px] font-medium" style="color:var(--status-danger)">↑ 2.1%</div>
+              </div>
+              <div class="p-3" style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+                <div class="text-[11px] mb-1" style="color:var(--text-3)">Docs Affected</div>
+                <div class="text-lg font-semibold" style="color:var(--text-1);letter-spacing:-0.02em">194</div>
+                <div class="text-[11px]" style="color:var(--text-3)">6.8% of total</div>
+              </div>
+            </div>
+
+            <!-- Exceptions by Section -->
+            <div class="overflow-hidden" style="background:var(--surface-0);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+              <div class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider" style="color:var(--text-2);background:var(--surface-1);border-bottom:1px solid var(--border-subtle)">Exceptions by Section</div>
+              <table class="w-full">
+                <thead>
+                  <tr class="bg-gray-50 border-b border-gray-100 text-xs text-gray-500">
+                    <th class="px-3 py-2 text-left font-medium">Section</th>
+                    <th class="px-3 py-2 text-right font-medium">Exc.</th>
+                    <th class="px-3 py-2 text-right font-medium">Δ</th>
+                  </tr>
+                </thead>
+                <tbody class="text-xs">
+                  <tr class="border-t border-gray-100 hover:bg-blue-50">
+                    <td class="px-3 py-2 text-gray-800">Category A</td>
+                    <td class="px-3 py-2 text-right font-medium text-gray-900">213</td>
+                    <td class="px-3 py-2 text-right text-red-600 font-medium">↑213</td>
+                  </tr>
+                  <tr class="border-t border-gray-100 bg-gray-50 hover:bg-blue-50">
+                    <td class="px-3 py-2 text-gray-800">Category B</td>
+                    <td class="px-3 py-2 text-right font-medium text-gray-900">54</td>
+                    <td class="px-3 py-2 text-right text-green-600 font-medium">↓12</td>
+                  </tr>
+                  <tr class="border-t border-gray-100 hover:bg-blue-50">
+                    <td class="px-3 py-2 text-gray-800">Category C</td>
+                    <td class="px-3 py-2 text-right font-medium text-gray-900">29</td>
+                    <td class="px-3 py-2 text-right text-red-600 font-medium">↑8</td>
+                  </tr>
+                  <tr class="border-t border-gray-100 bg-gray-50 hover:bg-blue-50">
+                    <td class="px-3 py-2 text-gray-800">Category D</td>
+                    <td class="px-3 py-2 text-right font-medium text-gray-900">16</td>
+                    <td class="px-3 py-2 text-right text-gray-400">—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Top Pattern -->
+            <div class="p-3" style="background:var(--surface-0);border:1px solid rgba(249,115,22,0.3);border-radius:var(--radius-md)">
+              <div class="flex items-center justify-between mb-2">
+                <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" style="background:rgba(249,115,22,0.12);color:#C2410C">Critical · 213</span>
+                <span class="text-[11px] flex items-center gap-1" style="color:var(--text-3)">
+                  <i data-lucide="sparkles" class="icon-xs"></i>High confidence
+                </span>
+              </div>
+              <div class="text-sm font-semibold mb-1.5" style="color:var(--text-1)">Pattern Alpha — Category A</div>
+              <div class="px-3 py-2 mb-2" style="background:var(--surface-1);border-left:2px solid var(--text-3);border-radius:0 var(--radius-xs) var(--radius-xs) 0">
+                <div class="text-xs" style="color:var(--text-2)">Configuration issue — not a data error</div>
+              </div>
+              <div class="flex gap-1.5 justify-end">
+                <button class="btn btn-tertiary btn-sm">Verify all</button>
+                <button class="btn btn-sm" style="background:var(--status-danger);color:white;border:none">Defect all</button>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="space-y-2">
+              <button class="btn btn-primary w-full" style="padding:9px 12px;font-size:13px">
+                <i data-lucide="badge-check" class="icon-md"></i>Complete Review
+              </button>
+              <div class="flex gap-2">
+                <button class="btn btn-tertiary btn-sm flex-1">
+                  <i data-lucide="upload" class="icon-sm"></i>Export
+                </button>
+                <button class="btn btn-tertiary btn-sm flex-1">
+                  <i data-lucide="rotate-ccw" class="icon-sm"></i>New Run
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end page-agent -->
+
+    <!-- ════════════════════════════
+         PAGE: SETTINGS  —  DOCUMENT ARCHETYPE (sub-nav + content panels)
+         Reusable two-column document layout. Reskin panels for custom pages.
+    ════════════════════════════ -->
+        <div id="page-settings" class="page overflow-hidden">
+      <!-- Hero -->
+      <div class="px-6 pt-6 pb-4 flex-shrink-0">
+        <h1 class="text-xl font-semibold" style="color:var(--text-1);letter-spacing:-0.02em">Settings</h1>
+        <p class="text-xs mt-1" style="color:var(--text-3)">Workspace preferences, team, connectors</p>
+      </div>
+
+      <!-- Body — two-column layout -->
+      <div class="flex-1 overflow-hidden flex px-6 pb-6 gap-6">
+        <!-- Sub-nav -->
+        <aside class="flex-shrink-0 flex flex-col gap-0.5" style="width:180px">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);padding:6px 10px 4px">Personal</div>
+          <div class="settings-nav-item is-active" onclick="showSettingsPanel('profile', this)"><i data-lucide="user" class="icon-sm"></i>Profile</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('notifications', this)"><i data-lucide="bell" class="icon-sm"></i>Notifications</div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);padding:10px 10px 4px">Organization</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('workspace', this)"><i data-lucide="building-2" class="icon-sm"></i>Workspace</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('team', this)"><i data-lucide="users" class="icon-sm"></i>Team</div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);padding:10px 10px 4px">Configurations</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('api-keys', this)"><i data-lucide="key-round" class="icon-sm"></i>API Keys</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('connectors', this)"><i data-lucide="plug" class="icon-sm"></i>Connectors</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('ai-governance', this)"><i data-lucide="shield-check" class="icon-sm"></i>AI Governance</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('access-control', this)"><i data-lucide="lock" class="icon-sm"></i>Access Control</div>
+          <div class="settings-nav-item" onclick="showSettingsPanel('audit-siem', this)"><i data-lucide="scroll-text" class="icon-sm"></i>Audit &amp; SIEM</div>
+        </aside>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto hide-scrollbar" style="max-width:680px">
+        <div class="settings-panel" data-panel="profile">
+          <div class="section-card">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Profile</div>
+                <div class="section-meta">Your personal information and how others see you</div>
+              </div>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Avatar<div class="form-help">Square image, min 96×96px</div></label>
+              <div class="flex items-center gap-3">
+                <div class="avatar-circle" style="width:56px;height:56px;font-size:18px">DG</div>
+                <button class="btn btn-secondary btn-sm"><i data-lucide="upload" class="icon-sm"></i>Upload</button>
+                <button class="btn btn-secondary btn-sm" style="color:var(--status-danger)" onclick="openModal({title:'Remove avatar?',body:'Your avatar will be replaced with your initials. You can re-upload anytime.',confirmLabel:'Remove',danger:true,onConfirm:()=>toast('Avatar removed',{type:'success'})})">Remove</button>
+              </div>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Full name</label>
+              <!-- DEMO: user profile -->
+              <input class="form-input" type="text" value="Danny Goh"/>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Display name</label>
+              <input class="form-input" type="text" value="Danny"/>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Email<div class="form-help">Contact admin to change</div></label>
+              <input class="form-input" type="email" value="danny@nexusfrontiertech.com" disabled/>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Role</label>
+              <select class="form-select">
+                <option>Workspace admin</option>
+                <option>Manager</option>
+                <option>Analyst</option>
+                <option>Reviewer</option>
+                <option>Read-only</option>
+              </select>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Time zone</label>
+              <select class="form-select">
+                <option>(UTC+08:00) Singapore</option>
+                <option>(UTC+00:00) London</option>
+                <option>(UTC-05:00) New York</option>
+              </select>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Bio<div class="form-help">Shown on your profile</div></label>
+              <textarea class="form-textarea" placeholder="Tell your team about yourself…">Compliance lead. Eight years in regulatory reporting.</textarea>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Preferences</div>
+                <div class="section-meta">Defaults applied across the workspace</div>
+              </div>
+            </div>
+            <!-- Appearance -->
+            <div class="flex items-center justify-between py-3" style="border-bottom:1px solid var(--border-subtle)">
+              <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Appearance</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Switch between light and dark mode</div></div>
+              <div class="toggle-switch" id="appearance-toggle" onclick="this.classList.toggle('is-on'); toggleDarkMode()"></div>
+            </div>
+
+            <!-- Language -->
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Language<div class="form-help">Interface language (demo only)</div></label>
+              <select class="form-select">
+                <option>English</option>
+                <option>Spanish</option>
+                <option>French</option>
+                <option>German</option>
+                <option>Japanese</option>
+                <option>Chinese (Simplified)</option>
+              </select>
+            </div>
+
+            <!-- Font size preference -->
+            <div class="py-3" style="border-bottom:1px solid var(--border-subtle)">
+              <div style="font-size:13px;font-weight:500;color:var(--text-1)">Text size</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;margin-bottom:12px">Adjust the interface text size to your preference</div>
+              <div class="flex items-center gap-3">
+                <span style="font-size:11px;color:var(--text-3);font-weight:600;flex-shrink:0">A</span>
+                <input id="font-size-slider" type="range" min="1" max="5" value="3"
+                  oninput="applyFontSize(this.value)"
+                  style="flex:1;accent-color:var(--onx-teal);height:4px;cursor:pointer"/>
+                <span style="font-size:17px;color:var(--text-3);font-weight:600;flex-shrink:0">A</span>
+              </div>
+              <div class="flex justify-between mt-1.5" style="padding:0 18px">
+                <span style="font-size:10.5px;color:var(--text-4)">Smallest</span>
+                <span style="font-size:10.5px;color:var(--text-4)" id="font-size-label">Default</span>
+                <span style="font-size:10.5px;color:var(--text-4)">Largest</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between py-3">
+              <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Open chat with last thread</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Otherwise opens a fresh thread on each visit</div></div>
+              <div class="toggle-switch" onclick="this.classList.toggle('is-on')"></div>
+            </div>
+
+            <div class="save-bar">
+              <span style="font-size:11.5px;color:var(--text-3)">Last saved 2 minutes ago</span>
+              <div class="flex items-center gap-1.5">
+                <button class="btn btn-secondary btn-sm">Discard</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('Changes saved',{type:'success'})">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- end profile panel -->
+
+        <!-- ── NOTIFICATIONS ── -->
+        <div class="settings-panel" data-panel="notifications" hidden>
+          <div class="section-card">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Notification preferences</div>
+                <div class="section-meta">Choose what to be notified about and how</div>
+              </div>
+            </div>
+
+            <!-- Channel header row -->
+            <div style="display:grid;grid-template-columns:1fr 64px 64px 64px;gap:0;margin-bottom:6px;padding:0 2px">
+              <div></div>
+              <div style="font-size:10.5px;font-weight:600;color:var(--text-4);text-align:center;letter-spacing:.04em;text-transform:uppercase">App</div>
+              <div style="font-size:10.5px;font-weight:600;color:var(--text-4);text-align:center;letter-spacing:.04em;text-transform:uppercase">Email</div>
+              <div style="font-size:10.5px;font-weight:600;color:var(--text-4);text-align:center;letter-spacing:.04em;text-transform:uppercase">Teams</div>
+            </div>
+
+            <!-- Rows -->
+            <div style="display:flex;flex-direction:column;gap:0;border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden">
+
+              <div style="display:grid;grid-template-columns:1fr 64px 64px 64px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:var(--text-1)">Run completed</div>
+                  <div style="font-size:11.5px;color:var(--text-3);margin-top:1px">When any run finishes, regardless of result</div>
+                </div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch" onclick="this.classList.toggle('is-on')"></div></div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 64px 64px 64px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:var(--text-1)">Run failed</div>
+                  <div style="font-size:11.5px;color:var(--text-3);margin-top:1px">When a run errors or is interrupted</div>
+                </div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 64px 64px 64px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:var(--text-1)">Task flagged for review</div>
+                  <div style="font-size:11.5px;color:var(--text-3);margin-top:1px">When an AI output falls below the confidence threshold</div>
+                </div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 64px 64px 64px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:var(--text-1)">Task assigned to me</div>
+                  <div style="font-size:11.5px;color:var(--text-3);margin-top:1px">When a team member assigns you a review task</div>
+                </div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch" onclick="this.classList.toggle('is-on')"></div></div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 64px 64px 64px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:var(--text-1)">Integration sync failed</div>
+                  <div style="font-size:11.5px;color:var(--text-3);margin-top:1px">When a data feed or export integration errors</div>
+                </div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 64px 64px 64px;align-items:center;padding:11px 14px">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:var(--text-1)">Weekly summary digest</div>
+                  <div style="font-size:11.5px;color:var(--text-3);margin-top:1px">Runs completed, tasks resolved, and flagged items</div>
+                </div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div></div>
+                <div style="display:flex;justify-content:center"><div class="toggle-switch" onclick="this.classList.toggle('is-on')"></div></div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header"><div><div class="section-title">Delivery channels</div><div class="section-meta">Where notifications are sent</div></div></div>
+
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Email address<div class="form-help">Used for all email notifications</div></label>
+              <input class="form-input" type="email" value="danny@nexusfrontiertech.com" disabled/>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Teams channel<div class="form-help">Connected via workspace integration</div></label>
+              <select class="form-select" onchange="toast('Teams channel updated',{type:'success'})">
+                <option selected>Direct message (me)</option>
+                <option>Compliance Alerts</option>
+                <option>General</option>
+              </select>
+            </div>
+
+            <div class="save-bar">
+              <span style="font-size:11.5px;color:var(--text-3)">Last saved 4 minutes ago</span>
+              <div class="flex items-center gap-1.5">
+                <button class="btn btn-secondary btn-sm">Discard</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('Notification preferences saved',{type:'success'})">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- end notifications panel -->
+
+        <!-- ── TEAM ── -->
+        <div class="settings-panel" data-panel="team" hidden>
+          <div class="section-card">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Members</div>
+                <div class="section-meta">6 members · 1 pending invite</div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="toast('Invite sent',{type:'success'})"><i data-lucide="user-plus" class="icon-sm"></i>Invite member</button>
+            </div>
+
+            <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden">
+
+              <!-- Danny Goh — admin (you) -->
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div class="avatar-circle" style="width:32px;height:32px;font-size:11px;flex-shrink:0">DG</div>
+                  <div style="min-width:0">
+                    <div style="font-size:13px;font-weight:500;color:var(--text-1)">Danny Goh <span style="font-size:11px;color:var(--text-4);font-weight:400;margin-left:4px">you</span></div>
+                    <div style="font-size:11.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">danny@nexusfrontiertech.com</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <span style="font-size:11.5px;background:var(--onx-teal-light);color:var(--onx-teal);padding:2px 8px;border-radius:20px;font-weight:500;white-space:nowrap">Workspace admin</span>
+                  <span style="font-size:11.5px;color:var(--status-success)">● Active</span>
+                </div>
+              </div>
+
+              <!-- Lauren Mitchell — American -->
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div class="avatar-circle" style="width:32px;height:32px;font-size:11px;flex-shrink:0;background:#F3E8FF;color:#7C3AED">LM</div>
+                  <div style="min-width:0">
+                    <div style="font-size:13px;font-weight:500;color:var(--text-1)">Lauren Mitchell</div>
+                    <div style="font-size:11.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">l.mitchell@nexusfrontiertech.com</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <select class="form-select" style="font-size:12px;padding:3px 28px 3px 8px;height:auto" onchange="toast('Role updated',{type:'success'})">
+                    <option>Workspace admin</option>
+                    <option selected>Manager</option>
+                    <option>Reviewer</option>
+                    <option>Analyst</option>
+                    <option>Read-only</option>
+                  </select>
+                  <span style="font-size:11.5px;color:var(--status-success)">● Active</span>
+                </div>
+              </div>
+
+              <!-- Thomas Brandt — German -->
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div class="avatar-circle" style="width:32px;height:32px;font-size:11px;flex-shrink:0;background:#FFF3E0;color:#D97706">TB</div>
+                  <div style="min-width:0">
+                    <div style="font-size:13px;font-weight:500;color:var(--text-1)">Thomas Brandt</div>
+                    <div style="font-size:11.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">t.brandt@nexusfrontiertech.com</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <select class="form-select" style="font-size:12px;padding:3px 28px 3px 8px;height:auto" onchange="toast('Role updated',{type:'success'})">
+                    <option>Workspace admin</option>
+                    <option>Manager</option>
+                    <option selected>Reviewer</option>
+                    <option>Analyst</option>
+                    <option>Read-only</option>
+                  </select>
+                  <span style="font-size:11.5px;color:var(--status-success)">● Active</span>
+                </div>
+              </div>
+
+              <!-- Yuki Tanaka — Japanese -->
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div class="avatar-circle" style="width:32px;height:32px;font-size:11px;flex-shrink:0;background:#E8F5E9;color:#16803C">YT</div>
+                  <div style="min-width:0">
+                    <div style="font-size:13px;font-weight:500;color:var(--text-1)">Yuki Tanaka</div>
+                    <div style="font-size:11.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">y.tanaka@nexusfrontiertech.com</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <select class="form-select" style="font-size:12px;padding:3px 28px 3px 8px;height:auto" onchange="toast('Role updated',{type:'success'})">
+                    <option>Workspace admin</option>
+                    <option>Manager</option>
+                    <option>Reviewer</option>
+                    <option selected>Analyst</option>
+                    <option>Read-only</option>
+                  </select>
+                  <span style="font-size:11.5px;color:var(--status-success)">● Active</span>
+                </div>
+              </div>
+
+              <!-- Marcus Webb — American -->
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div class="avatar-circle" style="width:32px;height:32px;font-size:11px;flex-shrink:0;background:#E8F0FE;color:#1D4ED8">MW</div>
+                  <div style="min-width:0">
+                    <div style="font-size:13px;font-weight:500;color:var(--text-1)">Marcus Webb</div>
+                    <div style="font-size:11.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">m.webb@nexusfrontiertech.com</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <select class="form-select" style="font-size:12px;padding:3px 28px 3px 8px;height:auto" onchange="toast('Role updated',{type:'success'})">
+                    <option>Workspace admin</option>
+                    <option>Manager</option>
+                    <option>Reviewer</option>
+                    <option selected>Analyst</option>
+                    <option>Read-only</option>
+                  </select>
+                  <span style="font-size:11.5px;color:var(--text-4)">● Away</span>
+                </div>
+              </div>
+
+              <!-- Isabelle Dupont — French -->
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div class="avatar-circle" style="width:32px;height:32px;font-size:11px;flex-shrink:0;background:#FEE2E2;color:#B91C1C">ID</div>
+                  <div style="min-width:0">
+                    <div style="font-size:13px;font-weight:500;color:var(--text-1)">Isabelle Dupont</div>
+                    <div style="font-size:11.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">i.dupont@nexusfrontiertech.com</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <select class="form-select" style="font-size:12px;padding:3px 28px 3px 8px;height:auto" onchange="toast('Role updated',{type:'success'})">
+                    <option>Workspace admin</option>
+                    <option>Manager</option>
+                    <option>Reviewer</option>
+                    <option>Analyst</option>
+                    <option selected>Read-only</option>
+                  </select>
+                  <span style="font-size:11.5px;color:var(--text-4)">● Inactive</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Pending invites -->
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header"><div><div class="section-title">Pending invites</div><div class="section-meta">Awaiting acceptance</div></div></div>
+            <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px">
+                <div>
+                  <div style="font-size:13px;color:var(--text-1)">tom.ng@nexusfrontiertech.com</div>
+                  <div style="font-size:11.5px;color:var(--text-3);margin-top:1px">Invited as Analyst · 3 days ago</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-secondary btn-sm" onclick="toast('Invite resent',{type:'success'})">Resend</button>
+                  <button class="btn btn-secondary btn-sm" style="color:var(--status-danger)" onclick="openModal({title:'Revoke invite?',body:'tom.ng@nexusfrontiertech.com will no longer be able to accept this invite.',confirmLabel:'Revoke',danger:true,onConfirm:()=>toast('Invite revoked',{type:'info'})})">Revoke</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- end team panel -->
+
+        <div class="settings-panel" data-panel="workspace" hidden>
+          <div class="view-only-banner" style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;margin-bottom:14px;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px">
+            <i data-lucide="lock" class="icon-sm" style="color:var(--text-3);flex-shrink:0;margin-top:2px"></i>
+            <div>
+              <div style="font-size:12.5px;font-weight:600;color:var(--text-1)">View only</div>
+              <div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Contact your workspace admin to update these settings.</div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Organization identity</div>
+                <div class="section-meta">How your organization appears across the platform</div>
+              </div>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Organization name</label>
+              <input class="form-input" type="text" value="Nexus Frontier Tech Ltd" disabled/>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Organization logo</label>
+              <div class="flex items-center gap-3">
+                <div class="avatar-circle" style="width:56px;height:56px;font-size:18px;background:var(--onx-teal-light);color:var(--onx-teal)">NF</div>
+                <button class="btn btn-secondary btn-sm" disabled style="opacity:0.6;cursor:not-allowed"><i data-lucide="upload" class="icon-sm"></i>Upload</button>
+              </div>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Primary domain<div class="form-help">Used for SSO configuration and email allowlisting</div></label>
+              <input class="form-input" type="text" value="nexusfrontier.tech" disabled/>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Locale &amp; regional</div>
+                <div class="section-meta">Controls how dates, times, and values are displayed across the platform</div>
+              </div>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Time zone<div class="form-help">Affects run timestamps, scheduled jobs, and report period labels</div></label>
+              <select class="form-select" disabled>
+                <option>(UTC-05:00) New York</option>
+              </select>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Date format</label>
+              <select class="form-select" disabled>
+                <option>MM/DD/YYYY</option>
+              </select>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Currency</label>
+              <select class="form-select" disabled>
+                <option>USD — US Dollar</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Security and access</div>
+                <div class="section-meta">Authentication and access control settings for your organization</div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between py-3" style="border-bottom:1px solid var(--border-subtle)">
+              <div style="max-width:480px"><div style="font-size:13px;font-weight:500;color:var(--text-1)">Single sign-on (SSO/SAML)</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Enforce login via your identity provider. All users will be required to authenticate through SSO.</div></div>
+              <div class="toggle-switch is-on" style="opacity:0.6;cursor:not-allowed;pointer-events:none"></div>
+            </div>
+
+            <div class="flex items-center justify-between py-3">
+              <div style="max-width:480px"><div style="font-size:13px;font-weight:500;color:var(--text-1)">Require MFA for all users</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Users will be prompted to enroll in multi-factor authentication on next login.</div></div>
+              <div class="toggle-switch is-on" style="opacity:0.6;cursor:not-allowed;pointer-events:none"></div>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Data compliance</div>
+                <div class="section-meta">Data retention, residency, and communication defaults</div>
+              </div>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Data retention</label>
+              <select class="form-select" disabled>
+                <option>12 months</option>
+              </select>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Audit log retention</label>
+              <select class="form-select" disabled>
+                <option>36 months</option>
+              </select>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Data residency</label>
+              <select class="form-select" disabled>
+                <option>United States</option>
+              </select>
+            </div>
+
+            <div class="form-row row-inline">
+              <label class="form-label">Notification sender email<div class="form-help">Outbound notification emails will appear to be sent from this address</div></label>
+              <input class="form-input" type="email" value="notifications@nexusfrontier.tech" disabled/>
+            </div>
+          </div>
+        </div><!-- end workspace panel -->
+
+        <!-- ── API KEYS ── -->
+        <div class="settings-panel" data-panel="api-keys" hidden>
+          <div class="section-card">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Encryption key management</div>
+                <div class="section-meta">Bring your own key (BYOK) for data-at-rest encryption</div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="toast('Opening KMS configuration…',{type:'info'})"><i data-lucide="plus" class="icon-sm"></i>Add key</button>
+            </div>
+            <!-- Active key -->
+            <div style="background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;margin-bottom:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:12px;font-weight:600;color:var(--status-success);letter-spacing:.04em;text-transform:uppercase">● Active key</div>
+                <span style="font-size:11.5px;color:var(--text-4)">Rotated 12 May 2026</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div>
+                  <div style="font-size:11px;color:var(--text-4);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Provider</div>
+                  <div style="font-size:13px;color:var(--text-1);font-weight:500">AWS KMS</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-4);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Key ARN</div>
+                  <code style="font-size:11.5px;color:var(--text-2)">arn:aws:kms:us-east-1:…:key/a3f9c21b</code>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-4);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Rotation schedule</div>
+                  <div style="font-size:13px;color:var(--text-1)">Every 90 days</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-4);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Next rotation</div>
+                  <div style="font-size:13px;color:var(--text-1)">10 Aug 2026</div>
+                </div>
+              </div>
+            </div>
+            <!-- Key history -->
+            <div style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-4);margin-bottom:8px">Key history</div>
+            <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border-subtle)">
+                <div>
+                  <code style="font-size:11.5px;background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text-2)">arn:…/b17c4d8e</code>
+                  <span style="font-size:11.5px;color:var(--text-4);margin-left:10px">Rotated out 12 Feb 2026</span>
+                </div>
+                <span style="font-size:11.5px;color:var(--text-4)">Retired</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px">
+                <div>
+                  <code style="font-size:11.5px;background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text-2)">arn:…/e82d91fa</code>
+                  <span style="font-size:11.5px;color:var(--text-4);margin-left:10px">Rotated out 14 Nov 2025</span>
+                </div>
+                <span style="font-size:11.5px;color:var(--text-4)">Retired</span>
+              </div>
+            </div>
+          </div>
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header"><div><div class="section-title">Supported providers</div><div class="section-meta">Keys can be sourced from any of these KMS providers</div></div></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:32px;height:32px;border-radius:6px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:15px">☁️</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">AWS KMS</div><div style="font-size:11.5px;color:var(--text-3)">Key Management Service · IAM role-based access</div></div>
+                </div>
+                <span style="font-size:11.5px;color:var(--status-success);font-weight:500">● Active</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:32px;height:32px;border-radius:6px;background:#E8F0FE;display:flex;align-items:center;justify-content:center;font-size:15px">🔷</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Azure Key Vault</div><div style="font-size:11.5px;color:var(--text-3)">Managed HSM · Entra ID service principal</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Redirecting to Azure Key Vault setup…',{type:'info'})">Configure</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:32px;height:32px;border-radius:6px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:15px">🟢</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">GCP Cloud KMS</div><div style="font-size:11.5px;color:var(--text-3)">Cloud KMS · Workload Identity Federation</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Redirecting to GCP KMS setup…',{type:'info'})">Configure</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- end api-keys panel -->
+
+        <!-- ── INTEGRATIONS ── -->
+        <div class="settings-panel" data-panel="connectors" hidden>
+          <!-- DEMO: Data connectors -->
+          <div class="section-card">
+            <div class="section-header"><div><div class="section-title">Data connectors</div><div class="section-meta">System connections and data feed sources</div></div></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:var(--onx-teal-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--onx-teal);flex-shrink:0">SS</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">SmartStream TLM</div><div style="font-size:11.5px;color:var(--status-success);margin-top:1px">● Connected · Last sync 07:02 GMT</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Opening SmartStream TLM configuration…',{type:'info'})">Configure</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:var(--onx-teal-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--onx-teal);flex-shrink:0">BR</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Broadridge</div><div style="font-size:11.5px;color:var(--status-success);margin-top:1px">● Connected · Last sync 07:00 GMT</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Opening Broadridge configuration…',{type:'info'})">Configure</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:var(--onx-teal-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--onx-teal);flex-shrink:0">BL</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Bloomberg B-PIPE</div><div style="font-size:11.5px;color:var(--status-success);margin-top:1px">● Connected · Real-time feed active</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Opening Bloomberg B-PIPE configuration…',{type:'info'})">Configure</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-3);flex-shrink:0">AL</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">BlackRock Aladdin (OMS)</div><div style="font-size:11.5px;color:var(--text-4);margin-top:1px">○ Disconnected</div></div>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="toast('Opening Aladdin connection wizard…',{type:'info'})">Connect</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:var(--onx-teal-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--onx-teal);flex-shrink:0">EC</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Euroclear SWIFT Feed</div><div style="font-size:11.5px;color:var(--status-success);margin-top:1px">● Connected · SWIFT MT950 active</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Opening Euroclear configuration…',{type:'info'})">Configure</button>
+              </div>
+            </div>
+          </div>
+          <!-- END DEMO: Data connectors -->
+          <!-- Productivity -->
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header"><div><div class="section-title">Productivity &amp; export</div><div class="section-meta">Notifications, reporting, and document export services</div></div></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:#F0F4FF;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">💬</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Slack</div><div style="font-size:11.5px;color:var(--status-success);margin-top:1px">● Connected · #compliance-alerts</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Slack disconnected',{type:'info'})">Disconnect</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🔔</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Microsoft Teams</div><div style="font-size:11.5px;color:var(--text-4);margin-top:1px">○ Disconnected</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Redirecting to Teams setup…',{type:'info'})">Connect</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:#F3E8FF;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🗂️</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">SharePoint</div><div style="font-size:11.5px;color:var(--status-success);margin-top:1px">● Connected · Nexus Compliance Reports</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('SharePoint disconnected',{type:'info'})">Disconnect</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-subtle);border-radius:8px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:8px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">📈</div>
+                  <div><div style="font-size:13px;font-weight:500;color:var(--text-1)">Power BI</div><div style="font-size:11.5px;color:var(--text-4);margin-top:1px">○ Disconnected</div></div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Redirecting to Power BI setup…',{type:'info'})">Connect</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- end connectors panel -->
+
+        <!-- ── AI GOVERNANCE ── -->
+        <div class="settings-panel" data-panel="ai-governance" hidden>
+          <div class="section-card">
+            <div class="section-header"><div><div class="section-title">Data privacy</div><div class="section-meta">How your data is handled by the AI layer</div></div></div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:#EDF7F0;border:1px solid #B2DFCB;border-radius:8px;margin-bottom:14px">
+              <i data-lucide="shield-check" class="icon-sm" style="color:var(--status-success);flex-shrink:0;margin-top:1px"></i>
+              <div style="font-size:12px;color:#1a6640;line-height:1.5">Your data is <strong>never used to train AI models</strong>. All inference runs on a private, self-hosted deployment with all external network egress blocked.</div>
+            </div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Data used for model training<div class="form-help">Locked by enterprise agreement</div></label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="toggle-switch" style="opacity:0.5;cursor:not-allowed;pointer-events:none"></div>
+                <span style="font-size:12.5px;color:var(--text-3);font-weight:500">Never</span>
+              </div>
+            </div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Data processing location</label>
+              <select class="form-select" style="opacity:0.6;cursor:not-allowed" disabled>
+                <option>Private self-hosted (air-gapped)</option>
+              </select>
+            </div>
+            <div class="form-row row-inline">
+              <label class="form-label">External network egress</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="toggle-switch" style="opacity:0.5;cursor:not-allowed;pointer-events:none"></div>
+                <span style="font-size:12.5px;color:var(--status-danger);font-weight:600">Blocked</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header"><div><div class="section-title">Quality gates</div><div class="section-meta">Controls for AI output confidence and human-in-the-loop review</div></div></div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">AI confidence threshold<div class="form-help">Outputs below this score are flagged for review</div></label>
+              <select class="form-select" onchange="toast('Confidence threshold updated',{type:'success'})">
+                <option>70%</option>
+                <option>80%</option>
+                <option selected>90%</option>
+                <option>95%</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-between py-3" style="border-bottom:1px solid var(--border-subtle)">
+              <div style="max-width:380px"><div style="font-size:13px;font-weight:500;color:var(--text-1)">Auto-resolve low-confidence tasks</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">If off, tasks below threshold are held for human review</div></div>
+              <div class="toggle-switch" onclick="this.classList.toggle('is-on')"></div>
+            </div>
+            <div class="flex items-center justify-between py-3" style="border-bottom:1px solid var(--border-subtle)">
+              <div style="max-width:380px"><div style="font-size:13px;font-weight:500;color:var(--text-1)">Require human sign-off on flagged outputs</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">A named reviewer must approve before results are used downstream</div></div>
+              <div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div>
+            </div>
+            <div class="flex items-center justify-between py-3">
+              <div style="max-width:380px"><div style="font-size:13px;font-weight:500;color:var(--text-1)">Log all AI decisions to audit trail</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Every inference, score, and override is written to the immutable audit log</div></div>
+              <div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header"><div><div class="section-title">Model policy</div><div class="section-meta">Which model is used and how it behaves across the workspace</div></div></div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Active model</label>
+              <select class="form-select" onchange="toast('Model policy updated',{type:'success'})">
+                <option selected>ONX Compliance Model v3.1 (recommended)</option>
+                <option>ONX Compliance Model v2.8</option>
+                <option>Custom fine-tuned model</option>
+              </select>
+            </div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Max context window per run<div class="form-help">Larger windows increase cost and latency</div></label>
+              <select class="form-select" onchange="toast('Context window updated',{type:'success'})">
+                <option>32k tokens</option>
+                <option selected>128k tokens</option>
+                <option>200k tokens</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-between py-3">
+              <div style="max-width:380px"><div style="font-size:13px;font-weight:500;color:var(--text-1)">Explainability mode</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Attach reasoning traces to every output for audit purposes</div></div>
+              <div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div>
+            </div>
+            <div class="save-bar">
+              <span style="font-size:11.5px;color:var(--text-3)">Last saved 5 minutes ago</span>
+              <div class="flex items-center gap-1.5">
+                <button class="btn btn-secondary btn-sm">Discard</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('AI governance settings saved',{type:'success'})">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- end ai-governance panel -->
+
+        <!-- ── ACCESS CONTROL ── -->
+        <div class="settings-panel" data-panel="access-control" hidden>
+          <div class="section-card">
+            <div class="section-header"><div><div class="section-title">IP allowlist</div><div class="section-meta">Restrict platform access to known IP ranges</div></div></div>
+            <div class="flex items-center justify-between py-3" style="border-bottom:1px solid var(--border-subtle)">
+              <div style="max-width:380px"><div style="font-size:13px;font-weight:500;color:var(--text-1)">Enable IP allowlisting</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">Logins from unlisted IPs will be rejected</div></div>
+              <div class="toggle-switch is-on" id="ip-allowlist-toggle" onclick="this.classList.toggle('is-on')"></div>
+            </div>
+            <div style="margin-top:12px">
+              <div style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-4);margin-bottom:8px">Allowed CIDR ranges</div>
+              <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border-subtle)">
+                  <div><code style="font-size:12.5px;color:var(--text-1)">203.89.14.0/24</code><span style="font-size:11.5px;color:var(--text-4);margin-left:10px">Singapore HQ</span></div>
+                  <button class="btn btn-secondary btn-sm" style="color:var(--status-danger)" onclick="toast('Range removed',{type:'info'})">Remove</button>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border-subtle)">
+                  <div><code style="font-size:12.5px;color:var(--text-1)">10.0.0.0/8</code><span style="font-size:11.5px;color:var(--text-4);margin-left:10px">Internal VPN</span></div>
+                  <button class="btn btn-secondary btn-sm" style="color:var(--status-danger)" onclick="toast('Range removed',{type:'info'})">Remove</button>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px">
+                  <div><code style="font-size:12.5px;color:var(--text-1)">52.14.0.0/16</code><span style="font-size:11.5px;color:var(--text-4);margin-left:10px">AWS NAT gateway</span></div>
+                  <button class="btn btn-secondary btn-sm" style="color:var(--status-danger)" onclick="toast('Range removed',{type:'info'})">Remove</button>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="toast('Enter CIDR range to add',{type:'info'})"><i data-lucide="plus" class="icon-sm"></i>Add range</button>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header"><div><div class="section-title">Session policy</div><div class="section-meta">Idle timeout and concurrent session limits</div></div></div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Session timeout<div class="form-help">Idle sessions are logged out automatically</div></label>
+              <select class="form-select" onchange="toast('Session timeout updated',{type:'success'})">
+                <option>15 minutes</option>
+                <option selected>30 minutes</option>
+                <option>60 minutes</option>
+                <option>120 minutes</option>
+              </select>
+            </div>
+            <div class="form-row row-inline">
+              <label class="form-label">Max concurrent sessions per user</label>
+              <select class="form-select" onchange="toast('Session limit updated',{type:'success'})">
+                <option>1 session</option>
+                <option selected>3 sessions</option>
+                <option>5 sessions</option>
+                <option>Unlimited</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header">
+              <div><div class="section-title">Directory sync (SCIM)</div><div class="section-meta">Automatically provision and deprovision users via your identity provider</div></div>
+              <div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div>
+            </div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Identity provider</label>
+              <select class="form-select" onchange="toast('Identity provider updated',{type:'success'})">
+                <option selected>Okta</option>
+                <option>Azure Active Directory</option>
+                <option>Google Workspace</option>
+                <option>OneLogin</option>
+              </select>
+            </div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">SCIM endpoint<div class="form-help">Configure this URL in your IdP</div></label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input class="form-input" type="text" value="https://app.onx.ai/scim/v2" readonly style="font-family:monospace;font-size:12px"/>
+                <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('https://app.onx.ai/scim/v2');toast('Copied',{type:'success'})"><i data-lucide="copy" class="icon-sm"></i></button>
+              </div>
+            </div>
+            <div class="form-row row-inline">
+              <label class="form-label">Bearer token<div class="form-help">Paste into your IdP SCIM configuration</div></label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input class="form-input" type="password" value="scim_tok_xK9mR2pL…" readonly style="font-family:monospace;font-size:12px"/>
+                <button class="btn btn-secondary btn-sm" onclick="toast('Token rotated — copy the new value from your IdP',{type:'success'})">Rotate</button>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span style="font-size:11.5px;color:var(--text-3)">Last saved 1 hour ago</span>
+              <div class="flex items-center gap-1.5">
+                <button class="btn btn-secondary btn-sm">Discard</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('Access control settings saved',{type:'success'})">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- end access-control panel -->
+
+        <!-- ── AUDIT & SIEM ── -->
+        <div class="settings-panel" data-panel="audit-siem" hidden>
+          <div class="section-card">
+            <div class="section-header">
+              <div><div class="section-title">Audit log</div><div class="section-meta">Immutable record of all platform activity</div></div>
+              <button class="btn btn-secondary btn-sm" onclick="toast('Exporting audit log as CSV…',{type:'info'})"><i data-lucide="download" class="icon-sm"></i>Export CSV</button>
+            </div>
+            <!-- Log table -->
+            <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden">
+              <div style="display:grid;grid-template-columns:1fr 100px;background:var(--surface-2);border-bottom:1px solid var(--border-subtle)">
+                <div style="font-size:11px;font-weight:600;color:var(--text-3);padding:8px 14px;letter-spacing:.04em;text-transform:uppercase">Event</div>
+                <div style="font-size:11px;font-weight:600;color:var(--text-3);padding:8px 14px;letter-spacing:.04em;text-transform:uppercase">Time (GMT)</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 100px;border-bottom:1px solid var(--border-subtle);align-items:start;padding:10px 14px">
+                <div><div style="font-size:12.5px;color:var(--text-1);font-weight:500">Run completed · FX Recon Q1</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">danny@nexusfrontiertech.com · 3 flagged items</div></div>
+                <div style="font-size:11.5px;color:var(--text-4);padding-top:1px">07:14:02</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 100px;border-bottom:1px solid var(--border-subtle);align-items:start;padding:10px 14px">
+                <div><div style="font-size:12.5px;color:var(--text-1);font-weight:500">AI decision overridden</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">sarah@nexusfrontiertech.com · Task #4821 marked resolved</div></div>
+                <div style="font-size:11.5px;color:var(--text-4);padding-top:1px">07:09:38</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 100px;border-bottom:1px solid var(--border-subtle);align-items:start;padding:10px 14px">
+                <div><div style="font-size:12.5px;color:var(--text-1);font-weight:500">User login</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">james@nexusfrontiertech.com · SSO · 203.89.14.42</div></div>
+                <div style="font-size:11.5px;color:var(--text-4);padding-top:1px">07:03:11</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 100px;border-bottom:1px solid var(--border-subtle);align-items:start;padding:10px 14px">
+                <div><div style="font-size:12.5px;color:var(--text-1);font-weight:500">Integration synced · SmartStream TLM</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">System · 14,302 records ingested</div></div>
+                <div style="font-size:11.5px;color:var(--text-4);padding-top:1px">07:02:00</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 100px;align-items:start;padding:10px 14px">
+                <div><div style="font-size:12.5px;color:var(--text-1);font-weight:500">Settings changed · AI confidence threshold</div><div style="font-size:11.5px;color:var(--text-3);margin-top:2px">danny@nexusfrontiertech.com · 80% → 90%</div></div>
+                <div style="font-size:11.5px;color:var(--text-4);padding-top:1px">06:51:44</div>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:10px">Showing last 24 hours. Retention: 36 months. <a href="#" style="color:var(--onx-teal);text-decoration:none">View full log →</a></div>
+          </div>
+
+          <div class="section-card" style="margin-top:14px">
+            <div class="section-header">
+              <div><div class="section-title">SIEM forwarding</div><div class="section-meta">Stream audit events to your security information and event management platform</div></div>
+              <div class="toggle-switch is-on" onclick="this.classList.toggle('is-on')"></div>
+            </div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Platform</label>
+              <select class="form-select" onchange="toast('SIEM platform updated',{type:'success'})">
+                <option selected>Splunk</option>
+                <option>Datadog</option>
+                <option>Azure Sentinel</option>
+                <option>IBM QRadar</option>
+                <option>Elastic SIEM</option>
+              </select>
+            </div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">HEC endpoint<div class="form-help">HTTP Event Collector URL from your Splunk instance</div></label>
+              <input class="form-input" type="text" placeholder="https://splunk.nexusfrontier.tech:8088/services/collector" style="font-size:12px;font-family:monospace"/>
+            </div>
+            <div class="form-row row-inline" style="border-bottom:1px solid var(--border-subtle);padding-bottom:14px">
+              <label class="form-label">Token</label>
+              <input class="form-input" type="password" value="siem_tok_9xKpR…"/>
+            </div>
+            <div class="form-row row-inline">
+              <label class="form-label">Event filter<div class="form-help">Only forward selected event types</div></label>
+              <select class="form-select" onchange="toast('Event filter updated',{type:'success'})">
+                <option selected>All events</option>
+                <option>Auth events only</option>
+                <option>AI decisions only</option>
+                <option>Settings changes only</option>
+              </select>
+            </div>
+            <div class="save-bar">
+              <span style="font-size:11.5px;color:var(--text-3)">Last saved 3 hours ago</span>
+              <div class="flex items-center gap-1.5">
+                <button class="btn btn-secondary btn-sm">Discard</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('SIEM configuration saved',{type:'success'})">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div><!-- end audit-siem panel -->
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end pages wrapper -->
+</div><!-- end body -->
+
+<div id="mobile-overlay" class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
+<!-- SHARED CORE — single source of truth. Inline this into the delivered demo. -->
+<!-- FLEXIBLE: per-app typewriter prompts — override core.js defaults (edit per client) -->
+<script>window.ONX_TYPEWRITER = ["Summarise the latest review.","Flag the open exceptions.","Compare to the last cycle."];</script>
+<script src="core.js"></script>
+
+<!-- Reusable modal -->
+<div id="modal-backdrop" class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal"></div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     NEW PAGE TEMPLATE — copy this block, paste before the "end pages wrapper" marker
+     and add a matching sidebar nav entry.
+
+     <div id="page-MYPAGE" class="page overflow-hidden">
+       <div class="px-6 pt-6 pb-4 flex-shrink-0">
+         <h1 class="text-xl font-semibold" style="color:var(--text-1);letter-spacing:-0.02em">Page Title</h1>
+         <p class="text-xs mt-1" style="color:var(--text-3)">Subtitle</p>
+       </div>
+       <div class="flex-1 overflow-y-auto px-6 pb-6">
+         (page content)
+       </div>
+     </div>
+
+     Sidebar entry:
+     <a href="#" onclick="showPage('MYPAGE')" id="nav-MYPAGE" class="nav-item">
+       <i data-lucide="LUCIDE_ICON_NAME" class="icon-md"></i>
+       <span class="nav-label">Label</span>
+     </a>
+═══════════════════════════════════════════════════════════════════ -->
+
+</body>
+</html>

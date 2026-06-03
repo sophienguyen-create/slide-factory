@@ -1,37 +1,195 @@
-<!-- ONX Scaffold design-system.html — v4.1.0 — 2026-06-04 -->
-<!-- ═══════════════════════════════════════════════════════════════════
-     DESIGN SYSTEM — reference doc (read-only). One of two scaffold references:
-       • template/layout-shell.html  → chrome + layout archetypes
-       • docs/design-system.html     → branding + component gallery (THIS FILE)
-     Shared core lives once in template/core.css (linked below) — no token or
-     component CSS is duplicated here. core.css is the canonical version stamp.
-
-     Each component is badged Strict (do not alter) or Flexible (adapt per client).
-     When scaffolding: pick components here, drop them into a layout-shell archetype,
-     and inline core.css into the delivered single-file demo.
-     ═══════════════════════════════════════════════════════════════════ -->
+<!-- ONX Scaffold v3.5.4 — 2026-05-29 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="onx-scaffold-version" content="4.1.0">
-<meta name="onx-scaffold-released" content="2026-06-04">
-<title>Design System — ONX Scaffold</title>
+<meta name="onx-scaffold-version" content="3.5.4">
+<meta name="onx-scaffold-released" content="2026-05-29">
+<title>Scaffold Docs — OneNexus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','Noto Sans JP','ui-sans-serif','system-ui','sans-serif'] } } } }</script>
-<!-- SHARED CORE — single source of truth for tokens + ALL component styles -->
-<link rel="stylesheet" href="../template/core.css">
 <style>
-  /* Doc-chrome only. All component + token CSS comes from core.css. */
-  html, body { background: var(--surface-1); color: var(--text-1); }
+  /* ═══════════════════════════════════════════════════
+     DESIGN TOKENS — copied verbatim from scaffold
+  ═══════════════════════════════════════════════════ */
+  :root {
+    --brand-primary:        #2D7575;
+    --brand-primary-hover:  #256060;
+    --brand-primary-soft:   #4EA6A6;
+    --brand-secondary:      #6565A0;
+    --brand-tint:           #E6F4F4;
+    --brand-spark:          #B4C850;
+
+    --onx-teal:       var(--brand-primary);
+    --onx-teal-hover: var(--brand-primary-hover);
+    --onx-teal-mid:   var(--brand-primary-soft);
+    --onx-teal-light: var(--brand-tint);
+    --onx-purple:     var(--brand-secondary);
+    --onx-lime:       var(--brand-spark);
+
+    --surface-0: #FFFFFF;
+    --surface-1: #FFFFFF;
+    --surface-2: #F4F4F5;
+    --surface-3: #E4E4E7;
+    --surface-inverse: #18181B;
+
+    --text-1: #0F172A;
+    --text-2: #475569;
+    --text-3: #94A3B8;
+    --text-4: #CBD5E1;
+    --text-on-accent: #FFFFFF;
+
+    --border:         #E5E7EB;
+    --border-strong:  #D4D4D8;
+    --border-subtle:  #F1F5F9;
+
+    --status-warning: #F59E0B;
+    --status-danger:  #EF4444;
+    --status-success: #10B981;
+
+    --radius-xs: 6px;
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+
+    --shadow-1: 0 1px 2px rgba(15,23,42,0.06), 0 1px 1px rgba(15,23,42,0.04);
+    --shadow-2: 0 1px 3px rgba(15,23,42,0.08), 0 8px 24px -6px rgba(15,23,42,0.12);
+    --shadow-3: 0 16px 40px -16px rgba(15,23,42,0.24), 0 2px 8px rgba(15,23,42,0.06);
+
+    --ring: 0 0 0 3px rgba(45,117,117,0.18);
+  }
+
+  html, body {
+    font-family: 'Inter','Noto Sans JP','ui-sans-serif','system-ui','-apple-system',sans-serif;
+    font-feature-settings: 'cv02','cv03','cv04','cv11','ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.005em;
+  }
+  body { background: var(--surface-1); color: var(--text-1); }
+  h1,h2,h3,h4 { letter-spacing: -0.018em; }
+
+  /* Lucide */
+  [data-lucide], .lucide { display: inline-block; width: 16px; height: 16px; stroke-width: 1.75; vertical-align: middle; flex-shrink: 0; }
+  .icon-sm { width: 14px; height: 14px; }
+  .icon-lg { width: 18px; height: 18px; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500; line-height: 1; padding: 7px 12px; border-radius: var(--radius-sm); border: 1px solid transparent; cursor: pointer; transition: background 120ms ease, border-color 120ms ease, color 120ms ease; white-space: nowrap; }
+  .btn-primary { background: var(--onx-teal); color: var(--text-on-accent); }
+  .btn-primary:hover { background: var(--onx-teal-hover); }
+  .btn-secondary { background: transparent; color: var(--text-2); }
+  .btn-secondary:hover { background: var(--surface-2); color: var(--text-1); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-icon { width: 32px; height: 32px; padding: 0; border-radius: var(--radius-sm); color: var(--text-3); background: transparent; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background 120ms ease, color 120ms ease; }
+  .btn-icon:hover { background: var(--surface-2); color: var(--text-1); }
+
+  /* Nav */
   .app-nav { height: 48px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-0); }
+  .kbd { display: inline-flex; align-items: center; padding: 1px 5px; font-size: 10.5px; font-weight: 500; color: var(--text-3); background: var(--surface-0); border: 1px solid var(--border); border-radius: 4px; line-height: 1.2; font-family: 'Inter',sans-serif; }
+  .app-divider { display: inline-block; width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
+  .app-name { font-size: 13px; font-weight: 500; color: var(--text-2); white-space: nowrap; }
+
+  /* Sidebar nav items */
+  .nav-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--text-2); white-space: nowrap; transition: background 120ms ease, color 120ms ease; cursor: pointer; text-decoration: none; }
+  .nav-item:hover { background: var(--surface-2); color: var(--text-1); }
+  .nav-item .lucide { color: var(--text-3); }
+  .nav-item.is-active { color: var(--onx-teal); background: var(--onx-teal-light); }
+  .nav-item.is-active .lucide { color: var(--onx-teal); }
+  .nav-item.is-active::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; border-radius: 0 2px 2px 0; background: linear-gradient(180deg, var(--onx-teal-mid) 0%, var(--onx-purple) 100%); opacity: 0.7; }
   .nav-group-label { font-size: 10.5px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 12px 4px; }
   .nav-item-sub { padding-left: 24px; font-size: 12.5px; }
+
+  /* Status pill */
+  .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; font-size: 11px; font-weight: 500; border-radius: 9999px; white-space: nowrap; }
+  .status-dot { width: 6px; height: 6px; border-radius: 9999px; flex-shrink: 0; }
+  .status-success { background: rgba(16,185,129,0.12); color: #047857; }
+  .status-success .status-dot { background: var(--status-success); }
+  .tag { display: inline-block; padding: 1.5px 7px; font-size: 10.5px; font-weight: 500; background: var(--surface-2); color: var(--text-2); border-radius: 4px; }
+
+  /* Suggestion pills */
+  .suggestion-pill { border: 1px solid var(--border); border-radius: 9999px; padding: 6px 14px; font-size: 12.5px; color: var(--text-2); background: var(--surface-0); white-space: nowrap; cursor: pointer; transition: background 120ms ease, border-color 120ms ease, color 120ms ease; }
+  .suggestion-pill:hover { background: var(--onx-teal-light); border-color: var(--onx-teal-mid); color: var(--onx-teal); }
+
+  /* Chat components */
+  .chat-bubble-user { background: var(--onx-teal-light); color: var(--text-1); border-radius: var(--radius-md); }
+  .chat-bubble-ai { background: transparent; border: none; border-radius: 0; }
+  .chat-turn { position: relative; }
+  .bubble-actions { display: flex; align-items: center; gap: 6px; opacity: 0; transition: opacity 120ms ease; margin-top: 4px; min-height: 24px; padding-left: 44px; }
+  .chat-turn:hover .bubble-actions, .chat-turn:focus-within .bubble-actions { opacity: 1; }
+  .bubble-actions.user-actions { padding-left: 0; padding-right: 28px; justify-content: flex-end; }
+  .bubble-actions-time { font-size: 11px; color: var(--text-3); cursor: help; line-height: 1.2; }
+  .btn-icon-sm { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: transparent; border: none; color: var(--text-3); cursor: pointer; transition: background 120ms ease, color 120ms ease; }
+  .btn-icon-sm:hover { background: var(--surface-2); color: var(--text-1); }
+  .btn-icon-sm .lucide { width: 13px; height: 13px; }
+
+  /* Thread section divider */
+  .thread-section { display: flex; align-items: center; gap: 12px; margin: 20px auto 8px; width: 100%; }
+  .thread-section-rule { flex: 1; height: 1px; background: var(--border-subtle); }
+  .thread-section-label { display: inline-flex; align-items: baseline; gap: 8px; font-size: 11px; color: var(--text-3); }
+  .thread-section-title { font-weight: 500; color: var(--text-2); letter-spacing: 0.02em; }
+  .thread-section-time { color: var(--text-3); }
+
+  /* Artifact pointer */
+  .artifact-pointer { display: inline-flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-0); cursor: pointer; transition: border-color 120ms ease, background 120ms ease; text-align: left; margin-top: 8px; border: none; }
+  .artifact-pointer { border: 1px solid var(--border); }
+  .artifact-pointer:hover { border-color: var(--onx-teal-mid); background: var(--onx-teal-light); }
+  .artifact-pointer-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--surface-2); display: inline-flex; align-items: center; justify-content: center; color: var(--text-2); flex-shrink: 0; }
+  .artifact-pointer-body { display: flex; flex-direction: column; gap: 2px; }
+  .artifact-pointer-title { font-size: 12.5px; font-weight: 500; color: var(--text-1); }
+  .artifact-pointer-meta { font-size: 11px; color: var(--text-3); }
+  .artifact-pointer-chevron { color: var(--text-3); }
+
+  /* Avatar glow */
+  @keyframes aiGlowIdle {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(45,212,191,0.18); }
+    50%      { box-shadow: 0 0 6px 0 rgba(45,212,191,0.22); }
+  }
+  @keyframes aiGlowThinking {
+    0%, 100% { box-shadow: 0 0 10px rgba(45,212,191,0.55), 0 0 24px rgba(167,139,250,0.35); }
+    50%      { box-shadow: 0 0 22px rgba(45,212,191,0.85), 0 0 44px rgba(167,139,250,0.55), 0 0 60px rgba(45,212,191,0.25); }
+  }
+  @keyframes aiGlowHero {
+    0%, 100% { box-shadow: 0 0 8px rgba(45,212,191,0.35), 0 0 20px rgba(167,139,250,0.20); }
+    50%      { box-shadow: 0 0 18px rgba(45,212,191,0.60), 0 0 40px rgba(167,139,250,0.40), 0 0 56px rgba(45,212,191,0.15); }
+  }
+  .agent-icon-wrap { width: 32px; height: 32px; border-radius: 50%; padding: 4px; background: var(--surface-0); animation: aiGlowIdle 3.6s ease-in-out infinite; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible; }
+  .agent-icon-wrap.is-thinking { animation: aiGlowThinking 1.4s ease-in-out infinite; }
+  .agent-icon-wrap.agent-icon-large { animation: aiGlowHero 3s ease-in-out infinite; }
+  .agent-icon-img { width: 24px; height: 24px; border-radius: 50%; display: block; object-fit: contain; }
+  .agent-icon-large .agent-icon-img { width: 42px; height: 42px; }
+
+  /* Typewriter */
+  .typewriter-greeting { position: relative; display: inline-block; font-family: 'Lora', Georgia, serif; font-size: 32px; line-height: 1.25; font-weight: 400; letter-spacing: -0.01em; color: var(--text-1); white-space: nowrap; }
+  .typewriter-ghost { visibility: hidden; display: inline-block; pointer-events: none; }
+  .typewriter-live { position: absolute; inset: 0; display: flex; align-items: center; }
+  .typewriter-cursor { display: inline-block; width: 2px; height: 1.05em; background: var(--onx-teal); margin-left: 3px; vertical-align: -2px; animation: typewriterBlink 1s steps(1) infinite; }
+  @keyframes typewriterBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+  /* Thinking dots */
+  .thinking-dots { display: inline-flex; align-items: center; gap: 4px; padding: 6px 0; }
+  .thinking-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); animation: thinkingPulse 1.2s ease-in-out infinite; }
+  .thinking-dots span:nth-child(2) { animation-delay: 0.18s; }
+  .thinking-dots span:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes thinkingPulse { 0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+
+  /* History drawer (demo only) */
+  .history-drawer { background: var(--surface-0); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
+  .thread-item { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); background: transparent; cursor: pointer; text-align: left; transition: background 120ms ease; border: none; }
+  .thread-item:hover { background: var(--surface-2); }
+  .thread-item.is-active { background: var(--onx-teal-light); }
+  .thread-item .thread-title { font-size: 13px; font-weight: 500; color: var(--text-1); }
+  .thread-item .thread-meta { font-size: 11px; color: var(--text-3); }
+
+  /* ═══════════════════════════════════════════════════
+     DOCS-SPECIFIC STYLES
+  ═══════════════════════════════════════════════════ */
   .doc-section { padding: 48px 0; border-bottom: 1px solid var(--border-subtle); }
   .doc-section:last-child { border-bottom: none; }
   .doc-section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
@@ -87,6 +245,110 @@
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
+
+  /* ── Intelligence Banner ── */
+  .intelligence-banner {
+    background: var(--surface-0);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--brand-primary);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    box-shadow: var(--shadow-1);
+  }
+  .intelligence-banner-icon {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    background: var(--brand-primary);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-on-accent);
+    margin-top: 1px;
+  }
+  .intelligence-banner-eyebrow {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--brand-primary); margin-bottom: 4px;
+  }
+  .intelligence-banner-text { font-size: 13px; color: var(--text-1); line-height: 1.55; margin-bottom: 10px; }
+  .intelligence-banner-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .intelligence-pill {
+    border: 1px solid rgba(45,117,117,0.35);
+    border-radius: 9999px;
+    padding: 4px 12px;
+    font-size: 12px; color: var(--brand-primary);
+    background: var(--surface-0);
+    cursor: pointer; font-weight: 500; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+  .intelligence-pill:hover { background: var(--brand-tint); border-color: var(--brand-primary); }
+  html.dark .intelligence-banner-eyebrow { color: var(--brand-primary-soft); }
+  html.dark .intelligence-pill { color: var(--brand-primary-soft); border-color: rgba(78,166,166,0.35); }
+  html.dark .intelligence-pill:hover { background: var(--brand-tint); border-color: var(--brand-primary-soft); }
+
+  /* ── Inline Agent Panel ── */
+  .page-agent-panel {
+    width: 300px; flex-shrink: 0;
+    background: var(--surface-0);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .page-agent-panel-header { padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+  .page-agent-panel-title { font-size: 13px; font-weight: 600; color: var(--text-1); display: flex; align-items: center; gap: 6px; }
+  .page-agent-panel-status { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .page-agent-panel-body { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .page-agent-panel-footer { padding: 10px 12px; border-top: 1px solid var(--border-subtle); flex-shrink: 0; }
+  .panel-bubble { background: transparent; border: none; padding: 0; font-size: 12.5px; color: var(--text-1); line-height: 1.55; }
+  .panel-bubble-tool {
+    background: var(--surface-2); border-radius: var(--radius-sm);
+    border-left: 2px solid var(--border-strong);
+    padding: 7px 10px;
+    font-family: ui-monospace, 'SFMono-Regular', monospace;
+    font-size: 11px; color: var(--text-3); line-height: 1.6; white-space: pre-wrap;
+  }
+  .chat-input-shell {
+    border: 1px solid var(--border-subtle); background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+  }
+  .chat-input-shell:focus-within { background: var(--surface-0); border-color: var(--onx-teal-mid); box-shadow: var(--ring); }
+  .send-fab {
+    width: 32px; height: 32px; border-radius: 9999px;
+    background: var(--onx-teal); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none;
+    transition: background 120ms ease, transform 120ms ease;
+  }
+  .send-fab:hover { background: var(--onx-teal-hover); }
+
+  /* ── Workflow Stepper ── */
+  .workflow-stepper {
+    display: flex; align-items: center;
+    padding: 14px 18px;
+    background: var(--surface-0);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-1);
+    overflow-x: auto;
+  }
+  .stepper-step { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .stepper-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface-2); color: var(--text-3);
+    font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .stepper-label { font-size: 12.5px; color: var(--text-3); font-weight: 400; white-space: nowrap; }
+  .stepper-connector { flex: 1; height: 1px; background: var(--border-subtle); margin: 0 10px; min-width: 20px; flex-shrink: 0; }
+  .stepper-step.is-active .stepper-circle { background: var(--brand-primary); color: var(--text-on-accent); }
+  .stepper-step.is-active .stepper-label { color: var(--text-1); font-weight: 600; }
+  .stepper-step.is-done .stepper-circle { background: var(--status-success); color: var(--text-on-accent); }
+  .stepper-step.is-done .stepper-label { color: var(--text-2); }
 </style>
 </head>
 <body class="flex flex-col" style="height:100vh;">
@@ -94,14 +356,15 @@
 <!-- ═══ TOP NAV ═══ -->
 <nav class="app-nav px-4 flex items-center justify-between sticky top-0 z-30 flex-shrink-0" style="background:var(--surface-0);border-bottom:1px solid var(--border-subtle);">
   <div class="flex items-center gap-3">
+    <!-- OneNexus wordmark -->
     <span style="font-size:15px;font-weight:700;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--onx-teal),var(--onx-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">OneNexus</span>
     <span class="app-divider"></span>
-    <span class="app-name">Design System</span>
-    <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:0.03em;">v4.1.0</span>
+    <span class="app-name">Scaffold Docs</span>
+    <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:0.03em;">v3.5.4</span>
   </div>
   <div class="flex items-center gap-2">
-    <a href="../template/layout-shell.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;">
-      <i data-lucide="layout-template" class="icon-sm"></i> Open Layout Shell
+    <a href="template/onx-app-scaffold.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;">
+      <i data-lucide="external-link" class="icon-sm"></i> Open Scaffold
     </a>
   </div>
 </nav>
@@ -109,7 +372,7 @@
 <!-- ═══ BODY ═══ -->
 <div class="flex flex-1 overflow-hidden">
 
-  <!-- Sidebar TOC -->
+  <!-- Sidebar -->
   <aside style="width:240px;flex-shrink:0;border-right:1px solid var(--border-subtle);background:var(--surface-0);overflow-y:auto;position:sticky;top:48px;height:calc(100vh - 48px);">
     <nav class="px-3 py-4">
       <a href="#overview" class="nav-item" onclick="scrollTo('overview',this)">
@@ -117,24 +380,12 @@
       </a>
 
       <div class="nav-group-label">Design System</div>
-      <a href="#design-brand" class="nav-item nav-item-sub" onclick="scrollTo('design-brand',this)">Branding</a>
       <a href="#design-colors" class="nav-item nav-item-sub" onclick="scrollTo('design-colors',this)">Colors</a>
       <a href="#design-type" class="nav-item nav-item-sub" onclick="scrollTo('design-type',this)">Typography</a>
       <a href="#design-tokens" class="nav-item nav-item-sub" onclick="scrollTo('design-tokens',this)">Tokens</a>
       <a href="#design-icons" class="nav-item nav-item-sub" onclick="scrollTo('design-icons',this)">Icons</a>
 
-      <div class="nav-group-label">Page Components</div>
-      <a href="#comp-buttons" class="nav-item nav-item-sub" onclick="scrollTo('comp-buttons',this)">Buttons</a>
-      <a href="#comp-pills-tags" class="nav-item nav-item-sub" onclick="scrollTo('comp-pills-tags',this)">Status Pills &amp; Tags</a>
-      <a href="#comp-kpi" class="nav-item nav-item-sub" onclick="scrollTo('comp-kpi',this)">KPI Cards</a>
-      <a href="#comp-table" class="nav-item nav-item-sub" onclick="scrollTo('comp-table',this)">Data Table</a>
-      <a href="#comp-workflow-rows" class="nav-item nav-item-sub" onclick="scrollTo('comp-workflow-rows',this)">Workflow Rows</a>
-      <a href="#comp-library" class="nav-item nav-item-sub" onclick="scrollTo('comp-library',this)">Library Cards</a>
-      <a href="#comp-activity" class="nav-item nav-item-sub" onclick="scrollTo('comp-activity',this)">Activity Feed</a>
-      <a href="#comp-forms" class="nav-item nav-item-sub" onclick="scrollTo('comp-forms',this)">Forms</a>
-      <a href="#comp-empty" class="nav-item nav-item-sub" onclick="scrollTo('comp-empty',this)">Empty State</a>
-
-      <div class="nav-group-label">Chat Patterns</div>
+      <div class="nav-group-label">Patterns</div>
       <a href="#comp-welcome" class="nav-item nav-item-sub" onclick="scrollTo('comp-welcome',this)">Welcome Page</a>
       <a href="#comp-timestamps" class="nav-item nav-item-sub" onclick="scrollTo('comp-timestamps',this)">Timestamps</a>
       <a href="#comp-hotkeys" class="nav-item nav-item-sub" onclick="scrollTo('comp-hotkeys',this)">Hotkeys</a>
@@ -142,7 +393,7 @@
       <a href="#comp-sections" class="nav-item nav-item-sub" onclick="scrollTo('comp-sections',this)">Thread Sections</a>
       <a href="#comp-artifacts" class="nav-item nav-item-sub" onclick="scrollTo('comp-artifacts',this)">Artifact Cards</a>
       <a href="#comp-bubbles" class="nav-item nav-item-sub" onclick="scrollTo('comp-bubbles',this)">Bubble Actions</a>
-      <a href="#comp-nav" class="nav-item nav-item-sub" onclick="scrollTo('comp-nav',this)">History &amp; Nav</a>
+      <a href="#comp-nav" class="nav-item nav-item-sub" onclick="scrollTo('comp-nav',this)">History & Nav</a>
       <a href="#comp-pills" class="nav-item nav-item-sub" onclick="scrollTo('comp-pills',this)">Quick Action Pills</a>
       <a href="#comp-settings" class="nav-item nav-item-sub" onclick="scrollTo('comp-settings',this)">Settings</a>
       <a href="#comp-intel-banner" class="nav-item nav-item-sub" onclick="scrollTo('comp-intel-banner',this)">Intelligence Banner</a>
@@ -159,6 +410,8 @@
   <!-- Content -->
   <main id="doc-content" class="flex-1 overflow-y-auto" style="padding: 0 0 80px;">
     <div style="max-width:860px;margin:0 auto;padding:0 48px;">
+
+      <!-- ═══ OVERVIEW ═══ -->
       <section id="overview" class="doc-section">
         <div class="doc-section-header">
           <h2>Overview</h2>
@@ -192,24 +445,6 @@
         </div>
       </section>
 
-
-      <!-- ═══ BRANDING ═══ -->
-      <section id="design-brand" class="doc-section">
-        <div class="doc-section-header"><h2>Branding</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">The six <code>--brand-*</code> primitives in <code>core.css</code> are the one place to recolor the whole system. Every component derives from them via semantic tokens — change these and the entire app re-themes. Everything else in <code>core.css</code> is locked.</p>
-        <div class="swatch-grid">
-          <div class="swatch"><div class="swatch-color" style="background:var(--brand-primary)"></div><div class="swatch-label"><div class="swatch-name">--brand-primary</div><div class="swatch-value">#2D7575</div></div></div>
-          <div class="swatch"><div class="swatch-color" style="background:var(--brand-primary-hover)"></div><div class="swatch-label"><div class="swatch-name">--brand-primary-hover</div><div class="swatch-value">#256060</div></div></div>
-          <div class="swatch"><div class="swatch-color" style="background:var(--brand-primary-soft)"></div><div class="swatch-label"><div class="swatch-name">--brand-primary-soft</div><div class="swatch-value">#4EA6A6</div></div></div>
-          <div class="swatch"><div class="swatch-color" style="background:var(--brand-secondary)"></div><div class="swatch-label"><div class="swatch-name">--brand-secondary</div><div class="swatch-value">#6565A0</div></div></div>
-          <div class="swatch"><div class="swatch-color" style="background:var(--brand-tint)"></div><div class="swatch-label"><div class="swatch-name">--brand-tint</div><div class="swatch-value">#E6F4F4</div></div></div>
-          <div class="swatch"><div class="swatch-color" style="background:var(--brand-spark)"></div><div class="swatch-label"><div class="swatch-name">--brand-spark</div><div class="swatch-value">#B4C850</div></div></div>
-        </div>
-        <div class="doc-rules">
-          <div class="doc-rule doc-rule-flex"><i data-lucide="check" class="icon-sm doc-rule-icon"></i><span>Edit only the <code>--brand-*</code> block at the top of <code>core.css</code> to rebrand.</span></div>
-          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="icon-sm doc-rule-icon"></i><span>The OneNexus logo, gradient wordmark, and semantic token derivations are locked.</span></div>
-        </div>
-      </section>
       <!-- ═══ COLORS ═══ -->
       <section id="design-colors" class="doc-section">
         <div class="doc-section-header">
@@ -302,290 +537,6 @@
         </div>
       </section>
 
-      <!-- ═══════════════════════════════════════════════════════════════
-           PAGE COMPONENTS — enterprise building blocks for custom pages.
-           Real markup from the scaffold; styled by core.css. Mostly Flexible.
-      ═══════════════════════════════════════════════════════════════ -->
-
-      <section id="comp-buttons" class="doc-section">
-        <div class="doc-section-header"><h2>Buttons</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">Four tiers — primary, secondary, tertiary, danger — plus icon and disabled states.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">Buttons</div>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button class="btn btn-primary btn-sm"><i data-lucide="plus" class="icon-sm"></i>Primary</button>
-            <button class="btn btn-secondary btn-sm">Secondary</button>
-            <button class="btn btn-tertiary btn-sm">Tertiary</button>
-            <button class="btn btn-danger btn-sm">Danger</button>
-            <button class="btn-icon" style="width:32px;height:32px" title="Icon button"><i data-lucide="more-horizontal" class="icon-sm"></i></button>
-            <button class="btn btn-primary btn-sm" disabled style="opacity:0.4">Disabled</button>
-          </div>
-        </div>
-      </section>
-
-      <section id="comp-pills-tags" class="doc-section">
-        <div class="doc-section-header"><h2>Status Pills &amp; Tags</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">Status pills carry a colored dot for state; tags are neutral metadata labels.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">Status pills &amp; Tags</div>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="status-pill status-success"><span class="status-dot"></span>Success</span>
-            <span class="status-pill status-warning"><span class="status-dot"></span>Warning</span>
-            <span class="status-pill status-danger"><span class="status-dot"></span>Error</span>
-            <span class="status-pill status-info"><span class="status-dot"></span>Info</span>
-            <span class="status-pill status-muted"><span class="status-dot"></span>Muted</span>
-            <span class="tag">tag-a</span>
-            <span class="tag">tag-b</span>
-            <button class="filter-chip is-active">All<span style="color:var(--text-3);font-weight:400;margin-left:2px">· 24</span></button>
-            <button class="filter-chip">Active</button>
-            <button class="filter-chip">Draft</button>
-          </div>
-        </div>
-      </section>
-
-      <section id="comp-kpi" class="doc-section">
-        <div class="doc-section-header"><h2>KPI Cards</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">Metric tiles. Use <code>.kpi-card</code> inside a CSS grid; pair value with a delta in <code>.kpi-meta</code>.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">KPI Cards</div>
-            <div class="section-meta">Use <code>.kpi-card</code> inside a CSS grid</div>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="kpi-card">
-              <div class="kpi-label"><i data-lucide="file-text" class="icon-sm"></i>Records</div>
-              <div class="kpi-value">2,840</div>
-              <div class="kpi-meta">Total scope</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label"><i data-lucide="triangle-alert" class="icon-sm"></i>Exceptions</div>
-              <div class="kpi-value">312</div>
-              <div class="kpi-meta"><span style="color:var(--status-danger);font-weight:500">↑ 4.2%</span> <span style="color:var(--text-3)">vs prior</span></div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label"><i data-lucide="percent" class="icon-sm"></i>Rate</div>
-              <div class="kpi-value">8.6%</div>
-              <div class="kpi-meta"><span style="color:var(--status-success);font-weight:500">↓ 1.1%</span> <span style="color:var(--text-3)">vs prior</span></div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label"><i data-lucide="workflow" class="icon-sm"></i>Workflows</div>
-              <div class="kpi-value">7</div>
-              <div class="kpi-meta">All operational</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="comp-table" class="doc-section">
-        <div class="doc-section-header"><h2>Data Table</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">Dense tabular data with sortable headers, status cells, and row actions.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">Data Table</div>
-            <div class="section-meta">Use <code>.data-table</code> wrapping a <code>&lt;table&gt;</code></div>
-          </div>
-          <div class="data-table">
-            <table>
-              <thead>
-                <tr>
-                  <th class="sortable">Name <i data-lucide="arrow-up-down" class="icon-xs" style="opacity:0.5"></i></th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th class="sortable" style="text-align:right">Count</th>
-                  <th style="width:40px"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><div style="font-weight:500">Item Alpha</div><div class="cell-meta">Subtitle or description</div></td>
-                  <td>Category A</td>
-                  <td><span class="status-pill status-success"><span class="status-dot"></span>Active</span></td>
-                  <td class="cell-mono" style="text-align:right">1,204</td>
-                  <td><button class="btn-icon" style="width:28px;height:28px"><i data-lucide="more-horizontal" class="icon-sm"></i></button></td>
-                </tr>
-                <tr>
-                  <td><div style="font-weight:500">Item Beta</div><div class="cell-meta">Secondary note here</div></td>
-                  <td>Category B</td>
-                  <td><span class="status-pill status-warning"><span class="status-dot"></span>Review</span></td>
-                  <td class="cell-mono" style="text-align:right">88</td>
-                  <td><button class="btn-icon" style="width:28px;height:28px"><i data-lucide="more-horizontal" class="icon-sm"></i></button></td>
-                </tr>
-                <tr>
-                  <td><div style="font-weight:500">Item Gamma</div><div class="cell-meta">Optional third row</div></td>
-                  <td>Category A</td>
-                  <td><span class="status-pill status-danger"><span class="status-dot"></span>Error</span></td>
-                  <td class="cell-mono" style="text-align:right">—</td>
-                  <td><button class="btn-icon" style="width:28px;height:28px"><i data-lucide="more-horizontal" class="icon-sm"></i></button></td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="pagination">
-              <span>Showing 1–3 of 3</span>
-              <div class="pagination-controls">
-                <button class="btn-icon" style="width:26px;height:26px" disabled><i data-lucide="chevron-left" class="icon-sm"></i></button>
-                <button class="btn-icon" style="width:26px;height:26px" disabled><i data-lucide="chevron-right" class="icon-sm"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="comp-workflow-rows" class="doc-section">
-        <div class="doc-section-header"><h2>Workflow Rows</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">List rows for queues and pipelines — icon, title, meta, status, and a trailing action.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">Workflow Rows</div>
-            <div class="section-meta">Use <code>.workflow-row</code> with <code>.pipeline-node</code> and <code>.pipeline-connector</code></div>
-          </div>
-          <div class="workflow-row">
-            <div class="workflow-pipeline">
-              <div class="pipeline-node" style="background:var(--onx-teal-light);color:var(--onx-teal);border-color:rgba(78,166,166,0.3)"><i data-lucide="database"></i></div>
-              <div class="pipeline-connector"></div>
-              <div class="pipeline-node"><i data-lucide="filter"></i></div>
-              <div class="pipeline-connector"></div>
-              <div class="pipeline-node"><i data-lucide="sparkles"></i></div>
-              <div class="pipeline-connector"></div>
-              <div class="pipeline-node"><i data-lucide="badge-check"></i></div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2"><span style="font-size:13.5px;font-weight:600;color:var(--text-1)">Workflow name</span><span class="status-pill status-success"><span class="status-dot"></span>Active</span></div>
-              <div style="font-size:12px;color:var(--text-3);margin-top:2px">4 steps · Runs nightly · Last run: today</div>
-            </div>
-            <div class="flex items-center gap-1">
-              <button class="btn btn-secondary btn-sm">Run now</button>
-              <button class="btn-icon" style="width:28px;height:28px"><i data-lucide="more-horizontal" class="icon-sm"></i></button>
-            </div>
-          </div>
-          <div class="workflow-row">
-            <div class="workflow-pipeline">
-              <div class="pipeline-node" style="background:var(--surface-2);color:var(--text-3)"><i data-lucide="file-question"></i></div>
-              <div class="pipeline-connector"></div>
-              <div class="pipeline-node"><i data-lucide="mail"></i></div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2"><span style="font-size:13.5px;font-weight:600;color:var(--text-1)">Draft workflow</span><span class="status-pill status-warning"><span class="status-dot"></span>Draft</span></div>
-              <div style="font-size:12px;color:var(--text-3);margin-top:2px">2 steps · Not scheduled</div>
-            </div>
-            <div class="flex items-center gap-1">
-              <button class="btn btn-secondary btn-sm">Edit</button>
-              <button class="btn-icon" style="width:28px;height:28px"><i data-lucide="more-horizontal" class="icon-sm"></i></button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="comp-library" class="doc-section">
-        <div class="doc-section-header"><h2>Library Cards</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">Card grid for reports, templates, or saved artifacts.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">Library Cards</div>
-            <div class="section-meta">Use <code>.library-card</code> inside a CSS auto-fill grid</div>
-          </div>
-          <div class="grid gap-3" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
-            <div class="library-card">
-              <div class="flex items-start justify-between gap-2">
-                <div class="library-card-title">Card title here</div>
-                <span class="status-pill status-success"><span class="status-dot"></span>Active</span>
-              </div>
-              <div class="library-card-desc">Short description of what this item does. Keep to 2–3 sentences for consistent card height across the grid.</div>
-              <div class="flex items-center gap-1.5"><span class="tag">tag-a</span><span class="tag">tag-b</span></div>
-              <div class="library-card-meta"><span>Updated yesterday</span><span>43 uses</span></div>
-            </div>
-            <div class="library-card">
-              <div class="flex items-start justify-between gap-2">
-                <div class="library-card-title">Draft card</div>
-                <span class="status-pill status-warning"><span class="status-dot"></span>Draft</span>
-              </div>
-              <div class="library-card-desc">Drafts use <code>status-warning</code>. Archived items use <code>status-muted</code>. Always pair a title with a status pill for scannability.</div>
-              <div class="flex items-center gap-1.5"><span class="tag">draft</span></div>
-              <div class="library-card-meta"><span>3 days ago</span><span>2 uses</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="comp-activity" class="doc-section">
-        <div class="doc-section-header"><h2>Activity Feed</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">Chronological event stream with actor, action, and timestamp.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">Activity Feed</div>
-            <div class="section-meta">Use <code>.activity-item</code> with <code>.activity-icon</code>, <code>.activity-body</code>, and an optional status pill</div>
-          </div>
-          <div>
-            <div class="activity-item">
-              <div class="activity-icon" style="background:var(--onx-teal-light);color:var(--onx-teal)"><i data-lucide="play-circle" class="icon-sm"></i></div>
-              <div class="activity-body"><div class="activity-text">Event title with <strong>highlighted entity</strong> and detail</div><div class="activity-meta">9:14 AM · Context label</div></div>
-              <span class="status-pill status-warning"><span class="status-dot"></span>Review</span>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon" style="background:rgba(16,185,129,0.12);color:#047857"><i data-lucide="badge-check" class="icon-sm"></i></div>
-              <div class="activity-body"><div class="activity-text"><strong>User Name</strong> completed an action on <strong>Entity</strong></div><div class="activity-meta">8:48 AM</div></div>
-              <span class="status-pill status-success"><span class="status-dot"></span>Done</span>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon"><i data-lucide="database" class="icon-sm"></i></div>
-              <div class="activity-body"><div class="activity-text">System event — <strong>source-name</strong> synced successfully</div><div class="activity-meta">7:30 AM</div></div>
-              <span class="status-pill status-muted"><span class="status-dot"></span>Auto</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="comp-forms" class="doc-section">
-        <div class="doc-section-header"><h2>Forms</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">Labels, inputs, selects, and help text for settings and configuration pages.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">Form Inputs</div>
-            <div class="section-meta">Use <code>.form-label</code>, <code>.form-input</code>, <code>.form-select</code>, <code>.form-help</code></div>
-          </div>
-          <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">
-            <div>
-              <label class="form-label">Text input</label>
-              <input class="form-input" type="text" placeholder="Placeholder text"/>
-              <div class="form-help">Optional helper text below field</div>
-            </div>
-            <div>
-              <label class="form-label">Select dropdown</label>
-              <select class="form-select">
-                <option>Option A</option>
-                <option>Option B</option>
-                <option>Option C</option>
-              </select>
-            </div>
-            <div>
-              <label class="form-label">Disabled field</label>
-              <input class="form-input" type="text" value="Read-only value" disabled/>
-              <div class="form-help">Contact admin to change</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="comp-empty" class="doc-section">
-        <div class="doc-section-header"><h2>Empty State</h2><span class="doc-badge doc-badge-flex">Flexible</span></div>
-        <p class="doc-lead">Zero-data placeholder with icon, message, and a primary call to action.</p>
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title">Empty State</div>
-            <div class="section-meta">Use <code>.empty-state</code> when a page has no data yet</div>
-          </div>
-          <div class="empty-state">
-            <i data-lucide="inbox" class="icon-2xl" style="color:var(--text-4)"></i>
-            <p class="text-sm font-medium mt-2" style="color:var(--text-2)">Nothing here yet</p>
-            <p class="text-xs mt-0.5" style="color:var(--text-3)">Describe how to get started or what will appear here.</p>
-            <button class="btn btn-primary btn-sm mt-3"><i data-lucide="plus" class="icon-sm"></i>Add first item</button>
-          </div>
-        </div>
-      </section>
-
       <!-- ═══ COMP: WELCOME PAGE ═══ -->
       <section id="comp-welcome" class="doc-section">
         <div class="doc-section-header"><h2>Welcome Page</h2><span class="doc-badge doc-badge-strict">Strict</span></div>
@@ -625,16 +576,17 @@
   &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;!-- Per-app: override the prompts BEFORE core.js loads --&gt;
-&lt;script&gt;window.ONX_TYPEWRITER = [
-  "Summarise the latest review.",
-  "Flag the open exceptions.",
-  "Compare to the last cycle.",
-];&lt;/script&gt;</pre>
+&lt;!-- JS: set ghost to longest message, then cycle --&gt;
+const typewriterMessages = [
+  "I'm AI Agent. Ready when you are.",
+  "Need a quick summary?",
+  "What needs attention today?",
+  "Spot any anomalies lately?",
+];</pre>
         </details>
         <div class="doc-rules">
           <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Do not remove the avatar, typewriter, or suggestion pills. This is the brand moment — clients form their first impression here.</div></div>
-          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Set <code>window.ONX_TYPEWRITER</code> (an inline script before core.js) to match the domain vocabulary. Keep messages short — each must fit one line at 32px (Lora 400).</div></div>
+          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Edit <code>typewriterMessages</code> array to match the domain vocabulary. Keep messages short — each must fit one line at 32px (Lora 400).</div></div>
         </div>
       </section>
 
@@ -1357,20 +1309,20 @@ bloomberg.crossref() → confirmed</div>
           <span class="usage-step-num">8</span>
           <div class="usage-step-body">
             <div class="usage-step-title">Receive the delivered file</div>
-            <div class="usage-step-desc">On completion the agent inlines core.css/core.js into one self-contained file, runs the locked checklist, and saves to <code>apps/[AppName]-app.html</code>. The chat panel, brand tokens, and avatar markup are untouched throughout.</div>
+            <div class="usage-step-desc">On completion the agent removes the Components reference page, runs the locked checklist, and saves to <code>apps/[AppName]-app.html</code>. The chat panel, brand tokens, and avatar markup are untouched throughout.</div>
           </div>
         </div>
 
         <div class="doc-divider"></div>
         <div style="font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:12px;">Manual fallback (no AI IDE)</div>
         <ol style="font-size:13px;color:var(--text-2);line-height:1.7;padding-left:20px;">
-          <li>Start from <code>template/layout-shell.html</code> → rename <code>[AppName]-app.html</code></li>
-          <li>Inline <code>core.css</code> into <code>&lt;style&gt;</code> and <code>core.js</code> into <code>&lt;script&gt;</code> (replace the two linked tags) so the file is self-contained</li>
+          <li>Copy <code>template/onx-app-scaffold.html</code> → rename <code>[AppName]-app.html</code></li>
           <li>Replace the two <code>[App Name]</code> occurrences: <code>&lt;title&gt;</code> and <code>.app-name</code> span. Do not touch the logo <code>&lt;img&gt;</code></li>
-          <li>Set <code>window.ONX_TYPEWRITER</code> in an inline script before core.js — 3–4 domain prompts, under 50 chars</li>
+          <li>Edit <code>typewriterMessages</code> array — 3–4 domain-specific prompts, under 50 chars each</li>
           <li>Update <code>id="welcome-name"</code> and avatar initials in sidebar footer and chat bubbles</li>
-          <li>Add custom pages using the NEW PAGE TEMPLATE at the file bottom. Pick components from this design system</li>
+          <li>Add custom pages using the NEW PAGE TEMPLATE at the file bottom. Pick components from <code>page-components</code></li>
           <li>Fill the 3 DEMO anchors: user identity, thread list, user profile (settings)</li>
+          <li>Remove the <code>nav-components</code> nav item before delivering</li>
         </ol>
       </section>
 
@@ -1440,7 +1392,7 @@ bloomberg.crossref() → confirmed</div>
               <tr><td>App name (text only)</td><td style="color:var(--text-2);">Search-replace <code>[App Name]</code> — 3 occurrences in the file</td></tr>
               <tr><td>Sidebar nav items</td><td style="color:var(--text-2);">Add/remove <code>&lt;a class="nav-item"&gt;</code> entries; add pages via NEW PAGE TEMPLATE</td></tr>
               <tr><td>Content pages (tables, KPIs, workflows)</td><td style="color:var(--text-2);">Any page outside the chat panel is yours to redesign</td></tr>
-              <tr><td>Typewriter messages</td><td style="color:var(--text-2);">Set <code>window.ONX_TYPEWRITER</code> (inline script before core.js) — keep each message under 50 chars</td></tr>
+              <tr><td>Typewriter messages</td><td style="color:var(--text-2);">Edit <code>typewriterMessages</code> array — keep each message under 50 chars</td></tr>
               <tr><td>User display name &amp; initials</td><td style="color:var(--text-2);">Update <code>id="welcome-name"</code> and avatar circle markup</td></tr>
               <tr><td>Suggestion pill labels</td><td style="color:var(--text-2);">Match domain vocabulary — keep labels under 50 chars</td></tr>
               <tr><td>Artifact card title &amp; meta</td><td style="color:var(--text-2);">Use client's report naming convention</td></tr>
