@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building demo apps on the ONX scaffold</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #1a1a1a; }
+  h1 { border-bottom: 2px solid #eee; padding-bottom: .3rem; }
+  h2 { margin-top: 2rem; color: #2c3e50; }
+  .date { color: #888; font-size: .85rem; }
+  code { background: #f4f4f4; padding: .15rem .35rem; border-radius: 4px; font-size: .9em; }
+  pre { background: #f4f4f4; padding: 1rem; border-radius: 6px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  .learning { border-left: 3px solid #4a90d9; padding-left: 1rem; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+<h1>Building demo apps on the ONX scaffold</h1>
+
+<div class="learning">
+  <h2>Specs can silently override the locked brand — always re-check tokens + logo</h2>
+  <p class="date">2026-06-03</p>
+  <p>A spec authored from the scaffold can look complete yet violate the locked brand. The Sales Intelligence spec had recolored the OneNexus brand from teal to navy/gold and swapped the locked <code>&lt;img&gt;</code> logo for a custom SVG. Compare <code>:root</code> in the spec against the scaffold before delivering. The locked targets to restore:</p>
+  <pre><code>--brand-primary:        #2D7575;
+--brand-primary-hover:  #256060;
+--brand-primary-soft:   #4EA6A6;
+--brand-tint:           #E6F4F4;
+--brand-spark:          #B4C850;
+--onx-teal: var(--brand-primary);   /* + the var()-based --onx-* chain */
+--surface-inverse: #18181B;
+--unread: #F97316;
+--ring: 0 0 0 3px rgba(45,117,117,0.18);</code></pre>
+  <p>Then grep for hardcoded brand hexes (<code>#0D1F3C</code> etc.) and re-point them. Keep gold/red/green only as <em>supplementary semantic</em> tokens — never as <code>--brand-*</code>/<code>--onx-*</code>. The OneNexus <code>&lt;img&gt;</code> (base64) lives in the scaffold nav; splice it in to replace any custom logo.</p>
+</div>
+
+<div class="learning">
+  <h2>Collapsed sidebar hides <code>.nav-label</code> but NOT <code>.nav-group-label</code></h2>
+  <p class="date">2026-06-03</p>
+  <p>When the sidebar collapses to 56px, the scaffold hides <code>.nav-label</code> but leaves section headers (<code>.nav-group-label</code> — "USE CASES", "BANKING", "CAPITAL MARKETS") visible, so they crimp/wrap. Add a collapse rule:</p>
+  <pre><code>#sidebar.collapsed .nav-group-label {
+  opacity: 0; height: 0; padding: 0; margin: 0;
+  overflow: hidden; pointer-events: none;
+}</code></pre>
+  <p>(Note: <code>.nav-section-label</code> is auto-hidden by the scaffold, but the use-case nav uses <code>.nav-group-label</code>, which is not.)</p>
+</div>
+
+<div class="learning">
+  <h2>Base64 images create 100k+ char lines that block the Read tool</h2>
+  <p class="date">2026-06-03</p>
+  <p>The scaffold's OneNexus logo and hero images are inline base64, producing single lines of 77k–120k chars. <code>Read</code> fails on these ("exceeds maximum allowed tokens") even with a small <code>limit</code>, because one line blows the budget. Mitigations:</p>
+  <ul>
+    <li>Find offenders: <code>awk '{ if (length($0) &gt; 2000) print NR": "length($0) }' file.html</code></li>
+    <li>Inspect a line's head with <code>awk 'NR==N{print substr($0,1,180)}'</code></li>
+    <li>Read in ranges that avoid the long lines; use <code>grep -n</code> to locate anchors</li>
+    <li>To splice a base64 asset between files, use a small Python script rather than Edit</li>
+  </ul>
+</div>
+
+<div class="learning">
+  <h2><code>window.print()</code> blocks repeated calls inside preview_eval</h2>
+  <p class="date">2026-06-03</p>
+  <p>The "Print one-pager" / "Print brief" buttons call <code>window.print()</code>, which opens the browser's native print dialog and blocks. Calling it twice in one <code>preview_eval</code> hangs the renderer (30s timeout). When verifying print-adjacent logic (e.g. the Opportunities auto-capture that <code>printRoi()</code> triggers), call the underlying function directly (<code>captureOpportunity(...)</code>) instead of firing <code>printRoi()</code> in a loop.</p>
+</div>
+
+<div class="learning">
+  <h2>Doc/version bumping is gated on <em>template</em> changes, not client deliverables</h2>
+  <p class="date">2026-06-03</p>
+  <p>AGENTS.md requires a CHANGELOG entry + version bump only for <strong>template changes</strong>. Since the v4.0.0 refactor the version lives <strong>once</strong> in the header of <code>template/core.css</code> (the single source of truth, <code>ONX Scaffold core.css — vX.X.X</code>); <code>template/layout-shell.html</code> and <code>docs/design-system.html</code> carry a matching <code>&lt;meta name="onx-scaffold-version"&gt;</code> that <code>scripts/pre-commit</code> checks stays in sync. (The old single-file <code>template/onx-app-scaffold.html</code> no longer exists — archived to <code>template/_archive/2026-06-04/</code>.) Building a client app into <code>apps/</code> (stamped with the existing scaffold version, read from <code>core.css</code> — not bumped) is a normal deliverable output and triggers none of that. Verify with <code>git status</code>: a clean delivery shows only the new <code>apps/*.html</code> as changed. New reusable patterns stay app-specific unless explicitly promoted back into the template (which would then trigger the full doc/version process).</p>
+</div>
+
+</body>
+</html>
