@@ -93,6 +93,17 @@ Mark both functions `async`.
 
 > ⚠️ Both send paths carry the mock — patch BOTH. (The portal demo missed one on the first pass.)
 
+**1d. i18n: clickable prompts must submit the DISPLAYED (translated) text, never a hardcoded
+string.** The scaffold's agent-page i18n (`translateAgentPage`) swaps visible text nodes on
+language toggle, but it does **not** rewrite an `onclick="homePrompt('…literal…')"` argument. So a
+suggestion pill whose label is translated to Japanese but whose handler passes a hardcoded English
+prompt will **submit English and get an English reply** (this shipped to portal prod in v1.4.2 and
+was fixed in v1.4.3). Wire every clickable prompt (home pills, suggestion chips) to submit its own
+rendered label, e.g. `onclick="homePrompt(this.textContent.trim())"` — so the request (and thus the
+reply language) always matches what the user sees. The agent must be grounded bilingually (per
+ADR-021 / the EN+JA `DEFAULT_DATA`) for the localized prompt to get a localized answer. The in-chat
+copilot quick-suggestions already do this correctly via `L(en, ja)` — copy that discipline.
+
 ### 2. `template/core.css`
 
 Add the scoped `.chat-md` block (copy verbatim from the portal copy's `<style>`). Critical lines —
@@ -164,7 +175,10 @@ them from the new core. Note: `apps/Credit-Risk-MIS-app.html` here still has the
    `renderAgentMarkdown`, assert `querySelector('table')` and `querySelector('script') === null`).
 4. Both `sendMessage` and `sendHomeMessage` (input box AND welcome-screen prompt pills) hit the
    real agent — grep the built file for the old canned string → 0 matches.
-5. core.css version stamp == CHANGELOG top version.
+5. i18n: toggle to a non-English language, click each suggestion pill → the submitted prompt AND
+   the reply are in that language (not English). Grep the built file: no
+   `onclick="homePrompt('…')"` / `onclick="sendMessage('…')"` with a hardcoded string literal.
+6. core.css version stamp == CHANGELOG top version.
 
 ---
 
