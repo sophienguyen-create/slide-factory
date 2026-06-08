@@ -36,21 +36,19 @@
 <body class="flex flex-col" style="height:100vh;">
 
 <!-- ═══ TOP APP BAR ═══ -->
-<nav class="app-nav pl-4 pr-3 flex items-center justify-between sticky top-0 z-30 flex-shrink-0">
-  <!-- Left: sidebar toggle + logo + product label -->
-  <div class="flex items-center gap-3">
+<nav class="app-nav pr-3 flex items-center justify-between sticky top-0 z-30 flex-shrink-0">
+  <!-- Left: sidebar toggle + logo — width matches sidebar so the divider aligns with the sidebar border -->
+  <div class="flex items-center gap-3 pl-4 flex-shrink-0" style="width:200px;box-sizing:border-box;">
     <!-- Sidebar toggle -->
     <button id="sidebar-toggle" onclick="toggleSidebar()" class="btn-icon" aria-label="Toggle sidebar">
       <i data-lucide="menu" class="icon-lg"></i>
     </button>
-    <!-- Logo + app name -->
-    <div class="flex items-center gap-3">
-      <img src="onx-logo.png"
-           alt="OneNexus" class="h-5" />
-      <span class="app-divider" aria-hidden="true"></span>
-      <span class="app-name">[App Name]</span>
-    </div>
+    <img src="onx-logo.png"
+         alt="OneNexus" class="h-5" />
   </div>
+  <!-- Divider + app name — divider sits at x=200px, aligned with sidebar right border -->
+  <span class="app-divider" aria-hidden="true"></span>
+  <span class="app-name ml-3">[App Name]</span>
 
   <!-- Spacer -->
   <div class="flex-1"></div>
