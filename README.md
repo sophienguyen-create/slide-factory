@@ -17,7 +17,7 @@ Build OneNexus-branded demo apps from client specs.
 ```
 specs/        ← drop client spec files here (markdown, HTML, JSX)
 template/     ← layout-shell.html (chrome + layout archetypes), core.css + core.js
-                (shared single-source core), onx-logo.png + onx-agent-icon.png
+                (shared single-source core), onx-logo-full-color.png + onx-logo-white.png + onx-agent-icon.png
                 (image assets), and _archive/
 apps/         ← delivered app HTML files (self-contained, core inlined)
 docs/         ← design-system.html — branding + component gallery (open in a browser)

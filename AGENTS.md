@@ -10,7 +10,7 @@ Build **OneNexus-branded demo apps** for client presentations. **Select and comp
 | `template/layout-shell.html` | **Layout shell** — header, navbar, page wrapper, and the two layout archetypes: **canvas** (`#page-agent`, chat + artifact) and **document** (`#page-settings`, sub-nav + panels). Canonical home of the locked chat scaffold. | Pick an archetype per page; use this file as the **assembly skeleton**. |
 | `docs/design-system.html` | **Design system** — branding (`--brand-*`) + the component gallery, each badged **Strict** (don't alter) or **Flexible** (adapt). | Pick components + branding for custom pages. |
 | `template/core.css` + `template/core.js` | **Shared core** (single source of truth) — all tokens, component/layout CSS, keyframes, and the locked JS APIs. Carries the canonical version stamp. | **Inline** into the delivered single-file demo. Never edit except the `--brand-*` block. |
-| `template/onx-logo.png` + `template/onx-agent-icon.png` | **Image assets** — the OneNexus logo and AI-agent icon, referenced by `layout-shell.html` as `<img src>`. | **Inline** (re-encode to data-URI) into the delivered demo so it stays self-contained. |
+| `template/onx-logo-full-color.png` + `template/onx-logo-white.png` + `template/onx-agent-icon.png` | **Image assets** — the OneNexus logo (full-colour for light mode, white for dark mode) and AI-agent icon, referenced by `layout-shell.html` as `<img src>`. | **Inline** (re-encode to data-URI) into the delivered demo so it stays self-contained. |
 | Client spec | **A file** from `specs/` (markdown doc, demo HTML, or JSX). A verbal description or chat prompt is not a spec and is not sufficient to begin. | Drives content, vocabulary, pages, and interactions. |
 
 ⚠️ **Do not read any files in `apps/`.** Delivered apps are client outputs, not references. Reading them causes wrong inference about UI behaviour and components. The only authoritative sources are the two reference docs + core above.
@@ -107,7 +107,7 @@ The delivered demo is **one self-contained HTML file**. Assemble it:
 
 1. **Start from `template/layout-shell.html`** as the skeleton (head + chrome + chosen archetypes).
 2. **Inline the core** — replace `<link rel="stylesheet" href="core.css">` with `<style>…contents of template/core.css…</style>`, and `<script src="core.js"></script>` with `<script>…contents of template/core.js…</script>`.
-3. **Inline the image assets** — re-encode `template/onx-logo.png` and `template/onx-agent-icon.png` to base64 and replace `src="onx-logo.png"` / `src="onx-agent-icon.png"` with `src="data:image/png;base64,…"`. After this the output must open standalone with **no relative dependencies** (no `href="core.css"`, `src="core.js"`, or `*.png` paths left).
+3. **Inline the image assets** — re-encode `template/onx-logo-full-color.png`, `template/onx-logo-white.png`, and `template/onx-agent-icon.png` to base64 and replace their `src` attributes with `src="data:image/png;base64,…"`. After this the output must open standalone with **no relative dependencies** (no `href="core.css"`, `src="core.js"`, or `*.png` paths left).
 4. **Copy the locked chat scaffold** (`#page-agent`) verbatim from layout-shell. Keep only the archetypes you use; build custom pages by dropping in components from `docs/design-system.html`.
 5. Save to `apps/[AppName]-app.html` (derived from app name, kebab-cased).
 
@@ -157,9 +157,9 @@ One live example of every reusable component, each badged **Strict** / **Flexibl
 
 Single source of truth for all tokens, component/layout CSS, keyframes, and JS APIs. Inlined into the delivered demo. Never edit except the `--brand-*` block in core.css.
 
-### `template/onx-logo.png` + `template/onx-agent-icon.png` — image assets
+### `template/onx-logo-full-color.png` + `template/onx-logo-white.png` + `template/onx-agent-icon.png` — image assets
 
-The OneNexus logo and AI-agent icon, kept as real PNG files (not inline base64) so `layout-shell.html` stays small and readable. `core.js` resolves the agent icon from whichever form is present — the file path (reference) or an inlined data-URI (delivered app). Inline both into the delivered demo. To rebrand the logo, swap `onx-logo.png`.
+The OneNexus logo (full-colour for light mode, white for dark mode) and AI-agent icon, kept as real PNG files (not inline base64) so `layout-shell.html` stays small and readable. `core.js` resolves the agent icon from whichever form is present — the file path (reference) or an inlined data-URI (delivered app). Inline all three into the delivered demo. To rebrand the logo, swap both `onx-logo-full-color.png` and `onx-logo-white.png`.
 
 ### Custom client pages
 
@@ -303,7 +303,7 @@ Once inputs are confirmed:
 - [ ] `--brand-*` vars unchanged (only the editable block may be re-themed)
 - [ ] OneNexus logo `<img>` intact
 - [ ] Chat panel markup copied verbatim from layout-shell
-- [ ] `core.css`, `core.js`, **and** both PNGs (`onx-logo.png`, `onx-agent-icon.png`) inlined — file opens standalone with no relative deps (`*.png`/`.css`/`.js` paths)
+- [ ] `core.css`, `core.js`, **and** all three PNGs (`onx-logo-full-color.png`, `onx-logo-white.png`, `onx-agent-icon.png`) inlined — file opens standalone with no relative deps (`*.png`/`.css`/`.js` paths)
 - [ ] All 3 `@keyframes aiGlow*` present (they come with core.css)
 - [ ] `.artifact-pointer` used (not plain `<a>`)
 - [ ] `window.ONX_TYPEWRITER` set with domain prompts (before core.js)
