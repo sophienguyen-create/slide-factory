@@ -1,14 +1,19 @@
 # ONX Scaffold Skill
 
 ## Role
-Build **OneNexus-branded demo apps** for client presentations. Compose pages from scaffold components using `template/onx-app-scaffold.html` as a **UI component library and layout reference** — not a content template to fill in. Always produce a Build Plan and get approval before writing HTML. Build and review one page at a time.
+Build **OneNexus-branded demo apps** for client presentations. **Select and compose** from two reference docs — never adapt a single content template. Always produce a Build Plan and get approval before writing HTML. Build and review one page at a time.
 
-## Inputs
+## Inputs — two references + a shared core
 
-- `template/onx-app-scaffold.html` — component reference (Agent, Components, Settings pages)
-- Client spec — **a file** from `specs/` (markdown doc, demo HTML, or JSX). A verbal description or chat prompt is not a spec and is not sufficient to begin.
+| File | Role | How you use it |
+|------|------|----------------|
+| `template/layout-shell.html` | **Layout shell** — header, navbar, page wrapper, and the two layout archetypes: **canvas** (`#page-agent`, chat + artifact) and **document** (`#page-settings`, sub-nav + panels). Canonical home of the locked chat scaffold. | Pick an archetype per page; use this file as the **assembly skeleton**. |
+| `docs/design-system.html` | **Design system** — branding (`--brand-*`) + the component gallery, each badged **Strict** (don't alter) or **Flexible** (adapt). | Pick components + branding for custom pages. |
+| `template/core.css` + `template/core.js` | **Shared core** (single source of truth) — all tokens, component/layout CSS, keyframes, and the locked JS APIs. Carries the canonical version stamp. | **Inline** into the delivered single-file demo. Never edit except the `--brand-*` block. |
+| `template/onx-logo.png` + `template/onx-agent-icon.png` | **Image assets** — the OneNexus logo and AI-agent icon, referenced by `layout-shell.html` as `<img src>`. | **Inline** (re-encode to data-URI) into the delivered demo so it stays self-contained. |
+| Client spec | **A file** from `specs/` (markdown doc, demo HTML, or JSX). A verbal description or chat prompt is not a spec and is not sufficient to begin. | Drives content, vocabulary, pages, and interactions. |
 
-⚠️ **Do not read any files in `apps/`.** Delivered apps are client outputs, not references. Reading them causes wrong inference about UI behaviour and components. The only authoritative source for components and layout is `template/onx-app-scaffold.html`.
+⚠️ **Do not read any files in `apps/`.** Delivered apps are client outputs, not references. Reading them causes wrong inference about UI behaviour and components. The only authoritative sources are the two reference docs + core above.
 
 ---
 
@@ -16,9 +21,10 @@ Build **OneNexus-branded demo apps** for client presentations. Compose pages fro
 
 ### Phase 1 — Read inputs
 
-1. Read `page-components` in the scaffold
-2. Read the client spec: product name, domain vocabulary, key screens, user persona, and — critically — **every interaction** (clicks, drill-downs, filters, modals)
-3. Read nothing else — do not browse `apps/`, `docs/`, or any other file unless explicitly asked
+1. Read `docs/design-system.html` — the component gallery — to decide which components each page uses
+2. Read `template/layout-shell.html` — to choose a **canvas** or **document** archetype per page and see the locked chrome
+3. Read the client spec: product name, domain vocabulary, key screens, user persona, and — critically — **every interaction** (clicks, drill-downs, filters, modals)
+4. Read nothing else — do not browse `apps/` or any other file unless explicitly asked
 
 ### Phase 2 — Build Plan
 
@@ -34,12 +40,12 @@ Output the Build Plan, then **stop**. Do not write any HTML until the user expli
 - Suggestion pills: ["...", "...", "..."]
 
 ### Pages
-| Page | Purpose | UI components |
-|------|---------|----------------|
-| Agent | [description] | thread list, suggestion pills |
-| [Custom page 1] | [description] | .kpi-card ×3, .data-table, etc |
-| [Custom page 2] | [description] | .workflow-row, .status-pill, etc |
-| Settings | pre-wired | org name, team, connectors only |
+| Page | Archetype | Purpose | UI components (from design-system.html) |
+|------|-----------|---------|------------------------------------------|
+| Agent | canvas | [description] | thread list, suggestion pills |
+| [Custom page 1] | document | [description] | .kpi-card ×3, .data-table, etc |
+| [Custom page 2] | document | [description] | .workflow-row, .status-pill, etc |
+| Settings | document | pre-wired | org name, team, connectors only |
 
 ### Interactions
 | Trigger | Behaviour |
@@ -97,13 +103,21 @@ Run the LOCKED checklist before delivering.
 
 ### Phase 5 — Deliver
 
-Save to `apps/[AppName]-app.html` (derived from app name, kebab-cased). Add a version stamp as the first line of the delivered file:
+The delivered demo is **one self-contained HTML file**. Assemble it:
+
+1. **Start from `template/layout-shell.html`** as the skeleton (head + chrome + chosen archetypes).
+2. **Inline the core** — replace `<link rel="stylesheet" href="core.css">` with `<style>…contents of template/core.css…</style>`, and `<script src="core.js"></script>` with `<script>…contents of template/core.js…</script>`.
+3. **Inline the image assets** — re-encode `template/onx-logo.png` and `template/onx-agent-icon.png` to base64 and replace `src="onx-logo.png"` / `src="onx-agent-icon.png"` with `src="data:image/png;base64,…"`. After this the output must open standalone with **no relative dependencies** (no `href="core.css"`, `src="core.js"`, or `*.png` paths left).
+4. **Copy the locked chat scaffold** (`#page-agent`) verbatim from layout-shell. Keep only the archetypes you use; build custom pages by dropping in components from `docs/design-system.html`.
+5. Save to `apps/[AppName]-app.html` (derived from app name, kebab-cased).
+
+Add a version stamp as the first line of the delivered file:
 
 ```html
 <!-- Built with ONX Scaffold vX.X.X — [date] -->
 ```
 
-Read the scaffold's version from its `<!-- ONX Scaffold vX.X.X -->` comment to get the correct number.
+Read the version from the header of `template/core.css` (`ONX Scaffold core.css — vX.X.X`) — core.css is the single source of truth.
 
 ---
 
@@ -125,37 +139,45 @@ The most common agent failure is omitting drill-down and interactive behaviour v
 
 ## Scaffold Structure
 
-### `page-agent` — fill 2 anchors, rest is locked
+### `template/layout-shell.html` — the assembly skeleton
 
-- `<!-- DEMO: Thread list -->` — 3–5 sample threads from client spec
-- `typewriterMessages[]` in JS — 3–4 domain-specific prompts, under 50 chars each
+- **Canvas archetype (`#page-agent`)** — fill 2 anchors, rest is locked:
+  - `<!-- DEMO: Thread list -->` — 3–5 sample threads from client spec
+  - `window.ONX_TYPEWRITER` (inline `<script>` before core.js — seam already in layout-shell) — 3–4 domain-specific prompts, under 50 chars each
+- **Document archetype (`#page-settings`)** — pre-wired, update org values only:
+  - `<!-- DEMO: User profile -->` — client persona name + contact details
+  - Org name, team members, integration names in the relevant settings panels
+- The components nav item is already gone — start from this file and the delivered app has no reference page to remove.
 
-### `page-components` — reference only, never ship to client
+### `docs/design-system.html` — component gallery (reference only, never shipped)
 
-Contains one live example of every reusable component. Browse this when deciding which components to use on custom pages. Remove this nav item from the delivered app.
+One live example of every reusable component, each badged **Strict** / **Flexible**. Browse this when deciding which components to use on custom pages.
 
-### `page-settings` — pre-wired, update org values only
+### `template/core.css` + `template/core.js` — shared core
 
-- `<!-- DEMO: User profile -->` — client persona name + contact details
-- Org name, team members, integration names in the relevant settings panels
+Single source of truth for all tokens, component/layout CSS, keyframes, and JS APIs. Inlined into the delivered demo. Never edit except the `--brand-*` block in core.css.
+
+### `template/onx-logo.png` + `template/onx-agent-icon.png` — image assets
+
+The OneNexus logo and AI-agent icon, kept as real PNG files (not inline base64) so `layout-shell.html` stays small and readable. `core.js` resolves the agent icon from whichever form is present — the file path (reference) or an inlined data-URI (delivered app). Inline both into the delivered demo. To rebrand the logo, swap `onx-logo.png`.
 
 ### Custom client pages
 
-Copy `<!-- NEW PAGE TEMPLATE -->` at EOF. Choose components from `page-components`. Add the matching nav entry.
+Copy `<!-- NEW PAGE TEMPLATE -->` (at the bottom of layout-shell.html). Choose components from `docs/design-system.html`. Add the matching sidebar nav entry.
 
 ---
 
 ## LOCKED (Do Not Modify)
 
-⚠️ Everything not listed under FLEXIBLE is locked. Changing it breaks the scaffold.
+⚠️ Everything not listed under FLEXIBLE is locked. `template/core.css` and `template/core.js` are locked wholesale (only the `--brand-*` block in core.css is editable). Changing anything else breaks the scaffold.
 
-| Category | Elements |
-|----------|----------|
-| Brand | `--brand-*` CSS vars, OneNexus `<img>` logo |
-| Layout | `.app-nav`, `aside#sidebar`, `.flat-panel`, `.flat-panel-right`, `p-3 gap-3` wrapper |
-| Chat | `.chat-turn`, `.bubble-actions`, `.bubble-actions-time`, `.agent-icon-*`, `.artifact-pointer`, `.thread-section`, `.typewriter-*` |
-| Animations | `@keyframes aiGlowIdle`, `aiGlowThinking`, `aiGlowHero` |
-| JS APIs | `formatMessageTime()`, `bubbleActionsMarkup()`, `userTurnMarkup()`, `aiTurnMarkup()`, `aiThinkingMarkup()`, `threadSectionMarkup()`, `artifactPointerMarkup()`, `copyBubble()`, `showSources()`, `startTypewriter()`, `stopTypewriter()`, `typewriterTypeMessage()`, `toggleHistory()`, `toggleArtifact()`, `showNewChat()` |
+| Category | Elements | Lives in |
+|----------|----------|----------|
+| Brand | `--brand-*` CSS vars (the one editable block), OneNexus `<img>` logo | core.css / layout-shell.html |
+| Layout | `.app-nav`, `aside#sidebar`, `.flat-panel`, `.flat-panel-right`, `p-3 gap-3` wrapper | core.css / layout-shell.html |
+| Chat | `.chat-turn`, `.bubble-actions`, `.bubble-actions-time`, `.agent-icon-*`, `.artifact-pointer`, `.thread-section`, `.typewriter-*` | core.css / layout-shell.html |
+| Animations | `@keyframes aiGlowIdle`, `aiGlowThinking`, `aiGlowHero` | core.css |
+| JS APIs | `formatMessageTime()`, `bubbleActionsMarkup()`, `userTurnMarkup()`, `aiTurnMarkup()`, `aiThinkingMarkup()`, `threadSectionMarkup()`, `artifactPointerMarkup()`, `copyBubble()`, `showSources()`, `startTypewriter()`, `stopTypewriter()`, `typewriterTypeMessage()`, `toggleHistory()`, `toggleArtifact()`, `showNewChat()` | core.js |
 
 ---
 
@@ -172,7 +194,11 @@ Copy `<!-- NEW PAGE TEMPLATE -->` at EOF. Choose components from `page-component
 - Avatar initials in sidebar footer + chat bubbles
 
 ### Typewriter prompts
-Edit `typewriterMessages[]` in JS. 3–4 items, each under 50 characters. Action-oriented, domain-specific.
+core.js is locked, so override the prompts via a global — add an inline `<script>` **before** `core.js` loads (layout-shell.html already has the seam):
+```html
+<script>window.ONX_TYPEWRITER = ["Summarise today's exception queue.","Flag the open exceptions.","Compare to last cycle."];</script>
+```
+3–4 items, each under 50 characters. Action-oriented, domain-specific.
 
 **Good:** `"Summarise today's exception queue."`
 **Bad:** `"What needs attention today?"`
@@ -193,10 +219,10 @@ To group nav items under a section label, use `.sidebar-section-divider` with `.
 </div>
 ```
 
-Remove `nav-components` from the delivered app (it's a scaffold reference, not a product page).
+(layout-shell.html has no components nav item, so there's nothing to remove from the delivered app.)
 
 ### Page content
-Build pages using component classes from `page-components`:
+Build pages using component classes from `docs/design-system.html`:
 - `.kpi-card`, `.section-card`, `.data-table`
 - `.workflow-row`, `.library-card`, `.activity-item`
 - `.status-pill`, `.filter-chip`, `.tag`
@@ -210,7 +236,7 @@ Update `onclick="homePrompt('...')"` text. 3 pills max, 50 chars each.
 
 ## Content Anchors
 
-Four `<!-- DEMO: ... -->` anchors remain in the scaffold. All other content is built from scratch on custom pages.
+Four `<!-- DEMO: ... -->` anchors live in `template/layout-shell.html`. All other content is built from scratch on custom pages.
 
 | Anchor | What to place |
 |--------|---------------|
@@ -257,9 +283,9 @@ A spec does not need to include design decisions, layout choices, or component n
 
 Once inputs are confirmed:
 
-1. The agent reads the spec and produces a **Build Plan** — page list, component choices, and identified interactions. Review and approve before any HTML is written.
+1. The agent reads the spec + the two reference docs and produces a **Build Plan** — page list (with canvas/document archetype per page), component choices, and identified interactions. Review and approve before any HTML is written.
 2. Pages are built **one at a time**. After each page the agent shares the file and waits for feedback before continuing.
-3. On completion, the agent removes the Components reference page and runs the locked checklist.
+3. On completion, the agent inlines `core.css`, `core.js`, and the two PNG assets into one self-contained file and runs the locked checklist.
 4. Final file is saved to `apps/[AppName]-app.html` (derived from app name, kebab-cased).
 
 ### Step 4 — How to give good feedback during the build
@@ -273,21 +299,21 @@ Once inputs are confirmed:
 
 ## Verify Before Delivering
 
-### Scaffold integrity
-- [ ] `--brand-*` vars unchanged
+### Delivered-app integrity
+- [ ] `--brand-*` vars unchanged (only the editable block may be re-themed)
 - [ ] OneNexus logo `<img>` intact
-- [ ] Chat panel markup unchanged
-- [ ] All 3 `@keyframes aiGlow*` present
+- [ ] Chat panel markup copied verbatim from layout-shell
+- [ ] `core.css`, `core.js`, **and** both PNGs (`onx-logo.png`, `onx-agent-icon.png`) inlined — file opens standalone with no relative deps (`*.png`/`.css`/`.js` paths)
+- [ ] All 3 `@keyframes aiGlow*` present (they come with core.css)
 - [ ] `.artifact-pointer` used (not plain `<a>`)
-- [ ] `typewriterMessages` updated with domain prompts
-- [ ] No duplicate JS functions
-- [ ] `nav-components` removed from delivered app
+- [ ] `window.ONX_TYPEWRITER` set with domain prompts (before core.js)
+- [ ] Core inlined once — no duplicate JS functions
 - [ ] Every interaction from Build Plan is implemented (no "coming soon" stubs)
 
-### Documentation & versioning (required for every template change)
+### Documentation & versioning (required for every core/reference change)
 - [ ] `CHANGELOG.md` has a new entry describing the change
-- [ ] Version bumped in `template/onx-app-scaffold.html` metadata (comment + `<meta>`)
-- [ ] Version bumped in `docs/design-system.html` metadata (comment + `<meta>`) — must match scaffold
+- [ ] Version bumped **once** in `template/core.css` header (the single source of truth)
+- [ ] `<meta name="onx-scaffold-version">` in `template/layout-shell.html` + `docs/design-system.html` matches core.css
 - [ ] `docs/design-system.html` updated if any component, panel, or label changed
 
 ---

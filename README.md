@@ -16,13 +16,20 @@ Build OneNexus-branded demo apps from client specs.
 
 ```
 specs/        ← drop client spec files here (markdown, HTML, JSX)
-template/     ← scaffold source and archive
-apps/         ← delivered app HTML files
-docs/         ← design system reference (open design-system.html in browser)
+template/     ← layout-shell.html (chrome + layout archetypes), core.css + core.js
+                (shared single-source core), onx-logo.png + onx-agent-icon.png
+                (image assets), and _archive/
+apps/         ← delivered app HTML files (self-contained, core inlined)
+docs/         ← design-system.html — branding + component gallery (open in a browser)
 scripts/      ← git hooks and dev tooling
 ```
 
-See `docs/design-system.html` for the full component library and strict/flexible rules.
+Scaffolding **composes** from two references rather than adapting one file:
+
+- **`template/layout-shell.html`** — header, navbar, and the two layout archetypes (canvas + document). The assembly skeleton.
+- **`docs/design-system.html`** — branding and the component gallery, each component badged Strict/Flexible.
+- **`template/core.css` + `template/core.js`** — the shared core (tokens, components, JS APIs), inlined into each delivered demo so the output stays a single self-contained HTML file. `core.css` carries the canonical version.
+
 See [CHANGELOG.md](CHANGELOG.md) for the current version and release history.
 
 ## First-time setup (after cloning)
@@ -33,4 +40,4 @@ Install the pre-commit hook to enforce version consistency:
 cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 ```
 
-This blocks commits that change the scaffold or design system without a matching version bump and CHANGELOG entry.
+This blocks commits that change the core or either reference doc without a matching version bump (in `core.css`) and CHANGELOG entry.
