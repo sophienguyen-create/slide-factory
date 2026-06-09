@@ -1,4 +1,4 @@
-<!-- ONX Scaffold design-system.html — v4.1.0 — 2026-06-04 -->
+<!-- ONX Scaffold design-system.html — v4.1.1 — 2026-06-09 -->
 <!-- ═══════════════════════════════════════════════════════════════════
      DESIGN SYSTEM — reference doc (read-only). One of two scaffold references:
        • template/layout-shell.html  → chrome + layout archetypes
@@ -15,7 +15,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="onx-scaffold-version" content="4.1.0">
+<meta name="onx-scaffold-version" content="4.1.1">
 <meta name="onx-scaffold-released" content="2026-06-04">
 <title>Design System — ONX Scaffold</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,7 +97,7 @@
     <span style="font-size:15px;font-weight:700;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--onx-teal),var(--onx-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">OneNexus</span>
     <span class="app-divider"></span>
     <span class="app-name">Design System</span>
-    <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:0.03em;">v4.1.0</span>
+    <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:0.03em;">v4.1.1</span>
   </div>
   <div class="flex items-center gap-2">
     <a href="../template/layout-shell.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;">
@@ -142,6 +142,7 @@
       <a href="#comp-sections" class="nav-item nav-item-sub" onclick="scrollTo('comp-sections',this)">Thread Sections</a>
       <a href="#comp-artifacts" class="nav-item nav-item-sub" onclick="scrollTo('comp-artifacts',this)">Artifact Cards</a>
       <a href="#comp-bubbles" class="nav-item nav-item-sub" onclick="scrollTo('comp-bubbles',this)">Bubble Actions</a>
+      <a href="#comp-topnav" class="nav-item nav-item-sub" onclick="scrollTo('comp-topnav',this)">Top Nav Bar</a>
       <a href="#comp-nav" class="nav-item nav-item-sub" onclick="scrollTo('comp-nav',this)">History &amp; Nav</a>
       <a href="#comp-pills" class="nav-item nav-item-sub" onclick="scrollTo('comp-pills',this)">Quick Action Pills</a>
       <a href="#comp-settings" class="nav-item nav-item-sub" onclick="scrollTo('comp-settings',this)">Settings</a>
@@ -875,10 +876,68 @@ function threadSectionMarkup(title, date) {
         </div>
       </section>
 
+      <!-- ═══ COMP: TOP NAV BAR ═══ -->
+      <section id="comp-topnav" class="doc-section">
+        <div class="doc-section-header"><h2>Top Nav Bar</h2><span class="doc-badge doc-badge-strict">Strict</span></div>
+        <p class="doc-lead">The 48px app-wide chrome bar. The left zone is exactly sidebar-width (200px, box-sizing border-box with pl-4) so the <code>.app-divider</code> aligns flush with the sidebar's right border. The app name sits 12px from the divider. Right side always contains search, notification bell, and avatar. In dark mode the logo swaps automatically from <code>onx-logo-full-color.png</code> to <code>onx-logo-white.png</code> via <code>html.dark</code>.</p>
+        <div class="doc-demo" style="padding:0;overflow:hidden;border-radius:var(--radius-md);">
+          <nav class="app-nav pr-3 flex items-center justify-between" style="border-bottom:1px solid var(--border-subtle);background:var(--surface-0);">
+            <div class="flex items-center gap-3 pl-4 flex-shrink-0" style="width:200px;box-sizing:border-box;">
+              <button class="btn-icon" aria-label="Toggle sidebar"><i data-lucide="menu" class="icon-lg"></i></button>
+              <span style="font-size:14px;font-weight:700;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--onx-teal),var(--onx-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">OneNexus</span>
+            </div>
+            <span class="app-divider" aria-hidden="true"></span>
+            <span class="app-name ml-3">[App Name]</span>
+            <div class="flex-1"></div>
+            <div class="flex items-center gap-1.5">
+              <div class="relative">
+                <i data-lucide="search" class="icon-sm absolute left-2.5 top-1/2 -translate-y-1/2" style="color:var(--text-3);pointer-events:none"></i>
+                <input type="text" placeholder="Search…" class="nav-search" style="width:200px;" />
+              </div>
+              <button class="btn-icon" aria-label="Notifications"><i data-lucide="bell" class="icon-lg"></i></button>
+              <button class="avatar-pill"><span class="avatar-circle">DG</span><i data-lucide="chevron-down" class="icon-sm" style="color:var(--text-3)"></i></button>
+            </div>
+          </nav>
+        </div>
+        <details class="doc-code">
+          <summary>View markup <button class="doc-code-copy" onclick="copyCode(this,'topnav-code')">Copy</button></summary>
+          <pre id="topnav-code">&lt;nav class="app-nav pr-3 flex items-center justify-between sticky top-0 z-30 flex-shrink-0"&gt;
+  &lt;!-- Left zone: fixed at sidebar width so .app-divider aligns with sidebar border --&gt;
+  &lt;div class="flex items-center gap-3 pl-4 flex-shrink-0" style="width:200px;box-sizing:border-box;"&gt;
+    &lt;button id="sidebar-toggle" onclick="toggleSidebar()" class="btn-icon"&gt;
+      &lt;i data-lucide="menu" class="icon-lg"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;img src="onx-logo-full-color.png" alt="OneNexus" class="h-5 logo-light" /&gt;
+    &lt;img src="onx-logo-white.png"      alt="OneNexus" class="h-5 logo-dark" /&gt;
+  &lt;/div&gt;
+  &lt;!-- Divider sits at x=200px, aligned with sidebar right border --&gt;
+  &lt;span class="app-divider" aria-hidden="true"&gt;&lt;/span&gt;
+  &lt;span class="app-name ml-3"&gt;[App Name]&lt;/span&gt;
+  &lt;div class="flex-1"&gt;&lt;/div&gt;
+  &lt;!-- Right: search + bell + avatar --&gt;
+  &lt;div class="flex items-center gap-1.5"&gt;…&lt;/div&gt;
+&lt;/nav&gt;
+
+&lt;!-- Dark-mode logo swap (place after core.css link) --&gt;
+&lt;style&gt;
+  .logo-dark { display: none; }
+  html.dark .logo-light { display: none; }
+  html.dark .logo-dark  { display: inline-block; }
+  html.dark .app-nav .logo-dark { filter: none; }
+&lt;/style&gt;</pre>
+        </details>
+        <div class="doc-rules">
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>The left zone must stay exactly <code>width:200px; box-sizing:border-box</code> (matches <code>#sidebar</code> width) so the divider stays aligned as the sidebar expands/collapses.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Always include both logo variants (<code>logo-light</code> / <code>logo-dark</code>) and the dark-mode swap <code>&lt;style&gt;</code> block. Never use a single logo with a CSS filter as a dark-mode substitute.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Search, notification bell, and avatar are always present on the right. Do not remove any of the three.</div></div>
+          <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>App name and avatar initials change per client. Keep the app name short enough to fit without wrapping at 1280px.</div></div>
+        </div>
+      </section>
+
       <!-- ═══ COMP: HISTORY & NAV ═══ -->
       <section id="comp-nav" class="doc-section">
         <div class="doc-section-header"><h2>History &amp; Nav Controls</h2><span class="doc-badge doc-badge-strict">Strict</span></div>
-        <p class="doc-lead">The chat panel header holds four controls: editable thread title, history drawer toggle, artifact panel toggle, and new chat. The history drawer slides in from the left over the chat panel.</p>
+        <p class="doc-lead">The chat panel header holds three controls: editable thread title, artifact panel toggle, and new chat. History is accessed from the prompt bar (clock button) which opens the history drawer sliding in from the left over the chat panel.</p>
         <div class="doc-demo">
           <!-- Chat header demo -->
           <div style="border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;max-width:560px;">
@@ -888,7 +947,6 @@ function threadSectionMarkup(title, date) {
                 <i data-lucide="pencil" style="width:12px;height:12px;color:var(--text-3);cursor:pointer;stroke-width:1.75;"></i>
               </div>
               <div style="display:flex;align-items:center;gap:4px;">
-                <button class="btn-icon" title="Chat history"><i data-lucide="history" class="icon-lg"></i></button>
                 <button class="btn-icon" title="Toggle artifact panel"><i data-lucide="panel-right" class="icon-lg"></i></button>
                 <span style="display:inline-block;width:1px;height:16px;background:var(--border);margin:0 4px;"></span>
                 <button class="btn-icon" title="New chat"><i data-lucide="square-pen" class="icon-lg"></i></button>
@@ -906,8 +964,26 @@ function threadSectionMarkup(title, date) {
             </div>
           </div>
         </div>
+          <div style="margin-top:20px;">
+            <div class="doc-demo-label">Prompt input bar</div>
+            <div style="border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;max-width:560px;">
+              <div class="chat-input-shell px-4 pt-3 pb-2">
+                <div style="font-size:13px;color:var(--text-4);padding-bottom:6px;">Ask anything…</div>
+                <div class="flex items-center justify-between mt-1">
+                  <div class="flex items-center gap-1">
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px"><i data-lucide="paperclip" class="icon-sm"></i>Attach</button>
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px"><i data-lucide="folder-open" class="icon-sm"></i>Source</button>
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px"><i data-lucide="clock" class="icon-sm"></i>History</button>
+                  </div>
+                  <button class="send-fab"><i data-lucide="arrow-up" class="icon-md"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="doc-rules">
-          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Always include all four header controls. Do not remove History, Artifact toggle, or New Chat — they are the core chat navigation affordances.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Always include both header controls (Artifact toggle, New Chat). Do not remove either — they are core chat navigation affordances. History has moved to the prompt bar.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>The prompt bar must always show Attach, Source, and History (clock) buttons. Do not remove any of the three.</div></div>
           <div class="doc-rule doc-rule-flex"><i data-lucide="pencil" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Thread titles are editable by the user. Populate the history drawer with real thread data in a production integration.</div></div>
         </div>
       </section>

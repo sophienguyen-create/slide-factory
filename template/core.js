@@ -697,10 +697,8 @@ function toggleHistory() {
   historyOpen = !historyOpen;
   const drawer = document.getElementById('history-drawer');
   const backdrop = document.getElementById('history-backdrop');
-  const btn = document.getElementById('history-toggle-btn');
   drawer?.classList.toggle('is-open', historyOpen);
   backdrop?.classList.toggle('is-open', historyOpen);
-  btn?.classList.toggle('is-active', historyOpen);
 }
 
 // ── Artifact panel drag-resize ──

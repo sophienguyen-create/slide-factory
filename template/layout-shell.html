@@ -21,7 +21,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="onx-scaffold-version" content="4.1.0">
+<meta name="onx-scaffold-version" content="4.1.1">
 <meta name="onx-scaffold-released" content="2026-06-04">
 <title>Layout Shell — ONX Scaffold</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,14 +31,7 @@
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','Noto Sans JP','ui-sans-serif','system-ui','sans-serif'] } } } }</script>
 <!-- SHARED CORE — single source of truth. Inline this into the delivered demo. -->
-<link rel="stylesheet" href="core.css">
-<!-- Logo swap for dark mode — light logo by default, white logo when html.dark is active -->
-<style>
-  .logo-dark { display: none; }
-  html.dark .logo-light { display: none; }
-  html.dark .logo-dark { display: inline-block; }
-  html.dark .app-nav .logo-dark { filter: none; }
-</style>
+<link rel="stylesheet" href="core.css?v=4.1.1">
 </head>
 <body class="flex flex-col" style="height:100vh;">
 
@@ -191,9 +184,6 @@
               </div>
             </div>
             <div class="flex items-center gap-1">
-              <button id="history-toggle-btn" onclick="toggleHistory()" class="btn-icon" title="Chat history" aria-label="Chat history">
-                <i data-lucide="history" class="icon-lg"></i>
-              </button>
               <button id="artifact-toggle-btn" onclick="toggleArtifact()" class="btn-icon" title="Toggle artefact panel" aria-label="Toggle artefact panel">
                 <i data-lucide="panel-right" class="icon-lg"></i>
               </button>
@@ -249,6 +239,9 @@
                     </button>
                     <button class="btn btn-secondary btn-sm" style="font-size:12px">
                       <i data-lucide="folder-open" class="icon-sm"></i>Source
+                    </button>
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px" onclick="toggleHistory()">
+                      <i data-lucide="clock" class="icon-sm"></i>History
                     </button>
                   </div>
                   <button onclick="sendHomeMessage()" class="send-fab" aria-label="Send">
@@ -371,6 +364,9 @@
                     </button>
                     <button class="btn btn-secondary btn-sm" style="font-size:12px">
                       <i data-lucide="folder-open" class="icon-sm"></i>Source
+                    </button>
+                    <button class="btn btn-secondary btn-sm" style="font-size:12px" onclick="toggleHistory()">
+                      <i data-lucide="clock" class="icon-sm"></i>History
                     </button>
                   </div>
                   <button onclick="sendMessage()" class="send-fab" aria-label="Send">

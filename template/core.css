@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   ONX Scaffold core.css — v4.1.0 — 2026-06-04
+   ONX Scaffold core.css — v4.1.1 — 2026-06-09
    SINGLE SOURCE OF TRUTH for brand tokens, components, layout, keyframes.
    This file is the canonical version stamp. Linked by template/layout-shell.html
    and docs/design-system.html; inlined into delivered single-file demos.
@@ -1038,13 +1038,11 @@
     margin: 0 4px;
     flex-shrink: 0;
   }
-  #artifact-toggle-btn.is-active,
-  #history-toggle-btn.is-active {
+  #artifact-toggle-btn.is-active {
     background: var(--onx-teal-light);
     color: var(--onx-teal);
   }
-  #artifact-toggle-btn.is-active .lucide,
-  #history-toggle-btn.is-active .lucide { color: var(--onx-teal); }
+  #artifact-toggle-btn.is-active .lucide { color: var(--onx-teal); }
 
   /* Editable thread title */
   .thread-title-editable {
@@ -1398,7 +1396,11 @@
     background: rgba(26,35,53,0.78);
     border-bottom-color: var(--border-subtle);
   }
-  html.dark .app-nav img { filter: brightness(0) invert(1); }
+  /* Logo swap — full-colour in light mode, white variant in dark mode */
+  .logo-dark { display: none; }
+  html.dark .logo-light { display: none; }
+  html.dark .logo-dark  { display: inline-block; }
+  html.dark .app-nav .logo-dark { filter: none; }
   html.dark .nav-search { background: var(--surface-2); color: var(--text-1); }
   html.dark .kbd { background: var(--surface-3); border-color: var(--border); color: var(--text-3); }
 
