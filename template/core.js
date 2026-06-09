@@ -1,4 +1,4 @@
-/* ONX Scaffold core.js — v4.1.0 — 2026-06-04 — LOCKED JS APIs (do not modify) */
+/* ONX Scaffold core.js — v4.2.0 — 2026-06-10 — LOCKED JS APIs (do not modify) */
 // ── Sidebar toggle ──
 let sidebarExpanded = true;
 function toggleSidebar() {
@@ -195,21 +195,35 @@ function sendMessage() {
   const messages = document.getElementById('chat-messages');
 
   appendHtml(messages, userTurnMarkup(text, new Date()));
-  appendHtml(messages, aiThinkingMarkup());
-  if (window.lucide) lucide.createIcons();
+  startTrace(messages);
   messages.scrollTop = messages.scrollHeight;
 
   input.value = '';
   input.style.height = 'auto';
 
-  setTimeout(() => {
-    const typing = document.getElementById('typing-indicator');
-    if (typing) typing.remove();
+  // Stream a live activity trace, then collapse it as the answer lands.
+  // Delivered apps override these steps with domain-specific calls.
+  const steps = [
+    'Parsing request and resolving intent…',
+    toolCallMarkup({ tag: 'TOOL', body: 'Querying connected data sources' }),
+    toolCallMarkup({ tag: 'MCP', body: 'Calling Security Master via MCP gateway' }),
+    'Synthesising response…',
+  ];
+  let i = 0;
+  const tick = () => {
+    if (i < steps.length) {
+      addTraceStep(steps[i++]);
+      messages.scrollTop = messages.scrollHeight;
+      setTimeout(tick, 360);
+      return;
+    }
+    completeTrace();
     const aiBody = `<p class="text-sm text-gray-800 leading-relaxed">I've received your query. In a live environment, I'd process this in real-time. For now, this is a UI prototype — agent logic is in development.</p>`;
     appendHtml(messages, aiTurnMarkup(aiBody, { date: new Date(), runRef: 'AI Agent' }));
     if (window.lucide) lucide.createIcons();
     messages.scrollTop = messages.scrollHeight;
-  }, 1200);
+  };
+  setTimeout(tick, 300);
 }
 
 // Insert an HTML string as the last child of a container (preserves siblings)
@@ -324,6 +338,121 @@ function threadSectionMarkup(title, date) {
       <span class="thread-section-rule"></span>
     </div>
   `;
+}
+
+// ── Tool call block + activity trace group ──
+// Internal helpers (not part of the public API surface).
+function traceStripHtml(html) {
+  return String(html).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+}
+function traceAttrEscape(text) {
+  return escapeHtml(String(text)).replace(/"/g, '&quot;');
+}
+function traceChevronSvg(open) {
+  return `<svg class="trace-chevron${open ? ' is-open' : ''}" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>`;
+}
+
+// One agent tool/system call. `body` is trusted HTML (may carry inline emphasis);
+// `tag` is escaped + uppercased (TOOL, MCP, SQL, …).
+function toolCallMarkup({ tag = 'TOOL', body = '' } = {}) {
+  return `<div class="tool-call"><span class="tool-tag">${escapeHtml(String(tag)).toUpperCase()}</span>${body}</div>`;
+}
+
+// A full trace group. `steps` is an array of trace-line HTML strings (each may embed
+// a toolCallMarkup). `open` renders the expanded list; collapsed shows "N steps · <last>".
+function traceGroupMarkup({ steps = [], open = false } = {}) {
+  const count = steps.length;
+  const last = traceStripHtml(steps[count - 1] || '');
+  const label = open ? 'Hide activity' : `${count} step${count === 1 ? '' : 's'}`;
+  const peek = open ? '' : (last ? `· ${escapeHtml(last)}` : '');
+  const listHtml = steps.map((s) => `<div class="trace-line">${s}</div>`).join('');
+  return `
+    <div class="trace-group" data-step-count="${count}" data-last-step="${traceAttrEscape(last)}">
+      <button class="trace-toggle" aria-expanded="${open}" onclick="toggleTrace(this)">
+        ${traceChevronSvg(open)}
+        <span class="trace-label">${label}</span>
+        <span class="trace-toggle-peek">${peek}</span>
+      </button>
+      <div class="trace-list"${open ? '' : ' hidden'}>${listHtml}</div>
+    </div>
+  `;
+}
+
+// Re-render a trace group's toggle to match an open/closed state.
+// open = userToggled ?? isLatestUnit (spec state model).
+function renderTraceToggle(group, open) {
+  if (!group) return;
+  const btn = group.querySelector('.trace-toggle');
+  const chevron = group.querySelector('.trace-chevron');
+  const label = group.querySelector('.trace-label');
+  const peek = group.querySelector('.trace-toggle-peek');
+  const list = group.querySelector('.trace-list');
+  const count = parseInt(group.dataset.stepCount || '0', 10);
+  const last = group.dataset.lastStep || '';
+  if (btn) btn.setAttribute('aria-expanded', String(open));
+  if (chevron) chevron.classList.toggle('is-open', open);
+  if (label) label.textContent = open ? 'Hide activity' : `${count} step${count === 1 ? '' : 's'}`;
+  if (peek) peek.textContent = open ? '' : (last ? `· ${last}` : '');
+  if (list) list.hidden = !open;
+}
+
+// Manual override — once the user clicks, their choice sticks for that group.
+function toggleTrace(btn) {
+  const group = btn.closest('.trace-group');
+  if (!group) return;
+  const open = btn.getAttribute('aria-expanded') === 'true';
+  group.dataset.userToggled = 'true';
+  renderTraceToggle(group, !open);
+}
+
+// ── Live trace state machine ──
+// The latest (streaming) group is expanded; it auto-collapses on completion
+// unless the user has manually toggled it.
+let liveTraceGroup = null;
+
+function startTrace(container) {
+  completeTrace(); // collapse any prior live group first
+  const tpl = document.createElement('template');
+  tpl.innerHTML = `
+    <div class="chat-turn">
+      <div class="flex items-start gap-3">
+        ${agentAvatarMarkup('mt-0.5', true)}
+        <div class="flex-1 min-w-0">
+          ${traceGroupMarkup({ steps: [], open: true })}
+        </div>
+      </div>
+    </div>
+  `.trim();
+  container.appendChild(tpl.content);
+  liveTraceGroup = container.querySelector('.chat-turn:last-child .trace-group');
+  if (window.lucide) lucide.createIcons();
+  return liveTraceGroup;
+}
+
+function addTraceStep(html) {
+  if (!liveTraceGroup) return;
+  const list = liveTraceGroup.querySelector('.trace-list');
+  const line = document.createElement('div');
+  line.className = 'trace-line';
+  line.innerHTML = html;
+  list.appendChild(line);
+  liveTraceGroup.dataset.stepCount = String(parseInt(liveTraceGroup.dataset.stepCount || '0', 10) + 1);
+  liveTraceGroup.dataset.lastStep = traceStripHtml(html);
+  // Stay in whatever state we're in (expanded while live, or collapsed if user pinned it).
+  const open = liveTraceGroup.querySelector('.trace-toggle').getAttribute('aria-expanded') === 'true';
+  renderTraceToggle(liveTraceGroup, open);
+  if (window.lucide) lucide.createIcons();
+}
+
+function completeTrace() {
+  if (!liveTraceGroup) return;
+  const group = liveTraceGroup;
+  liveTraceGroup = null;
+  const turn = group.closest('.chat-turn');
+  const avatar = turn && turn.querySelector('.agent-icon-wrap');
+  if (avatar) avatar.classList.remove('is-thinking');
+  if (group.dataset.userToggled === 'true') return; // sticky: respect the user's choice
+  renderTraceToggle(group, false); // auto-collapse on completion
 }
 
 // ── Artifact pointer card ──

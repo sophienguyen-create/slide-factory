@@ -1,4 +1,4 @@
-<!-- ONX Scaffold layout-shell.html — v4.1.0 — 2026-06-04 -->
+<!-- ONX Scaffold layout-shell.html — v4.2.0 — 2026-06-10 -->
 <!-- ═══════════════════════════════════════════════════════════════════
      LAYOUT SHELL — reference doc (read-only). One of two scaffold references:
        • template/layout-shell.html  → chrome + layout archetypes (THIS FILE)
@@ -21,8 +21,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="onx-scaffold-version" content="4.1.1">
-<meta name="onx-scaffold-released" content="2026-06-04">
+<meta name="onx-scaffold-version" content="4.2.0">
+<meta name="onx-scaffold-released" content="2026-06-10">
 <title>Layout Shell — ONX Scaffold</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +31,7 @@
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','Noto Sans JP','ui-sans-serif','system-ui','sans-serif'] } } } }</script>
 <!-- SHARED CORE — single source of truth. Inline this into the delivered demo. -->
-<link rel="stylesheet" href="core.css?v=4.1.1">
+<link rel="stylesheet" href="core.css?v=4.2.0">
 </head>
 <body class="flex flex-col" style="height:100vh;">
 
@@ -311,6 +311,31 @@
               <div class="bubble-actions user-actions">
                 <button class="btn-icon-sm" onclick="copyBubble(this)" title="Copy" aria-label="Copy"><i data-lucide="copy"></i></button>
                 <span class="bubble-actions-time" title="2026-05-27 09:00:12 UTC">9:00 AM</span>
+              </div>
+            </div>
+
+            <!-- Activity trace — collapsed run of intermediate agent steps (click to expand) -->
+            <div class="chat-turn">
+              <div class="flex items-start gap-3">
+                <div class="agent-icon-wrap flex-shrink-0 mt-0.5">
+                  <img src="onx-agent-icon.png" alt="AI Agent" class="agent-icon-img" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="trace-group" data-step-count="5" data-last-step="Calling Security Master via MCP gateway">
+                    <button class="trace-toggle" aria-expanded="false" onclick="toggleTrace(this)">
+                      <svg class="trace-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                      <span class="trace-label">5 steps</span>
+                      <span class="trace-toggle-peek">· Calling Security Master via MCP gateway</span>
+                    </button>
+                    <div class="trace-list" hidden>
+                      <div class="trace-line">Parsing the latest run request from Sarah…</div>
+                      <div class="trace-line"><div class="tool-call"><span class="tool-tag">TOOL</span>Querying exception queue for Run #0001</div></div>
+                      <div class="trace-line"><div class="tool-call"><span class="tool-tag">SQL</span>SELECT * FROM exceptions WHERE run_id = 1 AND severity = 'high'</div></div>
+                      <div class="trace-line">Classifying anomaly across Category A — 142 records…</div>
+                      <div class="trace-line"><div class="tool-call"><span class="tool-tag">MCP</span>Calling Security Master via MCP gateway</div></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

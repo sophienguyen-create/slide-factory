@@ -1,4 +1,4 @@
-<!-- ONX Scaffold design-system.html — v4.1.1 — 2026-06-09 -->
+<!-- ONX Scaffold design-system.html — v4.2.0 — 2026-06-10 -->
 <!-- ═══════════════════════════════════════════════════════════════════
      DESIGN SYSTEM — reference doc (read-only). One of two scaffold references:
        • template/layout-shell.html  → chrome + layout archetypes
@@ -15,8 +15,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="onx-scaffold-version" content="4.1.1">
-<meta name="onx-scaffold-released" content="2026-06-04">
+<meta name="onx-scaffold-version" content="4.2.0">
+<meta name="onx-scaffold-released" content="2026-06-10">
 <title>Design System — ONX Scaffold</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,7 +97,7 @@
     <span style="font-size:15px;font-weight:700;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--onx-teal),var(--onx-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">OneNexus</span>
     <span class="app-divider"></span>
     <span class="app-name">Design System</span>
-    <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:0.03em;">v4.1.1</span>
+    <span style="font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:0.03em;">v4.2.0</span>
   </div>
   <div class="flex items-center gap-2">
     <a href="../template/layout-shell.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;">
@@ -139,6 +139,8 @@
       <a href="#comp-timestamps" class="nav-item nav-item-sub" onclick="scrollTo('comp-timestamps',this)">Timestamps</a>
       <a href="#comp-hotkeys" class="nav-item nav-item-sub" onclick="scrollTo('comp-hotkeys',this)">Hotkeys</a>
       <a href="#comp-avatar" class="nav-item nav-item-sub" onclick="scrollTo('comp-avatar',this)">Avatar States</a>
+      <a href="#comp-tool-call" class="nav-item nav-item-sub" onclick="scrollTo('comp-tool-call',this)">Tool Call Block</a>
+      <a href="#comp-trace" class="nav-item nav-item-sub" onclick="scrollTo('comp-trace',this)">Activity Trace</a>
       <a href="#comp-sections" class="nav-item nav-item-sub" onclick="scrollTo('comp-sections',this)">Thread Sections</a>
       <a href="#comp-artifacts" class="nav-item nav-item-sub" onclick="scrollTo('comp-artifacts',this)">Artifact Cards</a>
       <a href="#comp-bubbles" class="nav-item nav-item-sub" onclick="scrollTo('comp-bubbles',this)">Bubble Actions</a>
@@ -748,6 +750,96 @@
         <div class="doc-rules">
           <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>All three states and their keyframe animations are strict. Do not modify glow colours, timing, or intensity.</div></div>
           <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Add <code>.is-thinking</code> when the AI is generating a response. Remove it when the response arrives. Never leave it permanently on.</div></div>
+        </div>
+      </section>
+
+      <!-- ═══ COMP: TOOL CALL BLOCK ═══ -->
+      <section id="comp-tool-call" class="doc-section">
+        <div class="doc-section-header"><h2>Tool Call Block</h2><span class="doc-badge doc-badge-strict">Strict</span></div>
+        <p class="doc-lead">Renders a single agent tool / system call — a query, an MCP call, an extraction step — as a distinct, machine-flavored line. Recessed fill with a left accent rail signals "this is tooling, not prose." Static output record: no hover or interactive state. The tag label is configurable (<code>TOOL</code>, <code>MCP</code>, <code>SQL</code>, …) but always short and uppercase.</p>
+        <div class="doc-demo">
+          <div style="max-width:480px;">
+            <div class="tool-call"><span class="tool-tag">TOOL</span>Applying eligibility rules: holder of record, min quantity…</div>
+            <div class="tool-call"><span class="tool-tag">MCP</span>Calling Security Master via MCP gateway</div>
+            <div class="tool-call"><span class="tool-tag">SQL</span>SELECT * FROM exceptions WHERE run_id = 1 AND severity = 'high'</div>
+          </div>
+        </div>
+        <details class="doc-code">
+          <summary>View markup + JS helper <button class="doc-code-copy" onclick="copyCode(this,'tool-call-code')">Copy</button></summary>
+          <pre id="tool-call-code">&lt;div class="tool-call"&gt;
+  &lt;span class="tool-tag"&gt;TOOL&lt;/span&gt;Applying eligibility rules: holder of record, min quantity…
+&lt;/div&gt;
+
+// or build it from JS:
+toolCallMarkup({ tag: 'MCP', body: 'Calling Security Master via MCP gateway' });</pre>
+        </details>
+        <div class="doc-rules">
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Block-level, one call per block. Monospace body, recessed <code>--surface-2</code> fill, 2px <code>--border-strong</code> left rail — don't restyle.</div></div>
+          <div class="doc-rule doc-rule-flex"><i data-lucide="check" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Flexible: the tag label and body text. Body may carry inline emphasis / HTML.</div></div>
+        </div>
+      </section>
+
+      <!-- ═══ COMP: ACTIVITY TRACE ═══ -->
+      <section id="comp-trace" class="doc-section">
+        <div class="doc-section-header"><h2>Activity Trace</h2><span class="doc-badge doc-badge-strict">Strict</span></div>
+        <p class="doc-lead">Collapses a run of intermediate agent steps (tool calls, system calls, reasoning lines) into one compact, indented, expandable cluster — so a long agent process reads as a clean spine of milestones with the detail tucked away on demand. The live (streaming) group auto-expands; it auto-collapses to <code>N steps · &lt;last step&gt;</code> on completion. Clicking toggles, and a manual choice sticks.</p>
+        <div class="doc-demo">
+          <div style="max-width:520px;display:flex;flex-direction:column;gap:24px;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--text-3);letter-spacing:0.06em;margin-bottom:6px;">COLLAPSED — click to expand</div>
+              <div class="trace-group" data-step-count="5" data-last-step="Calling Security Master via MCP gateway">
+                <button class="trace-toggle" aria-expanded="false" onclick="toggleTrace(this)">
+                  <svg class="trace-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                  <span class="trace-label">5 steps</span>
+                  <span class="trace-toggle-peek">· Calling Security Master via MCP gateway</span>
+                </button>
+                <div class="trace-list" hidden>
+                  <div class="trace-line">Parsing incoming request from Sarah Smith…</div>
+                  <div class="trace-line"><div class="tool-call"><span class="tool-tag">TOOL</span>Intent: tender offer eligibility</div></div>
+                  <div class="trace-line"><div class="tool-call"><span class="tool-tag">SQL</span>SELECT * FROM holdings WHERE record_date &lt;= cutoff</div></div>
+                  <div class="trace-line">Applying eligibility rules across 142 records…</div>
+                  <div class="trace-line"><div class="tool-call"><span class="tool-tag">MCP</span>Calling Security Master via MCP gateway</div></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--text-3);letter-spacing:0.06em;margin-bottom:6px;">LIVE — auto-expands while streaming, auto-collapses on completion</div>
+              <div class="trace-group" id="demo-live-trace" data-step-count="0" data-last-step="">
+                <button class="trace-toggle" aria-expanded="true" onclick="toggleTrace(this)">
+                  <svg class="trace-chevron is-open" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                  <span class="trace-label">Hide activity</span>
+                  <span class="trace-toggle-peek"></span>
+                </button>
+                <div class="trace-list"></div>
+              </div>
+              <button class="btn btn-secondary btn-sm" style="margin-top:10px;" onclick="playTraceDemo(this)">▶ Play live</button>
+            </div>
+          </div>
+        </div>
+        <details class="doc-code">
+          <summary>View markup + JS helpers <button class="doc-code-copy" onclick="copyCode(this,'trace-code')">Copy</button></summary>
+          <pre id="trace-code">// Static — render collapsed or expanded from an array of trace lines:
+traceGroupMarkup({
+  steps: [
+    'Parsing incoming request…',
+    toolCallMarkup({ tag: 'TOOL', body: 'Intent: tender offer eligibility' }),
+    toolCallMarkup({ tag: 'MCP', body: 'Calling Security Master via MCP gateway' }),
+  ],
+  open: false,   // collapsed → "3 steps · Calling Security Master…"
+});
+
+// Live — stream steps into the latest group, then collapse on completion:
+startTrace(messagesContainer);                 // appends an expanded live group
+addTraceStep('Parsing incoming request…');     // each call updates count + peek
+addTraceStep(toolCallMarkup({ tag: 'TOOL', body: 'Intent: tender offer eligibility' }));
+completeTrace();                               // auto-collapses (unless user toggled)
+
+// Manual toggle is wired via onclick="toggleTrace(this)" in the markup.</pre>
+        </details>
+        <div class="doc-rules">
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Toggle is a real <code>&lt;button&gt;</code> with <code>aria-expanded</code>. Chevron rotates 90° on open; the list sits behind a 1px <code>--border-subtle</code> rail, indented ~12px past the spine. No per-line timestamps or copy actions inside a trace — it's a detail view.</div></div>
+          <div class="doc-rule doc-rule-strict"><i data-lucide="lock" class="doc-rule-icon icon-sm" style="color:#F59E0B;"></i><div>Behaviour is strict: live group expanded, auto-collapse on completion, manual override sticks. Drive it with <code>startTrace</code> / <code>addTraceStep</code> / <code>completeTrace</code>.</div></div>
+          <div class="doc-rule doc-rule-flex"><i data-lucide="check" class="doc-rule-icon icon-sm" style="color:#10B981;"></i><div>Flexible: the step content — reasoning lines and the tags/bodies of any nested tool-call blocks.</div></div>
         </div>
       </section>
 
@@ -1627,6 +1719,63 @@ function typeDemoMsg() {
       }, 2200);
     }
   }, 38);
+}
+
+// ── Trace group demo (mirrors core.js toggleTrace / live state machine) ──
+function renderTraceToggle(group, open) {
+  if (!group) return;
+  const btn = group.querySelector('.trace-toggle');
+  const chevron = group.querySelector('.trace-chevron');
+  const label = group.querySelector('.trace-label');
+  const peek = group.querySelector('.trace-toggle-peek');
+  const list = group.querySelector('.trace-list');
+  const count = parseInt(group.dataset.stepCount || '0', 10);
+  const last = group.dataset.lastStep || '';
+  if (btn) btn.setAttribute('aria-expanded', String(open));
+  if (chevron) chevron.classList.toggle('is-open', open);
+  if (label) label.textContent = open ? 'Hide activity' : `${count} step${count === 1 ? '' : 's'}`;
+  if (peek) peek.textContent = open ? '' : (last ? `· ${last}` : '');
+  if (list) list.hidden = !open;
+}
+function toggleTrace(btn) {
+  const group = btn.closest('.trace-group');
+  if (!group) return;
+  const open = btn.getAttribute('aria-expanded') === 'true';
+  group.dataset.userToggled = 'true';
+  renderTraceToggle(group, !open);
+}
+function playTraceDemo(btn) {
+  const group = document.getElementById('demo-live-trace');
+  if (!group) return;
+  const list = group.querySelector('.trace-list');
+  list.innerHTML = '';
+  group.dataset.stepCount = '0';
+  group.dataset.userToggled = '';
+  renderTraceToggle(group, true); // auto-expand while live
+  btn.disabled = true;
+  const steps = [
+    'Parsing request and resolving intent…',
+    '<div class="tool-call"><span class="tool-tag">TOOL</span>Querying connected data sources</div>',
+    '<div class="tool-call"><span class="tool-tag">MCP</span>Calling Security Master via MCP gateway</div>',
+    'Synthesising response…',
+  ];
+  let i = 0;
+  const tick = () => {
+    if (i < steps.length) {
+      const line = document.createElement('div');
+      line.className = 'trace-line';
+      line.innerHTML = steps[i++];
+      list.appendChild(line);
+      group.dataset.stepCount = String(parseInt(group.dataset.stepCount || '0', 10) + 1);
+      group.dataset.lastStep = line.textContent.replace(/\s+/g, ' ').trim();
+      if (group.dataset.userToggled !== 'true') renderTraceToggle(group, true);
+      setTimeout(tick, 420);
+      return;
+    }
+    if (group.dataset.userToggled !== 'true') renderTraceToggle(group, false); // auto-collapse
+    btn.disabled = false;
+  };
+  setTimeout(tick, 300);
 }
 
 // ── Init ──

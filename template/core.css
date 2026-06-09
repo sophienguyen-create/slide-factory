@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   ONX Scaffold core.css — v4.1.1 — 2026-06-09
+   ONX Scaffold core.css — v4.2.0 — 2026-06-10
    SINGLE SOURCE OF TRUTH for brand tokens, components, layout, keyframes.
    This file is the canonical version stamp. Linked by template/layout-shell.html
    and docs/design-system.html; inlined into delivered single-file demos.
@@ -607,6 +607,80 @@
     padding-right: 24px;
   }
 
+
+
+  /* ═══════════════════════════════════════════════════
+     TOOL CALL + ACTIVITY TRACE
+     Machine-flavored output records inside a conversation.
+     All values reference existing tokens → dark mode is automatic.
+  ═══════════════════════════════════════════════════ */
+
+  /* Tool Call Block — one agent tool/system call, subordinate to prose */
+  .tool-call {
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    border-left: 2px solid var(--border-strong);
+    padding: 7px 10px;
+    margin: 2px 0;
+    font-family: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
+    font-size: 11px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+  .tool-call .tool-tag {
+    display: inline-block;
+    font-weight: 600;
+    color: var(--brand-primary);
+    letter-spacing: 0.04em;
+    margin-right: 6px;
+  }
+
+  /* Activity Trace Group — collapsible cluster of intermediate steps */
+  .trace-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-3);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px 0;
+    line-height: 1.3;
+    max-width: 100%;
+    transition: color 120ms ease;
+  }
+  .trace-toggle:hover { color: var(--text-1); }
+  .trace-toggle:hover .trace-chevron { color: var(--text-2); }
+  .trace-chevron {
+    color: var(--text-3);
+    flex-shrink: 0;
+    transition: transform 120ms ease, color 120ms ease;
+  }
+  .trace-chevron.is-open { transform: rotate(90deg); }
+  .trace-toggle-peek {
+    color: var(--text-3);
+    font-weight: 400;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .trace-list {
+    margin-top: 4px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .trace-list[hidden] { display: none; }
+  .trace-line {
+    font-size: 11.5px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+  .trace-line .tool-call { margin: 1px 0; font-size: 10.5px; }
 
 
   /* ═══════════════════════════════════════════════════
