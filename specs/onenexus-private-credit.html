@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OneNexus — Private Credit Management</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #1B6EF3;
+    --blue-light: #EBF2FF;
+    --blue-dark: #1558CC;
+    --navy: #0F1C36;
+    --teal: #00A693;
+    --teal-bg: #E6F7F5;
+    --red: #E53935;
+    --red-bg: #FFEBEE;
+    --orange: #F57C00;
+    --orange-bg: #FFF3E0;
+    --green: #2E7D32;
+    --green-bg: #E8F5E9;
+    --green-mid: #43A047;
+    --amber: #F9A825;
+    --amber-bg: #FFFDE7;
+    --gray-50: #F8F9FA;
+    --gray-100: #F1F3F5;
+    --gray-200: #E9ECEF;
+    --gray-300: #DEE2E6;
+    --gray-400: #CED4DA;
+    --gray-500: #ADB5BD;
+    --gray-600: #6C757D;
+    --gray-700: #495057;
+    --gray-800: #343A40;
+    --gray-900: #212529;
+    --sidebar-w: 220px;
+    --topbar-h: 56px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+  }
+
+  body { font-family: var(--font); font-size: 14px; color: var(--gray-900); background: var(--gray-50); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    height: var(--topbar-h); background: #fff; border-bottom: 1px solid var(--gray-200);
+    display: flex; align-items: center; padding: 0 20px; gap: 0; z-index: 100; flex-shrink: 0;
+  }
+  .topbar-logo { display: flex; align-items: center; gap: 10px; width: var(--sidebar-w); padding-right: 20px; border-right: 1px solid var(--gray-200); }
+  .logo-icon { width: 32px; height: 32px; background: var(--blue); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 20px; height: 20px; fill: #fff; }
+  .logo-name { font-weight: 700; font-size: 16px; color: var(--navy); letter-spacing: -.3px; }
+  .topbar-nav { display: flex; align-items: center; gap: 0; margin-left: 20px; }
+  .topbar-nav-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 14px; font-weight: 500; color: var(--gray-700); cursor: pointer; border-radius: 6px; }
+  .topbar-nav-item:hover { background: var(--gray-100); }
+  .topbar-nav-item.active { color: var(--blue); }
+  .topbar-nav-item svg { width: 14px; height: 14px; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .search-box { display: flex; align-items: center; gap: 8px; border: 1px solid var(--gray-300); border-radius: 6px; padding: 6px 12px; font-size: 13px; color: var(--gray-600); cursor: pointer; min-width: 160px; }
+  .search-box svg { width: 14px; height: 14px; opacity: .6; }
+  .lang-badge { font-size: 12px; font-weight: 600; color: var(--gray-700); padding: 4px 8px; border: 1px solid var(--gray-300); border-radius: 5px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  /* ── LAYOUT ── */
+  .app-body { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--gray-200);
+    display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+  }
+  .sidebar-section { padding: 8px 10px; }
+  .sidebar-section + .sidebar-section { border-top: 1px solid var(--gray-100); }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px;
+    cursor: pointer; color: var(--gray-700); font-size: 13.5px; font-weight: 450; transition: all .15s;
+  }
+  .nav-item:hover { background: var(--gray-100); color: var(--gray-900); }
+  .nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: .75; }
+  .nav-item.active svg { opacity: 1; }
+  .nav-item .chevron { margin-left: auto; width: 14px; height: 14px; opacity: .5; }
+  .nav-sub { padding-left: 38px; }
+  .nav-sub .nav-item { font-size: 13px; padding: 6px 10px; }
+  .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--gray-200); padding: 8px 10px; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .page { display: none; flex: 1; flex-direction: column; }
+  .page.active { display: flex; }
+
+  /* ── PAGE HEADER ── */
+  .page-header { padding: 16px 24px 0; display: flex; align-items: flex-start; justify-content: space-between; }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--gray-600); margin-bottom: 6px; }
+  .breadcrumb a { color: var(--blue); cursor: pointer; text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb-sep { color: var(--gray-400); }
+  .page-title { font-size: 22px; font-weight: 700; color: var(--gray-900); }
+  .page-meta { font-size: 12.5px; color: var(--gray-600); display: flex; gap: 16px; align-items: center; }
+  .page-meta svg { width: 13px; height: 13px; }
+
+  /* ── BUTTONS ── */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-dark); }
+  .btn-outline { background: #fff; color: var(--blue); border: 1.5px solid var(--blue); }
+  .btn-outline:hover { background: var(--blue-light); }
+  .btn-ghost { background: transparent; color: var(--gray-700); border: 1px solid var(--gray-300); }
+  .btn-ghost:hover { background: var(--gray-100); }
+  .btn-sm { padding: 5px 10px; font-size: 12.5px; }
+  .btn svg { width: 14px; height: 14px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); padding: 0 24px; margin-top: 12px; }
+  .tab { padding: 10px 16px; font-size: 14px; font-weight: 500; color: var(--gray-600); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+  .tab:hover { color: var(--gray-900); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+  .sub-tabs { display: flex; gap: 0; padding: 0 24px; margin-top: 4px; border-bottom: 1px solid var(--gray-200); }
+  .sub-tab { padding: 8px 14px; font-size: 13.5px; font-weight: 500; color: var(--gray-600); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .sub-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* ── CARDS ── */
+  .card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .card-sm { padding: 16px; }
+
+  /* ── STAT GRID ── */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 20px 24px; }
+  .stat-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
+  .stat-label { font-size: 12.5px; color: var(--gray-600); font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
+  .stat-label svg { width: 18px; height: 18px; color: var(--green-mid); }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--gray-900); margin: 8px 0 4px; letter-spacing: -.5px; }
+  .stat-sub { font-size: 12px; color: var(--gray-600); }
+  .stat-sub.up { color: var(--teal); }
+
+  /* ── DASHBOARD CONTENT ── */
+  .dash-row { display: grid; grid-template-columns: 1fr 420px; gap: 16px; padding: 0 24px 24px; flex: 1; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .section-title { font-size: 15px; font-weight: 600; color: var(--gray-900); }
+  .view-all { font-size: 12.5px; color: var(--blue); cursor: pointer; font-weight: 500; }
+
+  /* ── DEAL ROW ── */
+  .deal-list { display: flex; flex-direction: column; gap: 8px; }
+  .deal-row {
+    background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+    padding: 14px 16px; display: grid; grid-template-columns: 1fr auto; align-items: center;
+    cursor: pointer; transition: all .15s;
+  }
+  .deal-row:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(27,110,243,.08); }
+  .deal-name { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px; }
+  .deal-meta { font-size: 12.5px; color: var(--gray-600); display: flex; gap: 10px; align-items: center; }
+  .deal-info { font-size: 12.5px; color: var(--gray-600); display: flex; flex-direction: column; gap: 3px; align-items: flex-end; }
+  .deal-info-row { display: flex; gap: 6px; align-items: center; }
+  .deal-info-row svg { width: 12px; height: 12px; opacity: .7; }
+
+  /* ── BADGES ── */
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-orange { background: var(--orange-bg); color: var(--orange); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-gray { background: var(--gray-100); color: var(--gray-700); }
+  .badge-teal { background: var(--teal-bg); color: var(--teal); }
+  .badge-amber { background: var(--amber-bg); color: #7A5800; }
+  .risk-high { color: var(--red); font-weight: 600; font-size: 12.5px; }
+  .risk-medium { color: var(--orange); font-weight: 600; font-size: 12.5px; }
+  .risk-low { color: var(--green-mid); font-weight: 600; font-size: 12.5px; }
+
+  /* ── CHART MOCK ── */
+  .chart-bars { display: flex; align-items: flex-end; gap: 24px; height: 140px; padding: 0 10px; margin: 8px 0 4px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar { background: #3B82F6; border-radius: 3px 3px 0 0; width: 50px; }
+  .bar-label { font-size: 11px; color: var(--gray-600); }
+  .chart-y-labels { display: flex; flex-direction: column; justify-content: space-between; height: 140px; margin-right: 6px; }
+  .chart-y-label { font-size: 11px; color: var(--gray-500); }
+
+  /* ── ALERTS ── */
+  .alert-list { display: flex; flex-direction: column; gap: 10px; }
+  .alert-item { display: flex; gap: 10px; align-items: flex-start; }
+  .alert-icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alert-content {}
+  .alert-name { font-size: 13.5px; font-weight: 600; color: var(--gray-900); }
+  .alert-desc { font-size: 12.5px; color: var(--gray-600); margin-top: 1px; }
+  .alert-time { font-size: 11.5px; color: var(--gray-500); }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { padding: 10px 14px; text-align: left; font-size: 11.5px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--gray-200); background: var(--gray-50); white-space: nowrap; }
+  tbody td { padding: 11px 14px; font-size: 13.5px; color: var(--gray-800); border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  tbody tr:hover td { background: var(--gray-50); }
+  .file-link { color: var(--blue); cursor: pointer; font-weight: 500; }
+  .file-link:hover { text-decoration: underline; }
+
+  /* ── STATUS CHIPS ── */
+  .status-verified { background: var(--green-bg); color: var(--green); }
+  .status-needverify { background: var(--orange-bg); color: var(--orange); }
+  .status-fail { background: var(--red-bg); color: var(--red); }
+  .status-processing { background: var(--blue-light); color: var(--blue); }
+
+  /* ── FORM ── */
+  .form-section { padding: 24px; }
+  .form-section-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--gray-900); }
+  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+  .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.span-2 { grid-column: span 2; }
+  .form-group.span-3 { grid-column: span 3; }
+  label { font-size: 13px; font-weight: 500; color: var(--gray-700); }
+  input[type="text"], input[type="number"], input[type="date"], select, textarea {
+    border: 1px solid var(--gray-300); border-radius: 6px; padding: 8px 12px;
+    font-size: 13.5px; font-family: var(--font); color: var(--gray-900); outline: none;
+    transition: border-color .15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(27,110,243,.1); }
+  textarea { resize: vertical; min-height: 80px; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236C757D' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; cursor: pointer; }
+
+  /* ── SPREADING VIEW ── */
+  .spreading-layout { display: grid; grid-template-columns: 1fr 1fr; height: 100%; overflow: hidden; }
+  .spreading-left { border-right: 1px solid var(--gray-200); overflow-y: auto; }
+  .spreading-right { overflow-y: auto; background: var(--gray-50); }
+  .spreading-toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--gray-200); background: #fff; }
+  .spreading-toolbar select, .spreading-toolbar input { padding: 5px 10px; font-size: 13px; border: 1px solid var(--gray-300); border-radius: 5px; }
+  .spreading-title { font-size: 20px; font-weight: 700; padding: 16px 20px 8px; color: var(--gray-900); }
+  .spreading-subtitle { display: flex; justify-content: space-between; align-items: center; padding: 0 20px 12px; }
+  .spreading-table { width: 100%; border-collapse: collapse; }
+  .spreading-table td, .spreading-table th { padding: 8px 14px; font-size: 13px; border-bottom: 1px solid var(--gray-100); }
+  .spreading-table .row-label { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--blue); color: var(--blue); font-size: 12.5px; font-weight: 500; background: #fff; cursor: pointer; }
+  .spreading-table .row-label.header { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: 700; }
+  .spreading-table .row-label.indent1 { background: rgba(27,110,243,.07); border-color: rgba(27,110,243,.3); }
+  .bookmark-icon { width: 14px; height: 14px; cursor: pointer; opacity: .5; }
+  .bookmark-icon.filled { opacity: 1; color: var(--orange); }
+  .spreading-right-table { width: 100%; border-collapse: collapse; }
+  .spreading-right-table th { padding: 10px 14px; font-size: 12px; font-weight: 700; background: var(--navy); color: #fff; text-align: right; }
+  .spreading-right-table th:first-child { text-align: left; }
+  .spreading-right-table td { padding: 8px 14px; font-size: 13px; border-bottom: 1px solid var(--gray-100); text-align: right; }
+  .spreading-right-table td:first-child { text-align: left; font-weight: 500; }
+  .spreading-right-table .tag-row td { padding: 4px 14px; }
+  .cell-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; background: var(--blue-light); color: var(--blue); font-size: 11.5px; font-weight: 500; border: 1px solid rgba(27,110,243,.2); }
+  .cell-tag .x { cursor: pointer; font-size: 11px; opacity: .7; }
+  .add-item { font-size: 12px; color: var(--gray-500); cursor: pointer; }
+  .add-item:hover { color: var(--blue); }
+  .cell-highlight { background: rgba(245,124,0,.15) !important; }
+
+  /* ── PDF PANEL ── */
+  .pdf-panel { background: #525659; min-height: 400px; }
+  .pdf-toolbar { background: #3d3f40; display: flex; align-items: center; gap: 8px; padding: 6px 12px; }
+  .pdf-toolbar-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+  .pdf-toolbar-sep { width: 1px; height: 20px; background: #666; margin: 0 4px; }
+  .pdf-page { background: #fff; margin: 16px auto; max-width: 600px; padding: 40px; min-height: 700px; box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+  .pdf-page h3 { font-size: 15px; font-weight: 700; text-align: center; color: #cc0000; border-bottom: 2px solid #cc0000; padding-bottom: 6px; margin-bottom: 16px; }
+  .pdf-page p { font-size: 12px; line-height: 1.6; color: #222; margin-bottom: 8px; }
+  .pdf-page table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+  .pdf-page table th { background: #f0f0f0; padding: 6px 10px; text-align: left; border: 1px solid #ddd; font-weight: 600; }
+  .pdf-page table td { padding: 5px 10px; border: 1px solid #ddd; }
+  .hsbc-logo { text-align: right; font-size: 18px; font-weight: 900; color: #c0392b; letter-spacing: 2px; margin-bottom: 16px; }
+
+  /* ── IC MEMO ── */
+  .memo-content { padding: 24px; max-width: 900px; }
+  .memo-content h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  .memo-content p { font-size: 13.5px; line-height: 1.6; color: var(--gray-800); margin-bottom: 12px; }
+  .key-terms-box { background: var(--blue-light); border: 1px solid rgba(27,110,243,.2); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+  .key-terms-box h3 { font-size: 13.5px; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+  .key-terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .key-term-item { font-size: 13px; }
+  .key-term-label { color: var(--gray-600); }
+  .key-term-value { font-weight: 600; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-badge { background: var(--amber-bg); color: #7A5800; border: 1px solid var(--amber); border-radius: 20px; padding: 4px 12px; font-size: 12.5px; font-weight: 600; }
+
+  /* ── APPROVAL TABLE ── */
+  .approval-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  .approval-table th { background: var(--gray-50); padding: 9px 14px; font-size: 11.5px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--gray-200); }
+  .approval-table td { padding: 11px 14px; font-size: 13.5px; border-bottom: 1px solid var(--gray-100); }
+  select.decision-select { border: 1px solid var(--gray-300); border-radius: 5px; padding: 4px 8px; font-size: 13px; }
+
+  /* ── RISK PAGE ── */
+  .risk-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; padding: 20px 24px; }
+  .risk-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: all .15s; }
+  .risk-card:hover { box-shadow: var(--shadow-md); }
+  .risk-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .risk-card-company { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+  .risk-card-desc { font-size: 12.5px; color: var(--gray-600); line-height: 1.4; }
+  .risk-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: var(--gray-500); }
+
+  /* ── UTILS ── */
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .ml-auto { margin-left: auto; }
+  .p-6 { padding: 24px; }
+  .pb-0 { padding-bottom: 0; }
+  .mt-2 { margin-top: 8px; }
+  .mt-4 { margin-top: 16px; }
+  .text-sm { font-size: 12.5px; }
+  .text-gray { color: var(--gray-600); }
+  .font-bold { font-weight: 700; }
+  .divider { border: none; border-top: 1px solid var(--gray-200); margin: 16px 0; }
+  .content-area { padding: 0 24px 24px; flex: 1; overflow-y: auto; }
+  .scroll-area { overflow-y: auto; flex: 1; }
+
+  /* ── DEAL INTAKE FORM FILE LIST ── */
+  .file-upload-item { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 6px; margin-bottom: 8px; font-size: 13.5px; color: var(--gray-700); }
+  .file-upload-item svg { width: 16px; height: 16px; color: var(--blue); opacity: .8; }
+  .file-remove { margin-left: auto; cursor: pointer; opacity: .5; }
+  .file-remove:hover { opacity: 1; }
+
+  /* Subject group rows */
+  .subject-group td:first-child { font-weight: 700; color: var(--gray-900); vertical-align: middle; }
+  .ai-generated-badge { background: var(--green-bg); color: var(--green-mid); border: 1px solid rgba(67,160,71,.3); padding: 2px 8px; border-radius: 4px; font-size: 11.5px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="logo-name">OneNexus</span>
+  </div>
+  <nav class="topbar-nav">
+    <div class="topbar-nav-item active" onclick="switchProduct('pcm')">
+      Private Credit Management
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <div class="topbar-nav-item" onclick="switchProduct('ai')">AI Monitoring</div>
+  </nav>
+  <div class="topbar-right">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Search
+    </div>
+    <div class="lang-badge">EN</div>
+    <div class="avatar">N</div>
+  </div>
+</header>
+
+<div class="app-body">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('deal-intake')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Deal Intake
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="nav-sub">
+        <div class="nav-item" onclick="showPage('underwriting')">Financial Spreading</div>
+        <div class="nav-item" onclick="showPage('icmemo')">Investment Memo</div>
+        <div class="nav-item">IC Review</div>
+      </div>
+      <div class="nav-item" onclick="showPage('portfolio')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        Portfolio Management
+      </div>
+      <div class="nav-item" onclick="showPage('risk')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.29 3.86-8.27 14A2 2 0 0 0 3.73 21h16.54a2 2 0 0 0 1.71-3.14L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Risk Alerts
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Exit Planning
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Settings
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ═══════════════════════════════════════════════ DASHBOARD ═══ -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div></div>
+        <button class="btn btn-primary" onclick="showPage('deal-intake-form')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Deal Intake
+        </button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total AUM <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div class="stat-value">$1.2B</div>
+          <div class="stat-sub up">+12.5% from last quarter</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Deals <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div class="stat-value">247</div>
+          <div class="stat-sub text-gray">8 in due diligence</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Deal Size <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div class="stat-value">$9.7M</div>
+          <div class="stat-sub up">+12.5% from last quarter</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Risk Alerts <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div class="stat-value">12</div>
+          <div class="stat-sub" style="color:var(--red)">3 require immediate attention</div>
+        </div>
+      </div>
+
+      <div class="dash-row">
+        <!-- Left: Recent Activity -->
+        <div>
+          <div class="section-header">
+            <span class="section-title">Recent Deal Activity</span>
+            <span class="view-all">View All</span>
+          </div>
+          <div class="deal-list">
+            <div class="deal-row" onclick="showPage('deal-detail')">
+              <div>
+                <div class="deal-name">APEX MANUFACTURING, INC. <span class="badge badge-gray" style="margin-left:6px">Under Review</span></div>
+                <div class="deal-meta">Manufacturing &bull; $25M &bull; <span class="risk-medium">Medium Risk</span></div>
+              </div>
+              <div class="deal-info">
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Analyst: Sarah Chen</div>
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2025-06-10 09:06</div>
+              </div>
+            </div>
+            <div class="deal-row">
+              <div>
+                <div class="deal-name">MOUNTAIN MANUFACTURING <span class="badge badge-green" style="margin-left:6px">Approved</span></div>
+                <div class="deal-meta">Industrial Equipment &bull; $50M &bull; <span class="risk-low">Low Risk</span></div>
+              </div>
+              <div class="deal-info">
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Analyst: Mike Rodriguez</div>
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2025-06-10 08:54</div>
+              </div>
+            </div>
+            <div class="deal-row">
+              <div>
+                <div class="deal-name">RETAILMAX CORP <span class="badge badge-blue" style="margin-left:6px">Due Diligence</span></div>
+                <div class="deal-meta">Retail &amp; Consumer &bull; $15M &bull; <span class="risk-high">High Risk</span></div>
+              </div>
+              <div class="deal-info">
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Analyst: Emma Thompson</div>
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2025-06-10 08:32</div>
+              </div>
+            </div>
+            <div class="deal-row">
+              <div>
+                <div class="deal-name">HEALTHTECH INNOVATIONS <span class="badge badge-amber" style="margin-left:6px">Term Sheet</span></div>
+                <div class="deal-meta">Healthcare Technology &bull; $30M &bull; <span class="risk-medium">Medium Risk</span></div>
+              </div>
+              <div class="deal-info">
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Analyst: David Kim</div>
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2025-06-10 08:10</div>
+              </div>
+            </div>
+            <div class="deal-row">
+              <div>
+                <div class="deal-name">SOFTWARE DYNAMICS <span class="badge badge-gray" style="margin-left:6px">Under Review</span></div>
+                <div class="deal-meta">Healthcare Technology &bull; $30M &bull; <span class="risk-high">High Risk</span></div>
+              </div>
+              <div class="deal-info">
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Analyst: Emma Thompson</div>
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2025-06-10 07:40</div>
+              </div>
+            </div>
+            <div class="deal-row">
+              <div>
+                <div class="deal-name">MANUFACTURING PLUS <span class="badge badge-blue" style="margin-left:6px">Due Diligence</span></div>
+                <div class="deal-meta">Industrial &bull; $45M &bull; <span class="risk-medium">Medium Risk</span></div>
+              </div>
+              <div class="deal-info">
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Analyst: David Kim</div>
+                <div class="deal-info-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2025-06-10 07:25</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Portfolio Distribution + Alerts -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div class="section-header">
+              <span class="section-title">Portfolio Distribution</span>
+              <span class="view-all">View All</span>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:0;height:160px;padding-top:10px;">
+              <div style="display:flex;flex-direction:column;justify-content:space-between;height:140px;margin-right:8px;text-align:right;">
+                <span class="chart-y-label">60</span>
+                <span class="chart-y-label">45</span>
+                <span class="chart-y-label">30</span>
+                <span class="chart-y-label">15</span>
+                <span class="chart-y-label">0</span>
+              </div>
+              <div style="flex:1;display:flex;align-items:flex-end;gap:20px;height:140px;border-left:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200);padding:0 10px;">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+                  <div style="width:100%;background:#3B82F6;border-radius:3px 3px 0 0;height:85px;"></div>
+                  <span style="font-size:11px;color:var(--gray-600);text-align:center">Opportunistic</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+                  <div style="width:100%;background:#3B82F6;border-radius:3px 3px 0 0;height:50px;"></div>
+                  <span style="font-size:11px;color:var(--gray-600);text-align:center">Real Estate</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+                  <div style="width:100%;background:#3B82F6;border-radius:3px 3px 0 0;height:38px;"></div>
+                  <span style="font-size:11px;color:var(--gray-600);text-align:center">Special Situations</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-header">
+              <span class="section-title">Alerts</span>
+              <span class="view-all">View All</span>
+            </div>
+            <div class="alert-list">
+              <div class="alert-item">
+                <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="#F57C00" stroke-width="2"><path d="m10.29 3.86-8.27 14A2 2 0 0 0 3.73 21h16.54a2 2 0 0 0 1.71-3.14L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span class="alert-name">RetailMax Corp</span><span class="alert-time">2 hours ago</span></div>
+                  <div class="alert-desc">Covenant breach risk - EBITDA trending below minimum</div>
+                </div>
+              </div>
+              <hr class="divider" style="margin:6px 0">
+              <div class="alert-item">
+                <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="#F57C00" stroke-width="2"><path d="m10.29 3.86-8.27 14A2 2 0 0 0 3.73 21h16.54a2 2 0 0 0 1.71-3.14L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span class="alert-name">Software Dynamics</span><span class="alert-time">1 day ago</span></div>
+                  <div class="alert-desc">Customer concentration increased to 65%</div>
+                </div>
+              </div>
+              <hr class="divider" style="margin:6px 0">
+              <div class="alert-item">
+                <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="#F57C00" stroke-width="2"><path d="m10.29 3.86-8.27 14A2 2 0 0 0 3.73 21h16.54a2 2 0 0 0 1.71-3.14L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span class="alert-name">Manufacturing Plus</span><span class="alert-time">3 days ago</span></div>
+                  <div class="alert-desc">Capex covenant approaching limit</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ DEAL INTAKE FORM ═══ -->
+    <section class="page" id="page-deal-intake-form">
+      <div class="page-header pb-0" style="padding-bottom:0">
+        <div>
+          <div class="breadcrumb"><a onclick="showPage('dashboard')">Dashboard</a><span class="breadcrumb-sep">›</span><span>New Deal Intake</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="showPage('deal-detail')">Save &amp; Continue</button>
+      </div>
+
+      <div style="overflow-y:auto;flex:1;padding:0 24px 24px">
+        <!-- Uploaded Files -->
+        <div style="margin-top:16px">
+          <div class="file-upload-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            q42024_eng.pdf
+            <span class="file-remove">✕</span>
+          </div>
+          <div class="file-upload-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            financial_forecast_2023-2025.pdf
+            <span class="file-remove">✕</span>
+          </div>
+        </div>
+
+        <!-- Deal & Transaction Details -->
+        <div style="margin-top:20px">
+          <div class="form-section-title">Deal &amp; Transaction Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Deal Name / ID</label>
+              <input type="text" placeholder="Internal reference">
+            </div>
+            <div class="form-group">
+              <label>Deal Type</label>
+              <select><option>000-00-0000</option><option>Direct Lending</option><option>Mezzanine</option><option>Unitranche</option></select>
+            </div>
+            <div class="form-group">
+              <label>Purpose of Financing</label>
+              <select><option value="">Select purpose</option><option>Acquisition</option><option>Growth Capital</option><option>Refinancing</option></select>
+            </div>
+          </div>
+          <div class="form-grid" style="grid-template-columns:1fr 120px 1fr">
+            <div class="form-group">
+              <label>Deal Size</label>
+              <input type="number" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <select><option>USD</option><option>EUR</option><option>GBP</option></select>
+            </div>
+            <div class="form-group">
+              <label>Tenor / Maturity Date</label>
+              <input type="date" placeholder="mm/dd/yyyy">
+            </div>
+          </div>
+          <div class="form-grid form-grid-2">
+            <div class="form-group">
+              <label>Interest Rate Type</label>
+              <select><option value="">Select type</option><option>Fixed</option><option>Floating (SOFR)</option><option>PIK</option></select>
+            </div>
+            <div class="form-group">
+              <label>Deal Stage</label>
+              <select><option value="">Select stage</option><option>Screening</option><option>Due Diligence</option><option>Term Sheet</option><option>Closing</option></select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label>Collateral / Security Package</label>
+            <textarea placeholder="Describe the security package..."></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label>Syndication Information</label>
+            <textarea placeholder="Co-lenders / participants involved..."></textarea>
+          </div>
+        </div>
+
+        <!-- Risk Factors -->
+        <div style="margin-top:8px">
+          <div class="form-section-title">Risk Factors</div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label>Covenant Requirements</label>
+            <textarea placeholder="If known, describe covenant requirements..."></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label>Regulatory Considerations</label>
+            <textarea placeholder="Licenses, approvals needed..."></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label>Market Conditions / Competitive Landscape</label>
+            <textarea placeholder="Notes on market conditions and competitive landscape..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Additional Notes</label>
+            <textarea placeholder="Any other relevant information..."></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ DEAL DETAIL — DOCUMENTS ═══ -->
+    <section class="page" id="page-deal-detail">
+      <div class="page-header pb-0">
+        <div>
+          <div class="breadcrumb"><a onclick="showPage('dashboard')">Deal Intake</a><span class="breadcrumb-sep">›</span><span>Case ID L-2025-1001</span></div>
+          <div class="page-title" style="margin-top:4px">Apex Manufacturing, Inc.</div>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab" onclick="showPage('deal-origination')">Deal Origination</div>
+        <div class="tab active">Documents</div>
+        <div class="tab">Overall Assessment</div>
+        <div class="tab" onclick="showPage('icmemo')">IC Memo</div>
+        <div class="tab">Monitoring &amp; Actions</div>
+      </div>
+      <div class="sub-tabs">
+        <div class="sub-tab active">Classification</div>
+        <div class="sub-tab" onclick="showPage('underwriting')">Financial Spreading</div>
+        <div class="sub-tab">Validation</div>
+        <div style="margin-left:auto;padding:8px 0">
+          <button class="btn btn-outline btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit
+          </button>
+        </div>
+      </div>
+
+      <div class="content-area" style="padding-top:16px">
+        <div class="table-wrap card" style="padding:0;overflow:hidden">
+          <table>
+            <thead>
+              <tr>
+                <th>SUBJECT</th>
+                <th>ID</th>
+                <th>REQUIRED DOCUMENT</th>
+                <th>UPLOADED FILE</th>
+                <th>UPLOADER</th>
+                <th>ISSUED DATE</th>
+                <th>AI STATUS</th>
+                <th>REMARKS</th>
+                <th><span class="ai-generated-badge">AI-Generated</span></th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="3" class="subject-group" style="background:var(--gray-50);font-weight:700">Corporate &amp; Organizational</td>
+                <td>A01</td><td>Certificate of Registration</td><td><span class="file-link">KZ ACRA May 2023</span></td><td>Borrower</td><td>01-2025</td>
+                <td><span class="badge badge-green status-verified">Verified</span></td><td style="font-size:12px">ACRA connect</td><td></td><td></td>
+              </tr>
+              <tr>
+                <td>A02</td><td>Shareholder Agreements</td><td><span class="file-link">KZ_M&amp;AA</span></td><td>Borrower</td><td>01-12-2018</td>
+                <td><span class="badge badge-green status-verified">Verified</span></td><td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td>A03</td><td>Corporate Organizational Chart</td><td><span class="file-link">KZ Trading Certifica…</span></td><td>Borrower</td><td>15-03-2015</td>
+                <td><span class="badge badge-green status-verified">Verified</span></td><td style="font-size:12px">ACRA connect</td><td></td><td></td>
+              </tr>
+              <tr>
+                <td rowspan="4" class="subject-group" style="background:var(--gray-50);font-weight:700">Financial &amp; Accounting</td>
+                <td>B02</td><td>Audited Financial Statements</td><td><span class="file-link">KZ_Certificate of Inc…</span></td><td>Relationship Manager</td><td>31-12-2024</td>
+                <td><span class="badge badge-orange status-needverify">Need Verify</span></td><td></td><td></td>
+                <td><button class="btn btn-outline btn-sm">Verify</button></td>
+              </tr>
+              <tr>
+                <td>B02</td><td>Latest Interim Financials statements</td><td><span class="file-link">Phone Bill Nov23</span></td><td>Borrower</td><td>01-01-2025</td>
+                <td><span class="badge badge-red status-fail">Fail</span></td><td style="font-size:12px">Wrong document submitted</td><td></td>
+                <td><button class="btn btn-outline btn-sm" style="color:var(--orange);border-color:var(--orange)">Reupload</button></td>
+              </tr>
+              <tr>
+                <td>B03</td><td>Tax Returns</td><td><span class="file-link">LXL_IC</span></td><td>Borrower</td><td>01-02-2023</td>
+                <td><span class="badge badge-green status-verified">Verified</span></td><td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td>B04</td><td>Bank Statements</td><td><span class="file-link">LXL_IC</span></td><td>Borrower</td><td>01-01-2025</td>
+                <td><span class="badge badge-green status-verified">Verified</span></td><td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td rowspan="5" class="subject-group" style="background:var(--gray-50);font-weight:700">Deal &amp; Credit Information</td>
+                <td>C01</td><td>Loan application form</td><td><span class="file-link">THS_IC</span></td><td>Legal Counsel</td><td>01-02-2023</td>
+                <td><span class="badge badge-orange status-needverify">Need Verify</span></td><td></td><td></td>
+                <td><button class="btn btn-outline btn-sm">Verify</button></td>
+              </tr>
+              <tr>
+                <td>C02</td><td>Credit memo</td><td><span class="file-link">THS_IC</span></td><td>Relationship Manager</td><td>01-01-2025</td>
+                <td><span class="badge badge-orange status-needverify">Need Verify</span></td><td></td><td></td>
+                <td><button class="btn btn-outline btn-sm">Verify</button></td>
+              </tr>
+              <tr>
+                <td>C03</td><td>Term sheet</td><td><span class="file-link">KZ_FS 2023</span></td><td>Borrower</td><td>31-01-2023</td>
+                <td><span class="badge badge-orange status-needverify">Need Verify</span></td><td style="font-size:12px">Address different from Certificate of In…</td><td></td>
+                <td><button class="btn btn-outline btn-sm">Verify</button></td>
+              </tr>
+              <tr>
+                <td>C04</td><td>Collateral details</td><td><span class="file-link">KZ_FS 2023</span></td><td>Legal Counsel</td><td>31-01-2024</td>
+                <td><span class="badge badge-green status-verified">Verified</span></td><td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td>C05</td><td>Guarantees</td><td><span class="file-link">KZ_FS 2023</span></td><td>Legal Counsel</td><td>31-01-2024</td>
+                <td><span class="badge badge-green status-verified">Verified</span></td><td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td rowspan="2" class="subject-group" style="background:var(--gray-50);font-weight:700">Legal &amp;</td>
+                <td>D01</td><td>Existing loan agreements</td><td><span class="file-link">KZ_FS 2023</span></td><td>Underwriter</td><td>31-01-2024</td>
+                <td><span class="badge badge-green status-verified">Verified</span></td><td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td>D02</td><td>Contracts with major customers</td><td><span class="file-link">KZ_FS 2023</span></td><td>Underwriter</td><td>31-01-2024</td>
+                <td><span class="badge status-processing" style="background:var(--blue-light);color:var(--blue)">Processing</span></td><td></td><td></td><td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ FINANCIAL SPREADING ═══ -->
+    <section class="page" id="page-underwriting">
+      <div class="page-header pb-0">
+        <div>
+          <div class="breadcrumb"><a onclick="showPage('dashboard')">Deal Intake</a><span class="breadcrumb-sep">›</span><span>Case ID L-2025-1001</span></div>
+          <div class="page-title" style="margin-top:4px">Apex Manufacturing, Inc.</div>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab">Deal Origination</div>
+        <div class="tab active" onclick="showPage('deal-detail')">Documents</div>
+        <div class="tab">Overall Assessment</div>
+        <div class="tab" onclick="showPage('icmemo')">IC Memo</div>
+        <div class="tab">Monitoring &amp; Actions</div>
+      </div>
+      <div class="sub-tabs">
+        <div class="sub-tab" onclick="showPage('deal-detail')">Classification</div>
+        <div class="sub-tab active">Financial Spreading</div>
+        <div class="sub-tab">Validation</div>
+        <div style="margin-left:auto;padding:8px 0">
+          <button class="btn btn-outline btn-sm">Spreading ▾</button>
+        </div>
+      </div>
+
+      <!-- Spreading Split Layout -->
+      <div class="spreading-layout" style="flex:1;overflow:hidden">
+        <!-- Left: Balance Sheet Editor -->
+        <div class="spreading-left">
+          <div class="spreading-toolbar">
+            <select style="font-weight:700"><option>BS</option><option>IS</option><option>CF</option></select>
+            <select><option>USD</option><option>EUR</option></select>
+            <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--gray-300);border-radius:5px;padding:5px 10px;flex:1;font-size:13px;color:var(--gray-500)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Search Account Item
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer;opacity:.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer;opacity:.6"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="spreading-title">Balance sheet</div>
+          <div class="spreading-subtitle">
+            <span></span>
+            <select style="border:1px solid var(--gray-300);padding:5px 28px 5px 10px;border-radius:5px;font-size:13px"><option>Thousand</option><option>Million</option></select>
+          </div>
+
+          <table class="spreading-table">
+            <thead>
+              <tr style="background:var(--gray-50)">
+                <th style="font-size:12.5px;color:var(--gray-600);font-weight:600;padding:8px 14px;border-bottom:1px solid var(--gray-200)">Account Item</th>
+                <th style="text-align:right;font-size:12.5px;color:var(--gray-600);font-weight:600;padding:8px 14px;border-bottom:1px solid var(--gray-200)">2023</th>
+                <th style="text-align:right;font-size:12.5px;color:var(--gray-600);font-weight:600;padding:8px 14px;border-bottom:1px solid var(--gray-200)">2022</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="row-label header">≡ ASSETS</span></td><td></td><td><svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></td></tr>
+              <tr><td style="padding-left:28px"><span class="row-label indent1">≡ Non-current assets</span></td><td></td><td><svg class="bookmark-icon filled" viewBox="0 0 24 24" fill="#F57C00" stroke="#F57C00" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></td></tr>
+              <tr><td style="padding-left:44px"><span class="row-label indent1">≡ Property, plant and equipment</span></td><td style="text-align:right;font-size:13px">33,193,338</td><td style="text-align:right;font-size:13px;background:rgba(245,124,0,.12)"><strong>27,262,054</strong></td></tr>
+              <tr><td style="padding-left:44px"><span class="row-label indent1">≡ Right-of-use assets</span></td><td style="text-align:right;font-size:13px">984,814</td><td style="text-align:right;font-size:13px">1,423,866</td></tr>
+              <tr><td style="padding-left:44px"><span class="row-label indent1">≡ Investment in subsidiaries</span></td><td></td><td><svg class="bookmark-icon filled" viewBox="0 0 24 24" fill="#F57C00" stroke="#F57C00" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></td></tr>
+              <tr><td style="padding-left:44px"><span class="row-label indent1">≡ Other assets</span></td><td></td><td><svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></td></tr>
+              <tr><td><span class="row-label">≡</span></td><td style="text-align:right;font-size:13px">34,178,152</td><td style="text-align:right;font-size:13px">28,685,920</td></tr>
+              <tr><td><span class="row-label indent1">≡ Derivative financial assets</span></td><td style="text-align:right;font-size:13px">889,317</td><td style="text-align:right;font-size:13px">1,133,410</td></tr>
+              <tr><td><span class="row-label indent1">≡</span></td><td style="text-align:right;font-size:13px">119,470,161</td><td style="text-align:right;font-size:13px">201,422,427</td></tr>
+              <tr><td><span class="row-label indent1">≡ Total assets</span></td><td style="text-align:right;font-size:13px">153,648,313</td><td style="text-align:right;font-size:13px">230,108,347</td></tr>
+              <tr><td><span class="row-label header">≡ LIABILITIES</span></td><td></td><td><svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></td></tr>
+              <tr><td style="padding-left:28px"><span class="row-label indent1">≡ Non-current liabilities</span></td><td></td><td><svg class="bookmark-icon filled" viewBox="0 0 24 24" fill="#F57C00" stroke="#F57C00" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></td></tr>
+              <tr><td style="padding-left:44px"><span class="row-label indent1">≡ Lease liabilities</span></td><td style="text-align:right;font-size:13px">434,716</td><td style="text-align:right;font-size:13px">883,291</td></tr>
+              <tr><td style="padding-left:44px"><span class="row-label indent1">≡ Bank borrowings</span></td><td style="text-align:right;font-size:13px">5,775,000</td><td style="text-align:right;font-size:13px">6,875,000</td></tr>
+              <tr><td><span class="row-label indent1">≡</span></td><td style="text-align:right;font-size:13px">6,209,716</td><td style="text-align:right;font-size:13px">7,758,291</td></tr>
+              <tr><td style="padding-left:28px"><span class="row-label indent1">≡ Current liabilities</span></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+
+          <!-- PDF Panel below -->
+          <div style="border-top:1px solid var(--gray-200)">
+            <div class="pdf-toolbar">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <span style="color:#ccc;font-size:12px">87 / 124</span>
+              <div class="pdf-toolbar-sep"></div>
+              <span style="color:#ccc;font-size:12px">90%</span>
+              <div class="pdf-toolbar-sep"></div>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            </div>
+            <div style="background:#525659;padding:16px;font-size:12px;color:#ccc;text-align:center;min-height:100px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+              <div style="background:#fff;max-width:480px;width:100%;padding:20px;text-align:left;color:#222">
+                <div style="font-weight:700;font-size:13px;margin-bottom:6px">LIABILITIES</div>
+                <div style="font-weight:700;font-size:12px;margin-bottom:4px">Non-current liabilities</div>
+                <table style="width:100%;font-size:11px;border-collapse:collapse">
+                  <tr><td>Lease liabilities</td><td style="text-align:right">23(b)</td><td style="text-align:right">434,716</td><td style="text-align:right">883,291</td><td style="text-align:right">286,542</td><td style="text-align:right">585,882</td></tr>
+                  <tr><td>Bank borrowings</td><td style="text-align:right">21</td><td style="text-align:right">5,775,000</td><td style="text-align:right">6,875,000</td><td style="text-align:right">–</td><td style="text-align:right">–</td></tr>
+                  <tr style="border-top:1px solid #ddd"><td></td><td></td><td style="text-align:right;font-weight:700">6,209,716</td><td style="text-align:right;font-weight:700">7,758,291</td><td style="text-align:right;font-weight:700">286,542</td><td style="text-align:right;font-weight:700">585,882</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Standardised Mapping -->
+        <div class="spreading-right">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--gray-200);background:#fff">
+            <select style="border:1px solid var(--gray-300);padding:5px 28px 5px 10px;border-radius:5px;font-size:13.5px;font-weight:600"><option>Balance Sheet</option><option>Income Statement</option><option>Cash Flow</option></select>
+            <div style="display:flex;gap:8px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer;opacity:.6"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer;opacity:.6"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            </div>
+          </div>
+          <table class="spreading-right-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Standardised Template</th>
+                <th>2023</th>
+                <th>2022</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="font-weight:700;color:var(--gray-900)">Total Current Assets</td><td>119,470,161</td><td>201,422,427</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="cell-tag">Current assets <span class="x">×</span></span></td></tr>
+              <tr><td style="padding-left:20px;color:var(--gray-500);font-size:12px"><span class="cell-tag" style="background:transparent;border:1px dashed var(--gray-300);color:var(--gray-500)">×</span></td><td>119,470,161</td><td>201,422,427</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="add-item">+ Add new Accounting item</span></td></tr>
+              <tr><td style="color:var(--gray-500);font-size:12px">N/A</td><td>N/A</td><td>N/A</td></tr>
+              <tr><td style="font-weight:700;color:var(--gray-900)">Cash</td><td>78,376,335</td><td>62,190,753</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="cell-tag">Cash and cash equivalents <span class="x">×</span></span></td></tr>
+              <tr><td style="padding-left:20px">78,376,335</td><td>78,376,335</td><td>62,190,753</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="add-item">+ Add new Accounting item</span></td></tr>
+              <tr><td style="color:var(--gray-500);font-size:12px">N/A</td><td>N/A</td><td>N/A</td></tr>
+              <tr><td style="font-weight:700;color:var(--gray-900)">Accounts Receivables</td><td>17,073,159</td><td>44,732,317</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="cell-tag">Trade receivables <span class="x">×</span></span></td></tr>
+              <tr><td style="padding-left:20px">17,073,159</td><td>17,073,159</td><td>44,732,317</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="add-item">+ Add new Accounting item</span></td></tr>
+              <tr><td style="color:var(--gray-500);font-size:12px">N/A</td><td>N/A</td><td>N/A</td></tr>
+              <tr><td style="font-weight:700;color:var(--gray-900)">Inventories</td><td>20,887,489</td><td>84,129,044</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="cell-tag">Inventories <span class="x">×</span></span></td></tr>
+              <tr><td style="padding-left:20px">20,887,489</td><td>20,887,489</td><td>84,129,044</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="add-item">+ Add new Accounting item</span></td></tr>
+              <tr><td style="font-weight:700;color:var(--gray-900)">Other Current Assets</td><td>3,133,178</td><td>10,370,313</td></tr>
+              <tr><td style="font-weight:700;color:var(--gray-900)">Total Non-Current Assets</td><td>34,178,152</td><td>28,685,920</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="cell-tag">Non-current assets <span class="x">×</span></span></td></tr>
+              <tr><td style="padding-left:20px;color:var(--gray-500)"><span class="cell-tag" style="background:transparent;border:1px dashed var(--gray-300);color:var(--gray-500)">×</span></td><td>34,178,152</td><td>28,685,920</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="add-item">+ Add new Accounting item</span></td></tr>
+              <tr><td style="font-weight:700;color:var(--gray-900)">Fixed Assets</td><td>34,178,152</td><td>28,685,920</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="cell-tag">Property, plant and equipment <span class="x">×</span></span></td></tr>
+              <tr><td style="padding-left:20px">33,193,338</td><td>33,193,338</td><td class="cell-highlight">27,262,054</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="cell-tag">Right-of-use assets <span class="x">×</span></span></td></tr>
+              <tr><td style="padding-left:20px">984,814</td><td>984,814</td><td>1,423,866</td></tr>
+              <tr class="tag-row"><td colspan="3" style="padding-left:20px"><span class="add-item">+ Add new Accounting item</span></td></tr>
+              <tr><td style="font-weight:700;color:var(--gray-900)">Other Non-Current Assets</td><td>0</td><td>0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ IC MEMO ═══ -->
+    <section class="page" id="page-icmemo">
+      <div class="page-header pb-0">
+        <div>
+          <div class="breadcrumb"><a onclick="showPage('dashboard')">Deal Intake</a><span class="breadcrumb-sep">›</span><span>Case ID L-2025-1001</span></div>
+          <div class="page-title" style="margin-top:4px">Apex Manufacturing, Inc.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="progress-badge">In Progress (6/8)</span>
+          <button class="btn btn-ghost btn-sm">📄</button>
+          <button class="btn btn-ghost btn-sm">⬇️</button>
+          <button class="btn btn-outline btn-sm">✏️ Edit</button>
+          <button class="btn btn-primary" style="background:#1B6EF3">Submit for Approval</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab">Deal Origination</div>
+        <div class="tab" onclick="showPage('deal-detail')">Documents</div>
+        <div class="tab">Overall Assessment</div>
+        <div class="tab active">IC Memo</div>
+        <div class="tab">Monitoring &amp; Actions</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 520px;flex:1;overflow:hidden">
+        <!-- Left: Memo Content -->
+        <div style="overflow-y:auto;padding:24px;border-right:1px solid var(--gray-200)">
+          <!-- Approval table -->
+          <table class="approval-table">
+            <thead>
+              <tr><th>RECOMMEND</th><th>COMMENT</th><th>LAST UPDATED</th><th>AUTHORITY</th><th>DECISION</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Approve</td>
+                <td>Income Statement</td>
+                <td>21/04/2025 10:19</td>
+                <td>James – Loan Officer</td>
+                <td><select class="decision-select"><option>Pending</option><option>Approve</option><option>Reject</option></select></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr class="divider">
+
+          <!-- Analysis Summary -->
+          <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:18px;margin-bottom:20px;position:relative">
+            <div style="font-size:15px;font-weight:700;margin-bottom:10px">Analysis Summary</div>
+            <p style="font-size:13.5px;line-height:1.7;color:var(--gray-800)">
+              While certain risks exist around customer concentration and capex covenants, these are manageable and well-mitigated through our proposed structure and ongoing monitoring requirements
+            </p>
+            <div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#22C55E" stroke="none"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4" stroke="#fff" stroke-width="2" fill="none"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;cursor:pointer"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;cursor:pointer"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.09"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;cursor:pointer"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;cursor:pointer"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            </div>
+          </div>
+
+          <!-- Key Terms -->
+          <div class="key-terms-box" style="margin-bottom:20px">
+            <div class="key-terms-box" style="background:transparent;border:none;padding:0">
+              <h3>Key Terms Summary</h3>
+              <div class="key-terms-grid">
+                <div class="key-term-item"><span class="key-term-label">Amount: </span><span class="key-term-value">$25M</span></div>
+                <div class="key-term-item"><span class="key-term-label">Rate: </span><span class="key-term-value">L+450bps</span></div>
+                <div class="key-term-item"><span class="key-term-label">Term: </span><span class="key-term-value">5 years</span></div>
+                <div class="key-term-item"><span class="key-term-label">Structure: </span><span class="key-term-value">Senior Credit</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Approval table 2 -->
+          <table class="approval-table" style="margin-bottom:20px">
+            <thead>
+              <tr><th>RECOMMEND</th><th>COMMENT</th><th>LAST UPDATED</th><th>AUTHORITY</th><th>DECISION</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Approve</td>
+                <td>Income Statement</td>
+                <td>21/04/2025 10:19</td>
+                <td>James – Loan Officer</td>
+                <td><select class="decision-select"><option>Pending</option><option>Approve</option><option>Reject</option></select></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Underwriter Recommendation -->
+          <div class="memo-content" style="padding:0">
+            <h2>Underwriter Recommendation</h2>
+            <p><strong>Key Investment Strengths</strong><br>
+            - Strong Growth Profile: 17.4% revenue CAGR with improving unit economics<br>
+            - Recurring Revenue Model: 85% of revenue from annual subscriptions with 95% retention<br>
+            - Market Position: Leading solution in HR analytics with defensible technology moat<br>
+            - Experienced Management: Proven leadership team with prior exits<br>
+            - Conservative Leverage: 1.45x Debt/EBITDA well below covenant of 3.0x</p>
+
+            <p><strong>Key Risk Factors</strong><br>
+            - Customer Concentration: Top 3 customers represent 45% of revenue<br>
+            - Competitive Market: Increasing competition from larger players<br>
+            - Capex Covenant: Projected 2025 capex may approach covenant limits<br>
+            - Key Person Risk: Heavy dependence on founder-CEO</p>
+
+            <p><strong>Recommendation</strong><br>
+            Based on our comprehensive analysis, we recommend APPROVAL of the $25M senior credit facility. The company demonstrates strong fundamentals, conservative leverage, and multiple paths to debt service. While certain risks exist around customer concentration and capex covenants, these are manageable and well-mitigated through our proposed structure and ongoing monitoring requirements</p>
+
+            <!-- Conditions of Approval -->
+            <h2 style="margin-top:20px">Conditions of Approval</h2>
+            <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:16px;position:relative">
+              <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:1.6;color:var(--gray-800)">
+                <li>Please confirm your plan to reduce the outstanding credit card balance.</li>
+                <li>The approved loan will be structured with a repayment amount not exceeding £225/month.</li>
+                <li>We ask that you maintain a minimum savings balance of £1,000 during the loan period.</li>
+                <li>No additional unsecured borrowing should be undertaken in the first 12 months.</li>
+                <li>Should freelance income fall below £300/month for three consecutive months, please notify us and provide updated income documentation.</li>
+              </ol>
+              <div style="position:absolute;right:14px;top:16px;display:flex;flex-direction:column;gap:6px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#22C55E" stroke="none"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4" stroke="#fff" stroke-width="2" fill="none"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.09"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Memo Preview (PDF) -->
+        <div style="overflow-y:auto;background:#525659">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);">
+            <div style="font-size:14px;font-weight:600;color:var(--gray-900)">Memo Preview</div>
+            <button class="btn btn-ghost btn-sm" style="padding:4px;">✕</button>
+          </div>
+          <div class="pdf-toolbar">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span style="color:#ccc;font-size:12px">1 / 1</span>
+            <div class="pdf-toolbar-sep"></div>
+            <span style="color:#ccc;font-size:12px">90%</span>
+          </div>
+          <div class="pdf-page" style="margin:12px auto;max-width:460px;padding:32px">
+            <div class="hsbc-logo">HSBC</div>
+            <p style="font-size:11px;text-align:right;margin-bottom:16px">5 July 2025</p>
+            <p style="font-size:11.5px;margin-bottom:16px">Mrs. Angela Zoe<br>42 Highbury Lane,<br>London,<br>N5 1RA</p>
+            <div class="pdf-page" style="padding:0;box-shadow:none">
+              <h3>CREDIT DECISION MEMORANDUM</h3>
+              <p><strong>Re: Personal Loan Application – Reference: PL-2025-001234 Account Number: 60344285 | Sort Code: 22-08-03</strong></p>
+              <p>Dear Mrs Angela Zoe,<br>We are writing to formally summarize the credit assessment and decision regarding your recent loan application, submitted on 20th April 2025, for the purpose of home renovation.</p>
+              <table>
+                <thead><tr><th>Application Details</th><th>Information</th></tr></thead>
+                <tbody>
+                  <tr><td>Application Date</td><td>20/04/2025</td></tr>
+                  <tr><td>Requested Amount</td><td>£8,500</td></tr>
+                  <tr><td>Loan Purpose</td><td>Home Renovation</td></tr>
+                  <tr><td>Interest Rate (APR)</td><td>6.5% fixed APR</td></tr>
+                  <tr><td>Loan Term</td><td>48 months</td></tr>
+                  <tr><td>Monthly Payment</td><td>£235</td></tr>
+                </tbody>
+              </table>
+              <p style="margin-top:10px;font-size:11px;line-height:1.5">Based on your application and Open Banking data, your income and expense profile demonstrates overall affordability, and your excellent credit score reflects strong creditworthiness. All submitted documents and account activity align with your declarations, with no inconsistencies noted…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ RISK ALERTS ═══ -->
+    <section class="page" id="page-risk">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Risk Alerts</div>
+          <p style="font-size:13px;color:var(--gray-600);margin-top:4px">12 active alerts — 3 require immediate attention</p>
+        </div>
+        <button class="btn btn-outline">Configure Alerts</button>
+      </div>
+      <div class="risk-grid">
+        <div class="risk-card" style="border-left:3px solid var(--red)">
+          <div class="risk-card-header">
+            <div>
+              <div class="risk-card-company">RetailMax Corp</div>
+              <span class="badge badge-red" style="margin-top:4px">High Priority</span>
+            </div>
+            <span style="font-size:11.5px;color:var(--gray-500)">2 hrs ago</span>
+          </div>
+          <div class="risk-card-desc">Covenant breach risk — EBITDA trending below minimum covenant threshold of 2.5x. Current: 2.1x.</div>
+          <div class="risk-card-footer">
+            <span>Analyst: Emma Thompson</span>
+            <button class="btn btn-primary btn-sm">Review</button>
+          </div>
+        </div>
+        <div class="risk-card" style="border-left:3px solid var(--red)">
+          <div class="risk-card-header">
+            <div>
+              <div class="risk-card-company">Software Dynamics</div>
+              <span class="badge badge-red" style="margin-top:4px">High Priority</span>
+            </div>
+            <span style="font-size:11.5px;color:var(--gray-500)">1 day ago</span>
+          </div>
+          <div class="risk-card-desc">Customer concentration increased to 65% — exceeds 50% maximum covenant threshold.</div>
+          <div class="risk-card-footer">
+            <span>Analyst: Sarah Chen</span>
+            <button class="btn btn-primary btn-sm">Review</button>
+          </div>
+        </div>
+        <div class="risk-card" style="border-left:3px solid var(--orange)">
+          <div class="risk-card-header">
+            <div>
+              <div class="risk-card-company">Manufacturing Plus</div>
+              <span class="badge badge-orange" style="margin-top:4px">Medium Priority</span>
+            </div>
+            <span style="font-size:11.5px;color:var(--gray-500)">3 days ago</span>
+          </div>
+          <div class="risk-card-desc">Capex covenant approaching limit. Projected 2025 capex at 92% of maximum allowance.</div>
+          <div class="risk-card-footer">
+            <span>Analyst: David Kim</span>
+            <button class="btn btn-outline btn-sm">Review</button>
+          </div>
+        </div>
+        <div class="risk-card" style="border-left:3px solid var(--orange)">
+          <div class="risk-card-header">
+            <div>
+              <div class="risk-card-company">HealthTech Innovations</div>
+              <span class="badge badge-orange" style="margin-top:4px">Medium Priority</span>
+            </div>
+            <span style="font-size:11.5px;color:var(--gray-500)">5 days ago</span>
+          </div>
+          <div class="risk-card-desc">Revenue growth slowing — Q2 2025 revenue grew 4.2% YoY vs. 17.4% in prior year.</div>
+          <div class="risk-card-footer">
+            <span>Analyst: Mike Rodriguez</span>
+            <button class="btn btn-outline btn-sm">Review</button>
+          </div>
+        </div>
+        <div class="risk-card" style="border-left:3px solid var(--amber)">
+          <div class="risk-card-header">
+            <div>
+              <div class="risk-card-company">Apex Manufacturing</div>
+              <span class="badge badge-amber" style="margin-top:4px">Low Priority</span>
+            </div>
+            <span style="font-size:11.5px;color:var(--gray-500)">1 week ago</span>
+          </div>
+          <div class="risk-card-desc">Management change — CFO resigned, interim CFO appointed. No material credit impact expected.</div>
+          <div class="risk-card-footer">
+            <span>Analyst: Emma Thompson</span>
+            <button class="btn btn-ghost btn-sm">Acknowledge</button>
+          </div>
+        </div>
+        <div class="risk-card" style="border-left:3px solid var(--gray-300)">
+          <div class="risk-card-header">
+            <div>
+              <div class="risk-card-company">Mountain Manufacturing</div>
+              <span class="badge badge-gray" style="margin-top:4px">Monitoring</span>
+            </div>
+            <span style="font-size:11.5px;color:var(--gray-500)">2 weeks ago</span>
+          </div>
+          <div class="risk-card-desc">Scheduled quarterly financial review due. All covenants in compliance as of last review.</div>
+          <div class="risk-card-footer">
+            <span>Analyst: David Kim</span>
+            <button class="btn btn-ghost btn-sm">Schedule</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════ PORTFOLIO ═══ -->
+    <section class="page" id="page-portfolio">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Portfolio Management</div>
+          <p style="font-size:13px;color:var(--gray-600);margin-top:4px">247 active positions &bull; $1.2B AUM</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost">Export</button>
+          <button class="btn btn-primary">+ Add Position</button>
+        </div>
+      </div>
+      <div class="content-area" style="padding-top:16px">
+        <div class="card" style="padding:0;overflow:hidden">
+          <table>
+            <thead>
+              <tr>
+                <th>COMPANY</th><th>INDUSTRY</th><th>DEAL SIZE</th><th>STRUCTURE</th><th>STATUS</th><th>RISK</th><th>ANALYST</th><th>MATURITY</th><th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600">Apex Manufacturing, Inc.</td>
+                <td>Manufacturing</td><td>$25M</td><td>Senior Secured</td>
+                <td><span class="badge badge-gray">Under Review</span></td>
+                <td><span class="risk-medium">Medium</span></td>
+                <td>Sarah Chen</td><td>Jun 2029</td>
+                <td><button class="btn btn-outline btn-sm" onclick="showPage('deal-detail')">View</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Mountain Manufacturing</td>
+                <td>Industrial Equip.</td><td>$50M</td><td>Unitranche</td>
+                <td><span class="badge badge-green">Approved</span></td>
+                <td><span class="risk-low">Low</span></td>
+                <td>Mike Rodriguez</td><td>Mar 2028</td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">RetailMax Corp</td>
+                <td>Retail &amp; Consumer</td><td>$15M</td><td>Mezzanine</td>
+                <td><span class="badge badge-blue">Due Diligence</span></td>
+                <td><span class="risk-high">High</span></td>
+                <td>Emma Thompson</td><td>Dec 2027</td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">HealthTech Innovations</td>
+                <td>Healthcare Tech</td><td>$30M</td><td>Senior Secured</td>
+                <td><span class="badge badge-amber">Term Sheet</span></td>
+                <td><span class="risk-medium">Medium</span></td>
+                <td>David Kim</td><td>Aug 2030</td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Software Dynamics</td>
+                <td>Healthcare Tech</td><td>$30M</td><td>Subordinated</td>
+                <td><span class="badge badge-gray">Under Review</span></td>
+                <td><span class="risk-high">High</span></td>
+                <td>Emma Thompson</td><td>Nov 2028</td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Manufacturing Plus</td>
+                <td>Industrial</td><td>$45M</td><td>Senior Secured</td>
+                <td><span class="badge badge-blue">Due Diligence</span></td>
+                <td><span class="risk-medium">Medium</span></td>
+                <td>David Kim</td><td>Feb 2029</td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const pages = ['dashboard','deal-intake-form','deal-detail','underwriting','icmemo','risk','portfolio','deal-origination'];
+
+  function showPage(id) {
+    // hide all
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // show target
+    const target = document.getElementById('page-' + id);
+    if (target) target.classList.add('active');
+
+    // update sidebar active state
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const map = {
+      'dashboard': 0, 'deal-intake-form': 1, 'deal-detail': 1, 'underwriting': 1,
+      'icmemo': 1, 'risk': 4, 'portfolio': 3
+    };
+    const sidebarItems = document.querySelectorAll('.sidebar .nav-item');
+    if (map[id] !== undefined && sidebarItems[map[id]]) {
+      sidebarItems[map[id]].classList.add('active');
+    }
+  }
+
+  function switchProduct(p) {
+    if (p === 'ai') alert('Switching to AI Monitoring module…');
+  }
+</script>
+</body>
+</html>

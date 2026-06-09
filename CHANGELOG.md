@@ -2,6 +2,9 @@
 
 ## v4.1.1 — 2026-06-09
 
+### Fixed
+- **docs/design-system.html**: Corrected misplaced `</div>` in History & Nav Controls section that left the prompt input bar block outside `.doc-demo`, causing `.doc-rules` callout banners to overflow the content column width.
+
 ### Changed
 - **Top nav bar**: left zone fixed at `width:200px; box-sizing:border-box` (matches `#sidebar` width) so `.app-divider` aligns flush with the sidebar's right border. `pl-4` moved off `<nav>` into the left-zone div. App name gains `ml-3` (12px) gap from the divider.
 - **Logo variants**: `onx-logo.png` replaced by `onx-logo-full-color.png` (light mode) and `onx-logo-white.png` (dark mode). Dark-mode swap rules (`.logo-light`/`.logo-dark`) moved into `core.css` dark-mode block — no more inline `<style>` in layout-shell.
