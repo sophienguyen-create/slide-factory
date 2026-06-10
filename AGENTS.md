@@ -334,7 +334,48 @@ Once inputs are confirmed:
 
 ## Iteration After First Delivery
 
-Patch only what changes — don't regenerate the whole file:
+### Phase 1 — Read ground truth first (always)
+
+Before touching any delivered app, read the four reference sources in order:
+
+1. `template/core.css` — version stamp and token changes
+2. `CHANGELOG.md` — what changed between the app's version and the current version
+3. `docs/design-system.html` — updated components, new classes, removed patterns
+4. `template/layout-shell.html` — structural or chrome changes
+
+Do **not** skip this step even for small edits. The delivered app may be behind the current scaffold version; without reading the references you will propagate stale patterns.
+
+### Phase 2 — Propose an Editing Plan
+
+Output a concise plan, then **stop**:
+
+```markdown
+## Editing Plan: [App Name]
+
+### Scaffold version in delivered app: vX.X.X
+### Current scaffold version: vX.X.X
+### Version delta (if any): [list relevant changes from CHANGELOG.md that affect this app]
+
+### Requested changes
+| # | Change | Where | Notes |
+|---|--------|-------|-------|
+| 1 | [description] | [page / component] | [any constraints] |
+
+### Additional fixes (scaffold drift)
+| # | Fix | Why |
+|---|-----|-----|
+| 1 | [e.g. replace deprecated .old-class with .new-class] | [found in design-system diff] |
+
+Reply **approved** to apply these changes, or describe what to adjust.
+```
+
+Do **not** edit any file until the user replies with an explicit approval.
+
+### Phase 3 — Apply changes
+
+Patch only what is listed in the approved Editing Plan — don't regenerate the whole file. Update the version stamp in the file's first-line comment to match the current scaffold version after applying any scaffold-drift fixes.
+
+Examples of iteration requests:
 - *"Update the data integration list to include [X]"*
 - *"Change the user persona to [Y]"*
 - *"Rename the 'Exceptions' page to 'Flags'"*
