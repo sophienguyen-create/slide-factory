@@ -1,5 +1,20 @@
 # Changelog
 
+## v4.2.0 — 2026-06-10
+
+### Added
+- **Tool Call Block** (`.tool-call` + `.tool-tag`): a recessed, monospace, left-railed line that renders a single agent tool / system call as a static output record. Tag label is configurable (`TOOL`, `MCP`, `SQL`, …). All styling references existing tokens, so dark mode is automatic.
+- **Activity Trace Group** (`.trace-group`, `.trace-toggle`, `.trace-chevron`, `.trace-toggle-peek`, `.trace-list`, `.trace-line`): collapses a run of intermediate agent steps into one compact, expandable cluster behind a chevron toggle. Reuses the existing `.thinking-dots` indicator as its live companion.
+- **core.js**: new locked APIs — `toolCallMarkup()`, `traceGroupMarkup()`, `toggleTrace()`, plus the live state machine `startTrace()` / `addTraceStep()` / `completeTrace()` (live group auto-expands; auto-collapses to `N steps · <last>` on completion; a manual toggle sticks). `sendMessage()` now streams a live trace during the thinking window instead of the bare dots.
+- **docs/design-system.html**: new **Tool Call Block** (`#comp-tool-call`) and **Activity Trace** (`#comp-trace`) gallery sections with live demos (including a "Play live" trace), markup + JS snippets, and rules. Sidebar nav links added under Chat Patterns.
+- **template/layout-shell.html**: seeded a collapsed trace group into the `#page-agent` starter conversation so it ships in every delivered demo.
+
+### Notes
+- No new design tokens — the components reuse `--surface-2`, `--border-strong`, `--border-subtle`, `--brand-primary`, `--text-1/2/3`, `--radius-sm` (all already dark-mode aware).
+- Aligns the `core.js` header version stamp (was lagging at v4.1.0).
+
+---
+
 ## v4.1.1 — 2026-06-09
 
 ### Fixed

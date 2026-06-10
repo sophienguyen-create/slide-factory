@@ -176,8 +176,9 @@ Copy `<!-- NEW PAGE TEMPLATE -->` (at the bottom of layout-shell.html). Choose c
 | Brand | `--brand-*` CSS vars (the one editable block), OneNexus `<img>` logo | core.css / layout-shell.html |
 | Layout | `.app-nav`, `aside#sidebar`, `.flat-panel`, `.flat-panel-right`, `p-3 gap-3` wrapper | core.css / layout-shell.html |
 | Chat | `.chat-turn`, `.bubble-actions`, `.bubble-actions-time`, `.agent-icon-*`, `.artifact-pointer`, `.thread-section`, `.typewriter-*` | core.css / layout-shell.html |
-| Animations | `@keyframes aiGlowIdle`, `aiGlowThinking`, `aiGlowHero` | core.css |
-| JS APIs | `formatMessageTime()`, `bubbleActionsMarkup()`, `userTurnMarkup()`, `aiTurnMarkup()`, `aiThinkingMarkup()`, `threadSectionMarkup()`, `artifactPointerMarkup()`, `copyBubble()`, `showSources()`, `startTypewriter()`, `stopTypewriter()`, `typewriterTypeMessage()`, `toggleHistory()`, `toggleArtifact()`, `showNewChat()` | core.js |
+| Trace / tool calls | `.tool-call`, `.tool-tag`, `.trace-group`, `.trace-toggle`, `.trace-chevron`, `.trace-toggle-peek`, `.trace-list`, `.trace-line` | core.css / layout-shell.html |
+| Animations | `@keyframes aiGlowIdle`, `aiGlowThinking`, `aiGlowHero`, `thinkingPulse` | core.css |
+| JS APIs | `formatMessageTime()`, `bubbleActionsMarkup()`, `userTurnMarkup()`, `aiTurnMarkup()`, `aiThinkingMarkup()`, `threadSectionMarkup()`, `artifactPointerMarkup()`, `copyBubble()`, `showSources()`, `startTypewriter()`, `stopTypewriter()`, `typewriterTypeMessage()`, `toggleHistory()`, `toggleArtifact()`, `showNewChat()`, `toolCallMarkup()`, `traceGroupMarkup()`, `toggleTrace()`, `startTrace()`, `addTraceStep()`, `completeTrace()` | core.js |
 
 ---
 
