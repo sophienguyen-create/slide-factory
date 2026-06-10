@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.2.1 — 2026-06-10
+
+### Changed
+- **docs/design-system.html**: moved **Top Nav Bar** from the Chat Patterns section into Page Components. All components within each section are now sorted alphabetically.
+
+---
+
 ## v4.2.0 — 2026-06-10
 
 ### Added
