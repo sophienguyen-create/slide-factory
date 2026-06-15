@@ -1,10 +1,10 @@
-# Delivered app outputs — not reference material.
-# Excluding prevents the agent from reading past deliveries
-# and inferring wrong UI behaviour or components from them.
+# Delivered decks — outputs, not reference material.
+# Excluding prevents the agent from reading past deliveries and
+# copying stale content or layouts into a new build.
 apps/
 
-# Client spec files — read explicitly when needed, not auto-indexed.
-# Prevents past specs from bleeding domain vocabulary or UI patterns
-# into a new build. The agent reads the relevant spec via an explicit
-# Read call when the user points to it.
+# Input drafts — read explicitly when named, not auto-indexed.
+# There may be several drafts in specs/; the agent reads only the one
+# the user points to, via an explicit Read call. Keeping them out of
+# the index stops past drafts from bleeding content into a new build.
 specs/

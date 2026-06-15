@@ -1,19 +1,28 @@
-# ONX Scaffold Skill
+# Slide Factory
 
 ## Role
-Build **OneNexus-branded demo apps** for client presentations. **Select and compose** from two reference docs — never adapt a single content template. Always produce a Build Plan and get approval before writing HTML. Build and review one page at a time.
+Turn a **draft input deck** into a polished, **Nexus Frontier–branded** slide presentation.
+The input is a file the user points to in `specs/` (a `.pptx`, markdown outline, or notes) —
+**a verbal description or chat prompt is not an input and is not sufficient to begin.** Always
+produce a Build Plan and get approval before building any slides. Build the deck, run the
+brand-fidelity check, and deliver a native `.pptx` to `apps/`.
 
-## Inputs — two references + a shared core
+## Inputs — brand references + the named draft
 
 | File | Role | How you use it |
 |------|------|----------------|
-| `template/layout-shell.html` | **Layout shell** — header, navbar, page wrapper, and the two layout archetypes: **canvas** (`#page-agent`, chat + artifact) and **document** (`#page-settings`, sub-nav + panels). Canonical home of the locked chat scaffold. | Pick an archetype per page; use this file as the **assembly skeleton**. |
-| `docs/design-system.html` | **Design system** — branding (`--brand-*`) + the component gallery, each badged **Strict** (don't alter) or **Flexible** (adapt). | Pick components + branding for custom pages. |
-| `template/core.css` + `template/core.js` | **Shared core** (single source of truth) — all tokens, component/layout CSS, keyframes, and the locked JS APIs. Carries the canonical version stamp. | **Inline** into the delivered single-file demo. Never edit except the `--brand-*` block. |
-| `template/onx-logo-full-color.png` + `template/onx-logo-white.png` + `template/onx-agent-icon.png` | **Image assets** — the OneNexus logo (full-colour for light mode, white for dark mode) and AI-agent icon, referenced by `layout-shell.html` as `<img src>`. | **Inline** (re-encode to data-URI) into the delivered demo so it stays self-contained. |
-| Client spec | **A file** from `specs/` (markdown doc, demo HTML, or JSX). A verbal description or chat prompt is not a spec and is not sufficient to begin. | Drives content, vocabulary, pages, and interactions. |
+| `template/brand-core.md` | **Brand core** — the condensed, build-facing token set: colors, type scale, separators, the 5 layout archetypes, status pills, footer/copyright, logo rules. Carries the canonical version stamp. | The single source of truth you apply to **every** slide. Read it first. |
+| `docs/nexus-frontier-brand-guidelines.md` | **Design-system reference** — the full guidelines (rationale, every token, component patterns, voice & content rules). | Read for detail when the brand-core is not specific enough. If it ever disagrees with brand-core, the guidelines win. |
+| `template/NFTLogo_Horizontal_FullColour.png` + `template/NFTLogo_Vertical_FullColour.png` | **Brand logos** — full-colour horizontal + vertical lockups. | Embed per the logo rules in brand-core (vertical lockup top-right on the cover). |
+| Input draft | **A file** from `specs/` (`.pptx`, `.md`, or notes). | Drives content, structure, vocabulary, and the slide-by-slide map. Read it **only when the user names it** — see the rule below. |
 
-⚠️ **Do not read any files in `apps/`.** Delivered apps are client outputs, not references. Reading them causes wrong inference about UI behaviour and components. The only authoritative sources are the two reference docs + core above.
+⚠️ **Do not read any files in `apps/`.** Delivered decks are outputs, not references —
+reading them leads to copying stale content. The authoritative sources are the brand-core,
+the guidelines, the logos, and the named input draft.
+
+⚠️ **Read the input on demand only.** `specs/` is excluded from the auto-index
+(`.claudeignore`). There may be several drafts in `specs/`; **the user names which one to
+use** and you read that file explicitly. Never auto-load every spec.
 
 ---
 
@@ -21,42 +30,43 @@ Build **OneNexus-branded demo apps** for client presentations. **Select and comp
 
 ### Phase 1 — Read inputs
 
-1. Read `docs/design-system.html` — the component gallery — to decide which components each page uses
-2. Read `template/layout-shell.html` — to choose a **canvas** or **document** archetype per page and see the locked chrome
-3. Read the client spec: product name, domain vocabulary, key screens, user persona, and — critically — **every interaction** (clicks, drill-downs, filters, modals)
-4. Read nothing else — do not browse `apps/` or any other file unless explicitly asked
+1. Read `template/brand-core.md` — the tokens and archetypes you'll apply to every slide.
+2. Read the **named** input draft from `specs/`. Extract: deck title, audience, every slide's
+   purpose and content, the structural sequence, and any data (numbers, tables, owners, dates).
+3. Consult `docs/nexus-frontier-brand-guidelines.md` only where you need more detail than the
+   brand-core provides.
+4. Read nothing else — do not browse `apps/` or other specs.
 
 ### Phase 2 — Build Plan
 
-Output the Build Plan, then **stop**. Do not write any HTML until the user explicitly approves the plan.
+Output the Build Plan, then **stop**. Do not build any slides until the user explicitly approves.
 
 ```markdown
-## Build Plan: [App Name]
+## Build Plan: [Deck Title]
 
-### App Identity
-- App name: [name]
-- User persona: [name + initials]
-- Typewriter prompts: ["...", "...", "..."]
-- Suggestion pills: ["...", "...", "..."]
+### Deck Identity
+- Title: [title]
+- Audience: [who it's for]
+- Source draft: specs/[filename]
+- Slide count: [n]
 
-### Pages
-| Page | Archetype | Purpose | UI components (from design-system.html) |
-|------|-----------|---------|------------------------------------------|
-| Agent | canvas | [description] | thread list, suggestion pills |
-| [Custom page 1] | document | [description] | .kpi-card ×3, .data-table, etc |
-| [Custom page 2] | document | [description] | .workflow-row, .status-pill, etc |
-| Settings | document | pre-wired | org name, team, connectors only |
+### Slide Map
+| # | Slide | Archetype | Bg | Content summary | Brand notes |
+|---|-------|-----------|----|-----------------|-------------|
+| 1 | [name] | Dark Cover | dark | title + subtitle + pipeline footer | vertical logo top-right + contact block, copyright footer |
+| 2 | [name] | Two-Column Content | light | [what's on it] | lime left label column |
+| 3 | [name] | Horizontal Card Row | light | [cards] | lime number badges |
+| … | | | | | |
 
-### Interactions
-| Trigger | Behaviour |
-|---------|-----------|
-| Click row in [page] | [what opens — detail page / panel / modal] |
-| Click [button] | [modal with openModal() / page nav / inline toggle] |
-| [filter chip] | [JS filter on visible rows] |
+### Brand Application
+- Accent: lime `#C2CF24` only
+- Eyebrows: ALL-CAPS, separators `·` `—` `→` `›`
+- Footer: © 2026 Nexus Frontier Tech | Confidential
+- Logo: vertical lockup, top-right on the cover
 
 ### Clarifying Questions
-1. [Any gaps from spec]
-2. [Any new UI components required]
+1. [Any gaps in the draft — missing numbers, owners, dates]
+2. [Any slide whose archetype is ambiguous]
 ```
 
 End the Build Plan with:
@@ -65,319 +75,117 @@ End the Build Plan with:
 Reply **approved** to begin building, or request changes to the plan.
 ```
 
-**Do not write any HTML until the user replies with an explicit approval.**
+**Do not build any slides until the user replies with an explicit approval.**
 
-### Phase 3 — Build page by page
+### Phase 3 — Build the deck
 
-Build one page at a time in the order listed in the Build Plan. After each page:
+Generate the deck as a **native `.pptx`** using the **pptx skill** (read its `SKILL.md`
+first — use `pptxgenjs` to create from scratch, or the unpack/edit flow if adapting the
+input `.pptx` as a template). Apply the brand-core to every slide:
 
-1. Run the per-page checklist silently
-2. Fix anything that fails before presenting
-3. Output the required stop block below — then **stop**. Do not write any HTML for the next page until the user replies.
+- **Slide size 10 × 5.625** (`LAYOUT_16x9`) — not 13.33 × 7.5.
+- **Fonts:** **Poppins** for all headings/titles/eyebrows/numerals/footers; **Source Sans Pro**
+  for body, table cells, and stand-up labels. Do **not** use Arial.
+- **Color signatures:** slide/section **titles in lime-deep `#656C18`**; **eyebrows in bright
+  lime `#C2CF24`**; **number badges in lime-dark `#9FA742` with white text**; large fills use
+  the muted lime ramp (`#9FA742` / `#74792E` / `#EBEEC5`), never bright lime. Dark text is
+  `#1F2A37`.
+- Map each slide onto its planned archetype; dark cover (full-bleed designed background image,
+  **vertical logo top-right + contact block**), light content/template slides.
+- **Stand-up section headers** (`1. THE NUMBER — …`) = white bold Source Sans Pro on a
+  lime-dark/olive bar.
+- Lime is the **only** accent family. ALL-CAPS eyebrows. `·` `—` `→` `›` separators, never
+  commas/colons in labels. Standing footer `©2026 Nexus Frontier Tech | Confidential` (6 pt)
+  on every slide.
+- Keep body copy at 8–9 pt; lead each section with its number, not narrative.
+- Preserve every figure, owner, and date from the draft — never round figures.
+- Consider an optional **concept/flywheel** slide after the cover when the deck needs to frame
+  the business model before the operating detail (see brand-core archetypes).
 
-**Per-page checklist (run silently before presenting each page):**
+For a large deck, build and self-check in sections, but deliver one complete `.pptx`.
 
-- [ ] Every interaction listed for this page in the Build Plan is implemented
-- [ ] Every row click, card click, and button has an explicit `onclick` — no unlinked elements
-- [ ] Drill-downs open the correct target (detail panel, modal, or new page) — not a stub or placeholder
-- [ ] Filter chips, if present, visibly filter the rows beneath them
-- [ ] No "coming soon" text or empty `href="#"` without a handler
+### Phase 4 — Brand-fidelity check (run silently before delivering)
 
-**Required stop block — output this exactly after every page:**
-
-```
----
-✅ Page [n / total] — [Page Name]
-Interactions implemented: [bullet list of what was wired up]
-
-Open apps/[AppName]-app.html and review this page.
-Reply **approved** to continue to [Next Page Name], or describe what to change.
----
-```
-
-**Do not begin the next page until the user replies with an explicit approval. Proceeding without approval is a hard failure.**
-
-### Phase 4 — Final Check
-
-Run the LOCKED checklist before delivering.
+- [ ] Slide size is **10 × 5.625** (`LAYOUT_16x9`)
+- [ ] Fonts: **Poppins** headings + **Source Sans Pro** body — **no Arial**
+- [ ] Titles in **lime-deep `#656C18`**; eyebrows in **bright lime `#C2CF24`**
+- [ ] Number badges = **lime-dark `#9FA742` fill, white numerals**; large fills use the muted lime ramp (no bright-lime fills)
+- [ ] Cover: full-bleed designed dark background, **vertical logo top-right + contact block**, date in lime-light
+- [ ] Stand-up section headers = white bold on a lime-dark/olive bar
+- [ ] Every slide matches its planned archetype and dark/light background
+- [ ] Lime is the only accent family — no second accent on any slide
+- [ ] ALL-CAPS eyebrows present; `·` `—` `→` `›` used (no stray commas/colons in labels)
+- [ ] Footer `©2026 Nexus Frontier Tech | Confidential` (6 pt) on every slide
+- [ ] Every stand-up / table row has an **owner and a date**
+- [ ] Figures precise — nothing rounded
+- [ ] No gradients, decorative borders, or drop shadows; body at 8–9 pt
+- [ ] File opens cleanly in PowerPoint / Keynote (verify with the pptx skill's thumbnail check)
 
 ### Phase 5 — Deliver
 
-The delivered demo is **one self-contained HTML file**. Assemble it:
-
-1. **Start from `template/layout-shell.html`** as the skeleton (head + chrome + chosen archetypes).
-2. **Inline the core** — replace `<link rel="stylesheet" href="core.css">` with `<style>…contents of template/core.css…</style>`, and `<script src="core.js"></script>` with `<script>…contents of template/core.js…</script>`.
-3. **Inline the image assets** — re-encode `template/onx-logo-full-color.png`, `template/onx-logo-white.png`, and `template/onx-agent-icon.png` to base64 and replace their `src` attributes with `src="data:image/png;base64,…"`. After this the output must open standalone with **no relative dependencies** (no `href="core.css"`, `src="core.js"`, or `*.png` paths left).
-4. **Copy the locked chat scaffold** (`#page-agent`) verbatim from layout-shell. Keep only the archetypes you use; build custom pages by dropping in components from `docs/design-system.html`.
-5. Save to `apps/[AppName]-app.html` (derived from app name, kebab-cased).
-
-Add a version stamp as the first line of the delivered file:
-
-```html
-<!-- Built with ONX Scaffold vX.X.X — [date] -->
-```
-
-Read the version from the header of `template/core.css` (`ONX Scaffold core.css — vX.X.X`) — core.css is the single source of truth.
-
----
-
-## Common Interaction Patterns
-
-The most common agent failure is omitting drill-down and interactive behaviour visible in the spec. For every page, identify and implement:
-
-| Pattern | Implementation |
-|---------|----------------|
-| Row / card click → detail view | `onclick="showPage('page-detail')"` or slide-in `.flat-panel-right` |
-| Button → confirmation | `openModal({ title, body, confirmLabel, danger, onConfirm })` |
-| Tab / filter switching | `.filter-chip` set + JS to toggle `.hidden` on rows or sections |
-| Expand / collapse row | Inline `onclick` toggling a `details` child element |
-| Status badge filter | Filter chip group + JS filtering on `data-status` attributes |
-
-**Default rule:** if the spec shows a table or list, always ask in the Build Plan — *what happens when you click a row?* If the spec is silent, default to an artifact panel (`toggleArtifact()`), not a new page.
-
----
-
-## Scaffold Structure
-
-### `template/layout-shell.html` — the assembly skeleton
-
-- **Canvas archetype (`#page-agent`)** — fill 2 anchors, rest is locked:
-  - `<!-- DEMO: Thread list -->` — 3–5 sample threads from client spec
-  - `window.ONX_TYPEWRITER` (inline `<script>` before core.js — seam already in layout-shell) — 3–4 domain-specific prompts, under 50 chars each
-- **Document archetype (`#page-settings`)** — pre-wired, update org values only:
-  - `<!-- DEMO: User profile -->` — client persona name + contact details
-  - Org name, team members, integration names in the relevant settings panels
-- The components nav item is already gone — start from this file and the delivered app has no reference page to remove.
-
-### `docs/design-system.html` — component gallery (reference only, never shipped)
-
-One live example of every reusable component, each badged **Strict** / **Flexible**. Browse this when deciding which components to use on custom pages.
-
-### `template/core.css` + `template/core.js` — shared core
-
-Single source of truth for all tokens, component/layout CSS, keyframes, and JS APIs. Inlined into the delivered demo. Never edit except the `--brand-*` block in core.css.
-
-### `template/onx-logo-full-color.png` + `template/onx-logo-white.png` + `template/onx-agent-icon.png` — image assets
-
-The OneNexus logo (full-colour for light mode, white for dark mode) and AI-agent icon, kept as real PNG files (not inline base64) so `layout-shell.html` stays small and readable. `core.js` resolves the agent icon from whichever form is present — the file path (reference) or an inlined data-URI (delivered app). Inline all three into the delivered demo. To rebrand the logo, swap both `onx-logo-full-color.png` and `onx-logo-white.png`.
-
-### Custom client pages
-
-Copy `<!-- NEW PAGE TEMPLATE -->` (at the bottom of layout-shell.html). Choose components from `docs/design-system.html`. Add the matching sidebar nav entry.
-
----
-
-## LOCKED (Do Not Modify)
-
-⚠️ Everything not listed under FLEXIBLE is locked. `template/core.css` and `template/core.js` are locked wholesale (only the `--brand-*` block in core.css is editable). Changing anything else breaks the scaffold.
-
-| Category | Elements | Lives in |
-|----------|----------|----------|
-| Brand | `--brand-*` CSS vars (the one editable block), OneNexus `<img>` logo | core.css / layout-shell.html |
-| Layout | `.app-nav`, `aside#sidebar`, `.flat-panel`, `.flat-panel-right`, `p-3 gap-3` wrapper | core.css / layout-shell.html |
-| Chat | `.chat-turn`, `.bubble-actions`, `.bubble-actions-time`, `.agent-icon-*`, `.artifact-pointer`, `.thread-section`, `.typewriter-*` | core.css / layout-shell.html |
-| Trace / tool calls | `.tool-call`, `.tool-tag`, `.trace-group`, `.trace-toggle`, `.trace-chevron`, `.trace-toggle-peek`, `.trace-list`, `.trace-line` | core.css / layout-shell.html |
-| Animations | `@keyframes aiGlowIdle`, `aiGlowThinking`, `aiGlowHero`, `thinkingPulse` | core.css |
-| JS APIs | `formatMessageTime()`, `bubbleActionsMarkup()`, `userTurnMarkup()`, `aiTurnMarkup()`, `aiThinkingMarkup()`, `threadSectionMarkup()`, `artifactPointerMarkup()`, `copyBubble()`, `showSources()`, `startTypewriter()`, `stopTypewriter()`, `typewriterTypeMessage()`, `toggleHistory()`, `toggleArtifact()`, `showNewChat()`, `toolCallMarkup()`, `traceGroupMarkup()`, `toggleTrace()`, `startTrace()`, `addTraceStep()`, `completeTrace()` | core.js |
-
----
-
-## FLEXIBLE (What to Change)
-
-### App name — exactly 2 places
-| Location | Example |
-|----------|---------|
-| `<title>[App Name] — OneNexus</title>` | `<title>Apex Recon Hub — OneNexus</title>` |
-| `<span class="app-name">[App Name]</span>` | `<span class="app-name">Apex Recon Hub</span>` |
-
-### User identity
-- `#welcome-name` — display name
-- Avatar initials in sidebar footer + chat bubbles
-
-### Typewriter prompts
-core.js is locked, so override the prompts via a global — add an inline `<script>` **before** `core.js` loads (layout-shell.html already has the seam):
-```html
-<script>window.ONX_TYPEWRITER = ["Summarise today's exception queue.","Flag the open exceptions.","Compare to last cycle."];</script>
-```
-3–4 items, each under 50 characters. Action-oriented, domain-specific.
-
-**Good:** `"Summarise today's exception queue."`
-**Bad:** `"What needs attention today?"`
-
-### Sidebar nav items
-Add/remove `<a class="nav-item">` entries. Always pair with a Lucide icon:
-```html
-<a href="#" onclick="showPage('page-id')" id="nav-page-id" class="nav-item">
-  <i data-lucide="ICON_NAME" class="icon-md"></i>
-  <span class="nav-label">Label</span>
-</a>
-```
-
-To group nav items under a section label, use `.sidebar-section-divider` with `.nav-section-label` on the text span. The `.nav-section-label` class is automatically hidden when the sidebar collapses — the divider line remains for visual grouping:
-```html
-<div class="sidebar-section-divider">
-  <span class="nav-section-label">SECTION NAME</span>
-</div>
-```
-
-(layout-shell.html has no components nav item, so there's nothing to remove from the delivered app.)
-
-### Page content
-Build pages using component classes from `docs/design-system.html`:
-- `.kpi-card`, `.section-card`, `.data-table`
-- `.workflow-row`, `.library-card`, `.activity-item`
-- `.status-pill`, `.filter-chip`, `.tag`
-- `.btn`, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.btn-icon`
-- `.form-label`, `.form-input`, `.form-select`, `.form-help`
-
-### Suggestion pills
-Update `onclick="homePrompt('...')"` text. 3 pills max, 50 chars each.
-
----
-
-## Content Anchors
-
-Four `<!-- DEMO: ... -->` anchors live in `template/layout-shell.html`. All other content is built from scratch on custom pages.
-
-| Anchor | What to place |
-|--------|---------------|
-| `DEMO: User identity` | Client persona name + initials |
-| `DEMO: Thread list` | 3–5 sample threads from client spec |
-| `DEMO: User profile` | Client contact from spec (settings page) |
-| `DEMO: Data connectors` | Client's actual systems — any domain (e.g. Bloomberg, Salesforce, Epic, SAP) |
-
----
-
-## Quickstart
-
-When the user says **"onx scaffold"**, open with: "Let's build a OneNexus-branded demo app. I'll need a few things before we start." Then walk them through the steps below before touching any HTML.
-
-### Step 1 — What to have ready
-
-Ask the user to confirm they have the following before starting:
-
-| Input | What it is | Required? |
-|-------|-----------|-----------|
-| **App name** | The title shown in the browser and sidebar (e.g. "Apex Recon Hub") | Yes |
-| **Industry / domain** | One phrase — used to pick vocabulary and example data (e.g. "fund reconciliation", "insurance claims") | Yes |
-| **Client spec file** | An existing document — markdown, demo HTML, or JSX. Must be a file, not a description typed in chat. | Yes |
-| **User persona** | The name and initials of the demo user (e.g. "Sarah Chen / SC") | Recommended |
-| **Key interactions** | Any click-through flows — what happens when a user clicks a row, a card, or a button | Recommended |
-
-**If no spec file is provided, do not begin.** Respond: "Please share the client spec file (markdown, HTML, or JSX) before we start. A description in chat is not sufficient." Once a file is provided, check it covers enough of Step 2 before producing the Build Plan.
-
-### Step 2 — What makes a useful spec
-
-A good spec answers these questions. The more that are covered, the fewer gaps the agent needs to infer:
-
-- **Pages** — what screens does the app need, and what is each one for?
-- **Metrics / KPIs** — what numbers matter? (names, not just values)
-- **Workflows** — what processes or queues does the app manage?
-- **Drill-downs** — when a user clicks a row or card, what do they see?
-- **Data sources** — what systems does the app connect to?
-- **Sample data** — even rough examples of row content, event names, or report titles
-- **Persona** — who is being demoed to, and what is their role?
-
-A spec does not need to include design decisions, layout choices, or component names — those come from the scaffold.
-
-### Step 3 — What happens next
-
-Once inputs are confirmed:
-
-1. The agent reads the spec + the two reference docs and produces a **Build Plan** — page list (with canvas/document archetype per page), component choices, and identified interactions. Review and approve before any HTML is written.
-2. Pages are built **one at a time**. After each page the agent shares the file and waits for feedback before continuing.
-3. On completion, the agent inlines `core.css`, `core.js`, and the two PNG assets into one self-contained file and runs the locked checklist.
-4. Final file is saved to `apps/[AppName]-app.html` (derived from app name, kebab-cased).
-
-### Step 4 — How to give good feedback during the build
-
-- **Be specific about interactions:** "clicking a row should open a detail panel" beats "make it more interactive"
-- **Name the page:** "on the Alerts page, the status filter isn't working" not "the filter is broken"
-- **Approve explicitly:** say "looks good, continue" or "approved" — the agent will not move on until you do
-- If something looks wrong, say so before approving — rebuilding a page costs more than reviewing it
-
----
-
-## Verify Before Delivering
-
-### Delivered-app integrity
-- [ ] `--brand-*` vars unchanged (only the editable block may be re-themed)
-- [ ] OneNexus logo `<img>` intact
-- [ ] Chat panel markup copied verbatim from layout-shell
-- [ ] `core.css`, `core.js`, **and** all three PNGs (`onx-logo-full-color.png`, `onx-logo-white.png`, `onx-agent-icon.png`) inlined — file opens standalone with no relative deps (`*.png`/`.css`/`.js` paths)
-- [ ] All 3 `@keyframes aiGlow*` present (they come with core.css)
-- [ ] `.artifact-pointer` used (not plain `<a>`)
-- [ ] `window.ONX_TYPEWRITER` set with domain prompts (before core.js)
-- [ ] Core inlined once — no duplicate JS functions
-- [ ] Every interaction from Build Plan is implemented (no "coming soon" stubs)
-
-### Documentation & versioning (required for every core/reference change)
-- [ ] `CHANGELOG.md` has a new entry describing the change
-- [ ] Version bumped **once** in `template/core.css` header (the single source of truth)
-- [ ] `<meta name="onx-scaffold-version">` in `template/layout-shell.html` + `docs/design-system.html` matches core.css
-- [ ] `docs/design-system.html` updated if any component, panel, or label changed
-
----
-
-## Output
-
-| Item | Location |
-|------|----------|
-| Prototype HTML | `apps/[AppName]-app.html` (derived from app name, kebab-cased) |
-| App name | `<title>` + `.app-name` span |
-| User identity | Welcome name + avatar initials |
-| Typewriter prompts | 3–4 domain-specific items |
-| Nav + pages | Custom pages built from spec |
-| Settings | Org name, team, integrations pre-filled |
-| Interactions | All drill-downs and actions wired up |
+Save to `apps/[Deck Title].pptx` (human-readable title; keep the source's date prefix if it
+has one, e.g. `2026-06-03 Revenue First Operating Cadence.pptx`). Then share the file with the
+user and stop.
 
 ---
 
 ## Iteration After First Delivery
 
-### Phase 1 — Read ground truth first (always)
-
-Before touching any delivered app, read the four reference sources in order:
-
-1. `template/core.css` — version stamp and token changes
-2. `CHANGELOG.md` — what changed between the app's version and the current version
-3. `docs/design-system.html` — updated components, new classes, removed patterns
-4. `template/layout-shell.html` — structural or chrome changes
-
-Do **not** skip this step even for small edits. The delivered app may be behind the current scaffold version; without reading the references you will propagate stale patterns.
+### Phase 1 — Read ground truth first
+Before editing a delivered deck, read `template/brand-core.md` (current tokens + version) and,
+if relevant, `CHANGELOG.md` for what changed since the deck was built. Then open the target
+`.pptx` with the pptx skill.
 
 ### Phase 2 — Propose an Editing Plan
-
 Output a concise plan, then **stop**:
 
 ```markdown
-## Editing Plan: [App Name]
-
-### Scaffold version in delivered app: vX.X.X
-### Current scaffold version: vX.X.X
-### Version delta (if any): [list relevant changes from CHANGELOG.md that affect this app]
+## Editing Plan: [Deck Title]
 
 ### Requested changes
-| # | Change | Where | Notes |
-|---|--------|-------|-------|
-| 1 | [description] | [page / component] | [any constraints] |
-
-### Additional fixes (scaffold drift)
-| # | Fix | Why |
-|---|-----|-----|
-| 1 | [e.g. replace deprecated .old-class with .new-class] | [found in design-system diff] |
+| # | Change | Slide(s) | Notes |
+|---|--------|----------|-------|
+| 1 | [description] | [slide #] | [constraint] |
 
 Reply **approved** to apply these changes, or describe what to adjust.
 ```
 
-Do **not** edit any file until the user replies with an explicit approval.
+Do **not** edit until the user approves.
 
 ### Phase 3 — Apply changes
+Patch only what's listed — don't regenerate the whole deck unless asked. Re-run the
+brand-fidelity check on edited slides before delivering.
 
-Patch only what is listed in the approved Editing Plan — don't regenerate the whole file. Update the version stamp in the file's first-line comment to match the current scaffold version after applying any scaffold-drift fixes.
+---
 
-Examples of iteration requests:
-- *"Update the data integration list to include [X]"*
-- *"Change the user persona to [Y]"*
-- *"Rename the 'Exceptions' page to 'Flags'"*
-- *"Wire up the row click on the Alerts table"*
+## Quickstart
+
+When the user says **"slide factory"**, open with: "Let's build a Nexus Frontier–branded deck.
+I'll need a few things first." Then confirm the inputs below before touching any slides.
+
+### What to have ready
+
+| Input | What it is | Required? |
+|-------|-----------|-----------|
+| **Input draft** | An existing file in `specs/` — `.pptx`, markdown outline, or notes. Must be a file, not a chat description. | Yes |
+| **Deck title** | The presentation title (e.g. "Revenue-First Operating Cadence") | Yes — inferred from the draft if not given |
+| **Audience** | Who the deck is for — shapes tone and density | Recommended |
+| **Any must-keep data** | Specific numbers, owners, dates that must appear verbatim | Recommended |
+
+**If no input file is provided, do not begin.** Respond: "Please point me to an input draft in
+`specs/` (a .pptx, markdown, or notes file) before we start. A description in chat isn't enough."
+
+### What happens next
+1. Read the brand-core + the named draft → produce a **Build Plan** (slide map + brand notes).
+   Review and approve before any slides are built.
+2. The deck is built as one native `.pptx`, brand-core applied to every slide.
+3. The brand-fidelity check runs, then the file is delivered to `apps/`.
+
+---
+
+## Versioning (required for every brand-core or guidelines change)
+- [ ] `CHANGELOG.md` has a new entry describing the change
+- [ ] Version bumped in `template/brand-core.md` header (the single source of truth)
+- [ ] `docs/nexus-frontier-brand-guidelines.md` updated if any token, archetype, or rule changed
+
+(The `scripts/pre-commit` hook enforces the version bump + CHANGELOG entry.)

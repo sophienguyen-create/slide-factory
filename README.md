@@ -1,34 +1,34 @@
-# ONX Scaffold
+# Slide Factory
 
-Build OneNexus-branded demo apps from client specs.
+Turn a draft deck into a polished, Nexus Frontier–branded slide presentation.
 
 ## How to use
 
-1. Clone the repo: `git clone https://github.com/Innovatube/onx-scaffold`
-2. `cd onx-scaffold`
-3. Install the pre-commit hook (see First-time setup below)
-4. Open the project folder in your AI IDE — Claude Code, Codex CLI, and Cursor all work; they pick up `AGENTS.md` and `CLAUDE.md` automatically
-5. Drop the client spec file into `specs/` (markdown, HTML, or JSX)
-6. Type **"onx scaffold"** and attach (or name) the spec file — e.g. `specs/my-client-spec.html`. There may be multiple files in `specs/`; tell the agent which one to use
-7. The agent produces a Build Plan for your review, then builds one page at a time — you approve each page before it continues
+1. Open this folder in your AI IDE — it picks up `AGENTS.md` and `CLAUDE.md` automatically.
+2. Drop your input draft into `specs/` — a `.pptx`, a markdown outline, or notes.
+3. Type **"slide factory"** and name the input file — e.g. `specs/my-draft.pptx`. There may be
+   several files in `specs/`; tell the agent which one to use.
+4. The agent produces a **Build Plan** (a slide-by-slide map with brand notes) for your review.
+5. Approve it. The agent builds the branded deck as one native `.pptx` and delivers it to `apps/`.
 
 ## Structure
 
 ```
-specs/        ← drop client spec files here (markdown, HTML, JSX)
-template/     ← layout-shell.html (chrome + layout archetypes), core.css + core.js
-                (shared single-source core), onx-logo-full-color.png + onx-logo-white.png + onx-agent-icon.png
-                (image assets), and _archive/
-apps/         ← delivered app HTML files (self-contained, core inlined)
-docs/         ← design-system.html — branding + component gallery (open in a browser)
+specs/        ← drop input drafts here (.pptx, markdown, notes). Read on demand, not auto-indexed.
+template/     ← brand-core.md (build-facing tokens + archetypes, the canonical version)
+                + NFTLogo_Horizontal_FullColour.png + NFTLogo_Vertical_FullColour.png (logos)
+docs/         ← nexus-frontier-brand-guidelines.md (full brand & design-system reference)
+apps/         ← delivered branded decks (.pptx)
 scripts/      ← git hooks and dev tooling
 ```
 
-Scaffolding **composes** from two references rather than adapting one file:
+The brand is applied from two references:
 
-- **`template/layout-shell.html`** — header, navbar, and the two layout archetypes (canvas + document). The assembly skeleton.
-- **`docs/design-system.html`** — branding and the component gallery, each component badged Strict/Flexible.
-- **`template/core.css` + `template/core.js`** — the shared core (tokens, components, JS APIs), inlined into each delivered demo so the output stays a single self-contained HTML file. `core.css` carries the canonical version.
+- **`template/brand-core.md`** — the condensed, build-facing token set (colors, type scale,
+  separators, the 5 layout archetypes, status pills, footer, logo rules). The single source of
+  truth applied to every slide, and the canonical version stamp.
+- **`docs/nexus-frontier-brand-guidelines.md`** — the full design-system reference. When the two
+  disagree, the guidelines win and brand-core is updated to match.
 
 See [CHANGELOG.md](CHANGELOG.md) for the current version and release history.
 
@@ -40,4 +40,5 @@ Install the pre-commit hook to enforce version consistency:
 cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 ```
 
-This blocks commits that change the core or either reference doc without a matching version bump (in `core.css`) and CHANGELOG entry.
+This blocks commits that change the brand-core or the guidelines without a matching version bump
+(in `brand-core.md`) and a CHANGELOG entry.

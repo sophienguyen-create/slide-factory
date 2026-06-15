@@ -1,51 +1,46 @@
 #!/usr/bin/env bash
-# ONX Scaffold pre-commit hook
+# Slide Factory pre-commit hook
 # Install: cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+# Enforces: when the brand core or the brand guidelines change, the brand-core
+# version must be present and the CHANGELOG must be updated in the same commit.
 
 set -e
 
-CORE="template/core.css"          # single source of truth for the version
-SHELL_DOC="template/layout-shell.html"
-DESIGN="docs/design-system.html"
+CORE="template/brand-core.md"            # single source of truth for the version
+GUIDELINES="docs/nexus-frontier-brand-guidelines.md"
 CHANGELOG="CHANGELOG.md"
 
-# Only run checks if the core or either reference doc is staged
-STAGED=$(git diff --cached --name-only | grep -E "^(template/core\.(css|js)|template/layout-shell\.html|docs/design-system\.html)$" || true)
+# Only run checks if the brand core or the guidelines are staged
+STAGED=$(git diff --cached --name-only | grep -E "^(template/brand-core\.md|docs/nexus-frontier-brand-guidelines\.md)$" || true)
 
 if [ -z "$STAGED" ]; then
   exit 0
 fi
 
-echo "ONX Scaffold: running version checks…"
+echo "Slide Factory: running version checks…"
 
-# 1. The canonical version comes from the core.css header (e.g. "core.css — v4.0.0 — …")
-v_core=$(grep -m1 'ONX Scaffold core.css' "$CORE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+# 1. The canonical version comes from the brand-core header
+#    (e.g. "Slide Factory brand-core — v1.0.0 — …")
+v_core=$(grep -m1 'brand-core' "$CORE" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
 
 if [ -z "$v_core" ]; then
-  echo "ERROR: No version found in $CORE header. Expect: 'ONX Scaffold core.css — vX.Y.Z — …'"
+  echo "ERROR: No version found in $CORE header. Expect: 'Slide Factory brand-core — vX.Y.Z — …'"
   exit 1
 fi
 
-# 2. layout-shell + design-system <meta> versions must match core.css
-for f in "$SHELL_DOC" "$DESIGN"; do
-  v=$(grep -m1 'onx-scaffold-version' "$f" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
-  if [ -z "$v" ]; then
-    echo "ERROR: No version found in $f. Add: <meta name=\"onx-scaffold-version\" content=\"X.Y.Z\">"
-    exit 1
-  fi
-  if [ "$v" != "$v_core" ]; then
-    echo "ERROR: Version mismatch — core.css=$v_core, $f=$v"
-    echo "Bump every reference to match core.css before committing."
-    exit 1
-  fi
-done
-
-# 3. CHANGELOG must be staged in the same commit
+# 2. CHANGELOG must be staged in the same commit
 CHANGELOG_STAGED=$(git diff --cached --name-only | grep "^$CHANGELOG$" || true)
 if [ -z "$CHANGELOG_STAGED" ]; then
-  echo "ERROR: $CHANGELOG not staged. Update the changelog before committing core/reference changes."
+  echo "ERROR: $CHANGELOG not staged. Update the changelog before committing brand-core / guidelines changes."
   exit 1
 fi
 
-echo "ONX Scaffold: version $v_core — checks passed ✓"
+# 3. The current brand-core version should appear in the CHANGELOG
+if ! grep -q "$v_core" "$CHANGELOG"; then
+  echo "ERROR: brand-core version $v_core not found in $CHANGELOG. Add a matching entry."
+  exit 1
+fi
+
+echo "Slide Factory: version $v_core — checks passed ✓"
 exit 0
